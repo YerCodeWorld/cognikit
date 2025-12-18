@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm build",
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
