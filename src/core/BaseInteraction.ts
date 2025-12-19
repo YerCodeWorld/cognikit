@@ -1,4 +1,4 @@
-import { EduApplicationWindow } from "./../components";
+import { EduApplicationWindow } from "../shell";
 import { IInteractionInstance, InteractionConfig, InteractionOptions, ItemData } from "../shared";
 
 export abstract class BaseInteraction<T extends ItemData> 
