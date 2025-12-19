@@ -11,7 +11,7 @@ export abstract class BaseInteraction<T extends ItemData>
 	protected readonly config: InteractionConfig;
 	protected shell: HTMLElement;
 
-	constructor(options: InteractionOptions) {
+	constructor(options: InteractionOptions<T>) {
 
 		this.id = crypto.randomUUID();
 		this.mount = options.mount;

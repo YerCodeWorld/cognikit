@@ -1,4 +1,4 @@
-import { ComponentThemeVariant } from "./../types";
+import { Variant } from "../../shared/";
 
 const HTML: string = `
 	<style>
@@ -376,10 +376,10 @@ export class EduChip extends HTMLElement {
 	}
 
 	// API
-	get variant(): ComponentThemeVariant {
-		return (this.getAttribute("variant") ?? "outline") as ComponentThemeVariant;
+	get variant(): Variant {
+		return (this.getAttribute("variant") ?? "outline") as Variant;
 	}
-	set variant(v: ComponentThemeVariant) { this.setAttribute("variant", v); }
+	set variant(v: Variant) { this.setAttribute("variant", v); }
 
 	get prefix(){ return this.getAttribute("prefix"); }
 	set prefix(v){

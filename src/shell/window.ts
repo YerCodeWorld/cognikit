@@ -1,4 +1,4 @@
-import { ComponentThemeVariant } from "../types";
+// import { Variant } from "../shared";
 import HTML from './index.html';
 
 export class EduApplicationWindow extends HTMLElement {
