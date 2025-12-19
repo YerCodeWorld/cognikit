@@ -1,0 +1,1 @@
+export { EduApplicationWindow } from "./window";

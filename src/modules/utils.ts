@@ -1,7 +1,7 @@
 interface ParserHelperResult = {
 	ok: boolean;
-	result: any;
-	errors: Record<string, string;
+	data: any;
+	errors?: Record<string, string;
 }
 
 export function shuffle<T>(arr: T[]): T[] {
@@ -13,7 +13,11 @@ export function shuffle<T>(arr: T[]): T[] {
     return shuffled;
 }
 
-export function extractDistractors(s: string): ParserHelperResult {}
+export function extractDistractors(s: string): ParserHelperResult {
+	const distractors: string[] = [];
+	const cleanedCode: string = '';
+	return { ok: true, data: { content: distractors, remain: cleanedCode }}
+}
 
 // Takes a block (usually parts of an exercise after splitting by ';') and 
 // looks for a # or -> label, which indicate either instruction or hint. 
