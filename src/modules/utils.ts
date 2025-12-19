@@ -1,7 +1,7 @@
-interface ParserHelperResult = {
+interface ParserHelperResult {
 	ok: boolean;
 	data: any;
-	errors?: Record<string, string;
+	errors?: Record<string, string>;
 }
 
 export function shuffle<T>(arr: T[]): T[] {
@@ -11,6 +11,14 @@ export function shuffle<T>(arr: T[]): T[] {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+}
+
+export function splitPipes(s: string): string[] {
+	return s.split("|").map(t => t.trim()).filter(Boolean);
+}
+
+export function dedupe<T>(arr: T[]): T[] {
+	return [...new Set(arr)];
 }
 
 export function extractDistractors(s: string): ParserHelperResult {
@@ -77,13 +85,4 @@ export function extractImage(block: string): { img?: string; cleaned: string } {
 	const cleaned = block.replace(m[0], "").trim();
 	return { img: m[1], cleaned };
 }
-
-export function splitPipes(s: string): string[] {
-	return s.split("|").map(t => t.trim()).filter(Boolean);
-}
-
-export function dedupe<T>(arr: T[]): T[] {
-	return [...new Set(arr)];
-}
-
 

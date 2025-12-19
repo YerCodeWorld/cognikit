@@ -1,4 +1,6 @@
-import { ClassificationData, ParsingResult, ValidationResult } from "../../shared";
+import { extractDistractors } from "../utils";
+import { ItemData, ClassificationData, ParsingResult, ValidationResult } from "../../shared";
+
 
 /**
  * Example
@@ -9,15 +11,15 @@ import { ClassificationData, ParsingResult, ValidationResult } from "../../share
  * = coconut | eggplant;
  * ---
  */
-export const classificationParser(code: string): ParsingResult {
+export function classificationParser(code: string): ParsingResult {
 	try {
-		const r: string = extractDistractors(code);
-		if (!r.ok) return { ok: false, r.errors };
+		const r = extractDistractors(code);
+		if (!r.ok) return { ok: false, errors: r.errors };
 
 		const distractors = r.data.content || [];
 		const cleanCode = r.data.remain || code;	
 
-		const categoryPatten = /(\w+)\s*=\s*(.+)$/m); 
+		const categoryPattern = /(\w+)\s*=\s*(.+)$/m;
 		const categories: ClassificationData["categories"] = [];
 
 		let match;
@@ -36,7 +38,8 @@ export const classificationParser(code: string): ParsingResult {
 			});
 		}
 
-		const result: ClassificationData = {
+		const result: ItemData = {
+			type: 'classification',
 			categories,
 			distractors
 		}
@@ -46,9 +49,11 @@ export const classificationParser(code: string): ParsingResult {
 	} catch (err) {
 		return {  
 			ok: false,
-			errors: { 'Parse Error', `${error instanceof Error ? error.message : String(error)}` }
+			errors: { 'Parse Error': `${err instanceof Error ? err.message : String(err)}` }
 		};
 	}
 }	
 
-export const classficiationValidator(data: ClassificationData): ValidationResult {}
+export function classificationValidator(data: ClassificationData): ValidationResult {
+	return { ok: false, errors: { 'none': '' } }
+}

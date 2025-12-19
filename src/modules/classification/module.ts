@@ -1,18 +1,18 @@
 import { Module } from "../../shared";
-import { classificationParser, classificationValidator } from "./implementation.ts";
+import { classificationParser, classificationValidator } from "./implementation";
 
-export const ClassificationModule: Module = {
-	id: 'class-001';
-	process: 'classification';
+export const classificationModule: Module = {
+	id: 'class-001',
+	process: 'classification',
 
 	implementation: {
-		parser: classificationParser;
-		validator: classificationValidator;
+		parser: classificationParser,
+		validator: classificationValidator,
 		interactions: {
 			'matrixClassification': '',
 			'closedCardSorting': ''
 		}
-	};
+	},
 
-	help: './doc/classification.md';
+	help: './doc/classification.md',
 }

@@ -1,1 +1,1 @@
-export { BaseInteraction } from "./BaseInteraction.ts";
+export { BaseInteraction } from "./BaseInteraction";

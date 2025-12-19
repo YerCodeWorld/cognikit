@@ -1,8 +1,7 @@
 // letter-picker.ts
-
 type Mode = "simple" | "grid";
 
-const innerHTML = `
+const innerHtml = `
 
 	<style>
 

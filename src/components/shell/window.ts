@@ -1,4 +1,4 @@
-import { ComponentThemeVariant } from "../types.ts";
+import { ComponentThemeVariant } from "../types";
 import HTML from './index.html';
 
 export class EduApplicationWindow extends HTMLElement {
@@ -120,7 +120,6 @@ export class EduApplicationWindow extends HTMLElement {
 		if (!this.hasAttribute("timer")) this.setAttribute("timer", "0");
 		if (!this.hasAttribute("progress")) this.setAttribute("progress", "0");
 
-		this.updateStyles();
 		this.sync();
 
 		// Initially hide check button, show progress
@@ -133,10 +132,6 @@ export class EduApplicationWindow extends HTMLElement {
 
 	attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 		if (oldValue === newValue) return;
-
-		if (name === 'variant') {
-			this.updateStyles();
-		}
 
 		if (name === 'timer') {
 			this.initTimer();

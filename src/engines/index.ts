@@ -1,1 +1,1 @@
-export { createDslParser } from "./fillBlanksEngine.ts";
+export { createDSLParser } from "./fillBlanksEngine";

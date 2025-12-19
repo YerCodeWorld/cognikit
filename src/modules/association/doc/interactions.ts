@@ -1,17 +1,17 @@
-import { IInteraction, ItemData } from "../../types.ts";
+import { IInteraction, AssociationData } from "../../../shared";
 
 const simultaneousAssociation: IInteraction = {
-	name: 'Simultaneous Association';
-	itemData: Association;
-	css: '';	
-	examples: [
+	id: 'SASS-001',
+	name: 'Simultaneous Association',
+	css: '',
+	examples: {'001': 
 `
 apple = red;
 pear = green;
 grapes = purple;
 = [white | black];
 `
-	]	
+	}	
 }
 
 

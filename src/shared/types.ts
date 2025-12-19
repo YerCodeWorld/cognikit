@@ -1,5 +1,6 @@
 export type Variant = 'elegant' | 'playful' | 'outline' | 'letter' | 'sign' | 'minimal' | 'glass' | 'empty'; 
 export type Stimulus = 'image' | 'text' | 'audio' | 'video' | 'html' | 'mixed';
+export type InteractionResult = 'a' | 'b';
 
 export type CognitiveProcess = 
 	'discrimination' |
@@ -14,7 +15,7 @@ export type CognitiveProcess =
 	'cuedrecall' 	 |
 	'evaluation';
 
-export interface ItemData = 
+export type ItemData = 
 	ClassificationData | 
 	AssociationData	   |
 	FreeRecallData;
@@ -27,9 +28,9 @@ export interface IInteractionInstance {
 	destroy(): void;
 }
 
-export interface InteractionOptions {
+export interface InteractionOptions<T extends ItemData = ItemData> {
 	mount: HTMLElement;
-	data: ItemData;
+	data: T;
 	config: InteractionConfig;
 	interactionHandler: (r: InteractionResult) => void;  // is this necessary considering the class arquitecture? 
 }
@@ -45,7 +46,6 @@ export interface InteractionConfig {
 	footerEnabled: boolean;
 	footerAction: 'check' | 'navigation'; 
 	
-	hintButtonEnabled: booelan;
 	stimulus: Stimulus; 
 
 	counterEnabled: boolean;
@@ -94,7 +94,7 @@ export interface Module {
 	implementation: {
 		parser(code: string): ParsingResult;  
 		validator(data: ItemData): ValidationResult;
-		interactions: Record<string, IInteraction>; 
+		interactions: Record<string, any>;  // any: change for someClass later
 	}
 
 	help: string;
@@ -103,15 +103,15 @@ export interface Module {
 export interface IInteraction {
 	id: string;
 	name: string;
-	data: ItemData;
+	data?: ItemData;
 	css: string;
 	examples: Record<string, string>;  // how the 'code' is written 
 }
 
 export type ParsingResult = {
 	ok: boolean;
-	data: ItemData | null; 
-	errors: Record<string, string> | null;
+	data?: ItemData | null; 
+	errors?: Record<string, string> | null;
 }
 
 export type ValidationResult = {
@@ -119,9 +119,3 @@ export type ValidationResult = {
 	errors: Record<string, string> | null; // return the errors in a more detailed way 
 }
 
-export interface Notification {
-	title: string;
-	description: string;
-	data: any;
-	trigger(): void;
-}

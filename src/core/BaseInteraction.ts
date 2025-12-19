@@ -1,7 +1,8 @@
 import { EduApplicationWindow } from "./../components";
 import { IInteractionInstance, InteractionConfig, InteractionOptions, ItemData } from "../shared";
 
-export abstract class BaseInteraction<T as ItemData> implements IInteractionInstance {
+export abstract class BaseInteraction<T extends ItemData> 
+	implements IInteractionInstance {
 	
 	public readonly id: string;
 
@@ -12,9 +13,9 @@ export abstract class BaseInteraction<T as ItemData> implements IInteractionInst
 
 	constructor(options: InteractionOptions) {
 
-		this.id = crypto.UUID();
+		this.id = crypto.randomUUID();
 		this.mount = options.mount;
-		this.data = options.data as ItemData;
+		this.data = options.data;
 		this.config = options.config;
 
 		this.shell = document.createElement("edu-window") as EduApplicationWindow;
