@@ -57,3 +57,22 @@ export function classificationParser(code: string): ParsingResult {
 export function classificationValidator(data: ClassificationData): ValidationResult {
 	return { ok: false, errors: { 'none': '' } }
 }
+
+export function classificationGrading(correctData: { label: string; items: string[] }[], userData: Map<string, string>): number {
+
+	let correctCount = 0;
+	let totalCount = 0;
+
+	correctData.forEach(category => {
+		category.items.forEach(correctItem => {
+			totalCount++;
+			const userCategory = userData.get(correctItem);
+			if (userCategory === category.label) {
+				correctCount++;
+			}
+		});
+	});
+	
+	const score = totalCount > 0 ? (correctCount / totalCount) * 100 : 0;
+	return { score: score, correct: correctCount, total: totalCount }; 	
+}

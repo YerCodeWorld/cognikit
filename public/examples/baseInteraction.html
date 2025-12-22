@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>CogniKit - Classification Quiz Demo</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			padding: 2rem;
+		}
+
+		.demo-container {
+			max-width: 900px;
+			margin: 0 auto;
+		}
+
+		.page-header {
+			text-align: center;
+			color: white;
+			margin-bottom: 2rem;
+		}
+
+		.page-header h1 {
+			font-size: 2.5rem;
+			margin-bottom: 0.5rem;
+			text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+		}
+
+		.page-header p {
+			font-size: 1.1rem;
+			opacity: 0.9;
+		}
+
+		#quiz-mount {
+			background: white;
+			padding: 2rem;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+		}
+
+		.info-box {
+			margin-top: 2rem;
+			padding: 1.5rem;
+			background: rgba(255, 255, 255, 0.95);
+			border-radius: 8px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+
+		.info-box h3 {
+			color: #667eea;
+			margin-bottom: 0.75rem;
+		}
+
+		.info-box ul {
+			list-style-position: inside;
+			color: #374151;
+			line-height: 1.8;
+		}
+
+		.info-box li {
+			margin-bottom: 0.5rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="demo-container">
+		<div class="page-header">
+			<h1>CogniKit Classification Demo</h1>
+			<p>Drag and drop programming concepts into the correct categories</p>
+		</div>
+
+		<div id="quiz-mount"></div>
+
+		<div class="info-box">
+			<h3>How to use this demo:</h3>
+			<ul>
+				<li>Drag each item from the pool at the top</li>
+				<li>Drop it into the category you think it belongs to</li>
+				<li>Once all items are placed, click "Check" to see your score</li>
+				<li>Green items are correct, red items are incorrect</li>
+			</ul>
+		</div>
+	</div>
+
+	<script type="module">
+		import { SimpleClassification } from './app.js';
+
+		// Sample quiz data about programming concepts
+		const quizData = {
+			type: 'classification',
+			categories: [
+				{
+					label: 'Frontend',
+					items: ['React', 'Vue', 'HTML', 'CSS']
+				},
+				{
+					label: 'Backend',
+					items: ['Node.js', 'Django', 'Express', 'PostgreSQL']
+				},
+				{
+					label: 'DevOps',
+					items: ['Docker', 'Kubernetes', 'Jenkins', 'Terraform']
+				}
+			],
+			distractors: ['Photoshop', 'Excel']
+		};
+
+		// Configuration for the interaction
+		const config = {
+			variant: 'elegant',
+			prompt: 'Classify these programming tools and technologies',
+			headerEnabled: true,
+			checkButtonEnabled: true,
+			footerEnabled: true,
+			footerAction: 'check',
+			stimulus: 'text',
+			counterEnabled: true,
+			animationsEnabled: true,
+			timer: 0, // No timer for this demo
+			retries: 0,
+			construct: 'Programming Knowledge',
+			shuffle: false
+		};
+
+		// Mount point
+		const mount = document.getElementById('quiz-mount');
+
+		// Handler for when the quiz is submitted
+		const interactionHandler = (result) => {
+			console.log('Quiz completed with result:', result);
+		};
+
+		// Create and initialize the interaction
+		const quiz = new SimpleClassification({
+			mount: mount,
+			data: quizData,
+			config: config,
+			interactionHandler: interactionHandler
+		});
+
+		console.log('SimpleClassification quiz initialized:', quiz);
+	</script>
+</body>
+<

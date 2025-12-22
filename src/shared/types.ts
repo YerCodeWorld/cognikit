@@ -41,7 +41,8 @@ export interface InteractionConfig {
 	variant: Variant;  
 	prompt: string;  
 	headerEnabled: boolean;
-	checkButtonEnabled: boolean;
+	checkButtonEnabled: boolean;  // actually, this is useless 
+	autoCheckButton: boolean;
 	
 	footerEnabled: boolean;
 	footerAction: 'check' | 'navigation'; 

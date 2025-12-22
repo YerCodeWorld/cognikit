@@ -1,1 +1,1 @@
-export { classificationModule } from "./module"; 
+export { classificationModule, SimpleClassification, OpenClassification } from "./module"; 

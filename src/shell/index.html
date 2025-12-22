@@ -329,6 +329,11 @@
 			background: transparent;
 			font-style: italic;
 		}
+
+		& label {
+			font-family: georgia, serif;
+			padding: 0.5rem 1rem;
+		}
 	}
 
 	:host([variant="playful"]) {
@@ -548,7 +553,10 @@
 			color: rgb(var(--edu-inverted-ink));
 			background: transparent;
 			border: 2px solid rgb(var(--edu-first-accent));
+			border-left: none;
+			border-right: none;
 			border-bottom: 4px solid rgb(var(--edu-first-accent));
+			background: rgb(var(--edu-first-accent) / 0.1);
 		}
 
 		& header {
@@ -567,8 +575,14 @@
 		}
 
 		& footer {
-			padding: 0;
 			border-top: none;
+			padding: 0;
+			padding-left: 0.5rem;
+			padding-right: 0.5rem;
+		}
+
+		& .progress-bar {
+			margin: 0.3rem;
 		}
 
 		& .check-btn {

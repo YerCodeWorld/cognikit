@@ -52,14 +52,12 @@ export class EduApplicationWindow extends HTMLElement {
 		this.$progressBar = wrap.querySelector('.progress-bar');
 	}
 
-	// Public getters to access elements from outside
 	public getFooter(): HTMLElement { return this.$footerEl; }
 	public getCheckBtn(): HTMLButtonElement { return this.$checkBtn; }
 	public getRadioNav(): HTMLElement { return this.$radioNav; }
 	public getTimer(): HTMLElement { return this.$timerEl; }
 	public getProgressBar(): HTMLProgressElement { return this.$progressBar; }
 
-	// Progress bar API
 	private currentProgress: number = 0;
 	private totalProgress: number = 100;
 
@@ -95,13 +93,6 @@ export class EduApplicationWindow extends HTMLElement {
 
 	private updateProgressBar() {
 		this.$progressBar.value = this.currentProgress;
-
-		// Show check button when complete, but keep progress bar visible
-		if (this.currentProgress >= this.totalProgress) {
-			this.$checkBtn.dataset.hidden = 'false';
-		} else {
-			this.$checkBtn.dataset.hidden = 'true';
-		}
 	}
 
 	public showCheckButton() {
