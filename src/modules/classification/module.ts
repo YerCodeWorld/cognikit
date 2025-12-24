@@ -3,6 +3,7 @@ import { classificationParser, classificationValidator } from "./implementation"
 import { SimpleClassification, OpenClassification } from "./interactions";
 
 export const classificationModule: Module = {
+
 	id: 'class-001',
 	process: 'classification',
 
@@ -12,13 +13,13 @@ export const classificationModule: Module = {
 		interactions: {
 			'simpleClassification': SimpleClassification,
 			'openClassification': OpenClassification,
-			'matrixClassification': '',
-			'closedCardSorting': ''
+			'classificationMatrix': '',
+			'closedCardSorting': '',
+			'OpenCardSorting': '',
 		}
 	},
 
 	help: './doc/classification.md',
 }
 
-// Export the interaction for direct use
 export { SimpleClassification, OpenClassification };

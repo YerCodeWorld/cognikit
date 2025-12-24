@@ -58,7 +58,7 @@ export function classificationValidator(data: ClassificationData): ValidationRes
 	return { ok: false, errors: { 'none': '' } }
 }
 
-export function classificationGrading(correctData: { label: string; items: string[] }[], userData: Map<string, string>): number {
+export function classificationGrading(correctData: { label: string; items: string[] }[], userData: Map<string, string>): any {
 
 	let correctCount = 0;
 	let totalCount = 0;

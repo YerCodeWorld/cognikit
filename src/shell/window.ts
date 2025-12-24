@@ -206,7 +206,7 @@ export class EduApplicationWindow extends HTMLElement {
 		}, 1000);
 	}
 
-	private stopTimer() {
+	public stopTimer() {
 		if (this.timerInterval !== null) {
 			clearInterval(this.timerInterval);
 			this.timerInterval = null;

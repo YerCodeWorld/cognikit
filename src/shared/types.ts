@@ -23,7 +23,7 @@ export type ItemData =
 export interface IInteractionInstance {
 	readonly id: string;
 	render(): void;
-	isInteractionComplete(): boolean;  // important 
+	isInteractionComplete(): boolean; 
 	getCurrentState(): any;
 	destroy(): void;
 }
@@ -32,16 +32,13 @@ export interface InteractionOptions<T extends ItemData = ItemData> {
 	mount: HTMLElement;
 	data: T;
 	config: InteractionConfig;
-	interactionHandler: (r: InteractionResult) => void;  // is this necessary considering the class arquitecture? 
-}
+	interactionHandler: (r: InteractionResult) => void;  }
 
 export interface InteractionConfig {
 
-	// all these are set up in the BaseInteraction class, they serve to configure the 'edu-window' shell component. 
 	variant: Variant;  
 	prompt: string;  
-	headerEnabled: boolean;
-	checkButtonEnabled: boolean;  // actually, this is useless 
+	headerEnabled: boolean;  // 'promptEnabled' instead...
 	autoCheckButton: boolean;
 	
 	footerEnabled: boolean;

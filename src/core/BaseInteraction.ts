@@ -1,5 +1,12 @@
 import { EduApplicationWindow } from "../shell";
-import { IInteractionInstance, InteractionConfig, InteractionOptions, ItemData, InteractionResult } from "../shared";
+import { 
+	IInteractionInstance, 
+	InteractionConfig, 
+	InteractionOptions, 
+	ItemData, 
+	InteractionResult, 
+	Variant 
+} from "../shared";
 
 export abstract class BaseInteraction<T extends ItemData>
 	implements IInteractionInstance {

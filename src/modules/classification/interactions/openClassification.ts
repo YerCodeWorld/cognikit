@@ -30,7 +30,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	
 	// els 
 	private $categoriesDlg: HTMLDialogElement;
-	private $categorySwatch: HTMLElement;
+	private $categorySwatch: EduBlock;
 	private $swatchLabel: HTMLElement;
 	private $swatchColor: HTMLSpanElement;
 
@@ -203,15 +203,15 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		content.style.setProperty('--current-color', this.currentColor);
 
 		// categories
-		this.$categoriesDlg = content.querySelector("#dlg");
+		this.$categoriesDlg = content.querySelector("#dlg") as HTMLDialogElement;
 		this.setCategories(this.$categoriesDlg, content);
 
 		// swatch
-		const swatchContainer = content.querySelector("#category-swatch-container");
+		const swatchContainer = content.querySelector("#category-swatch-container") as HTMLDivElement;
 		this.setSwatch(swatchContainer);
 
 		// items
-		const itemsContainer = content.querySelector(".items-container");
+		const itemsContainer = content.querySelector(".items-container") as HTMLDivElement;
 		this.setItems(itemsContainer, content);	
 	}
 
@@ -263,7 +263,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	}
 
 	private setSwatch(container: HTMLDivElement): void {
-		this.$categorySwatch = document.createElement("edu-block");
+		this.$categorySwatch = document.createElement("edu-block") as EduBlock;
 		this.$categorySwatch.variant = this.config.variant;
 		this.$categorySwatch.innerHTML = `
 			<div class="swatch-content">
@@ -291,7 +291,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	private setCategories(dialog: HTMLDialogElement, root: HTMLElement): void {
 		const dlgContent = dialog.querySelector(".categories-container");
 		this.categories.forEach((cat, i) => {
-			const categoryBlock = document.createElement("edu-block");
+			const categoryBlock = document.createElement("edu-block") as EduBlock;
 			categoryBlock.variant = this.config.variant;
 
 			const color = this.categoryColors[i % this.categoryColors.length];
@@ -342,7 +342,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	submitForScoring(): void {
 		const score = classificationGrading(this.data.categories, this.categorized);
 		console.log(`Score: ${score.score.toFixed(1)}% (${score.correct}/${score.total})`);
-
+		
 		this.disableCheckButton();
 		this.shell.setAttribute("inert", "");
 		super.submitForScoring();
