@@ -1,3 +1,2 @@
 
-export function parseSelect(code: string): string {};
- 
+// export function parseSelect(code: string): string {};

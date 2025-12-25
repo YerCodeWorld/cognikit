@@ -1,3 +1,5 @@
+import { BaseTableData } from "../types/Tables";
+
 export type Variant = 'elegant' | 'playful' | 'outline' | 'letter' | 'sign' | 'minimal' | 'glass' | 'empty'; 
 export type Stimulus = 'image' | 'text' | 'audio' | 'video' | 'html' | 'mixed';
 export type InteractionResult = 'a' | 'b';
@@ -18,6 +20,7 @@ export type CognitiveProcess =
 export type ItemData = 
 	ClassificationData | 
 	AssociationData	   |
+	BaseTableData 	   |
 	FreeRecallData;
 
 export interface IInteractionInstance {

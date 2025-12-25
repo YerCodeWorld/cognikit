@@ -1,6 +1,6 @@
 import { extractDistractors } from "../utils";
 import { ItemData, ClassificationData, ParsingResult, ValidationResult } from "../../shared";
-
+import { GradingResult } from "../../types/Grading";
 
 /**
  * Example
@@ -58,8 +58,8 @@ export function classificationValidator(data: ClassificationData): ValidationRes
 	return { ok: false, errors: { 'none': '' } }
 }
 
-export function classificationGrading(correctData: { label: string; items: string[] }[], userData: Map<string, string>): any {
-
+// still sketch-like
+export function classificationGrading(correctData: ClassificationData["categories"], userData: Map<string, string>): GradingResult {
 	let correctCount = 0;
 	let totalCount = 0;
 

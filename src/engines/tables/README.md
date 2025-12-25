@@ -96,17 +96,30 @@ THIS SOFTWARE IMPLEMENTATION
 Use simple HTML tables. Create them dynamically based on configuration.
 
 ```ts
-type MatrixMode = 'lookup' | 'classification' | 'adjacency';
+type CellValue = string | number | boolean | null;
+// this only applies for the adjacency and lookup tables; classification and n-ary simply toggle radio/checkbox based on the rowSelection constraint 
+type CellKind = 'text' | 'number' | 'select' | 'radio' | 'checkbox';
+type TableState = Record<string, Record<string, CellValue>>;
 
-type MatrixCellMode = 'text' | 'number' | 'select' | 'radio' | 'button';
+interface TableConfiguration {
+    cols: string[];
+    rows: string[];    
+    answerKey: TableState | Map<string, string[]>;
 
-interface MatrixData {
-    categories: { label: string; items: string[] }[];
-    headers?: string[];
-    mode: MatrixMode;
-    cellMode: MatrixCellMode;
-    variant: Variant;  // declared in shared/types, pure customization options
-};
+	cellKind?: CellKind;
+
+    // custom tables with custom disabled cells (adjacency disables a the middle diagonla by default) 
+    disabled?: (r: string, c: string) => boolean;
+    // For usage on select/constraint entries 
+    allowed?: (r: string, c: string) => CellValue[] | null;
+
+    // this is how we really build a different table kind for the set preset.
+    // Like a single row selection ends up in n-ary, more in classification. 
+    preset?: 'lookup' | 'n-ary' | 'classification' | 'adjacency';
+    variant: Variant;
+}
+
+// other types and detailes at @types/Tables.ts
 ```
 
 // Classification Module
@@ -117,9 +130,9 @@ b = ..;
 c = .. | .. | ..;
 d = .. | ..;
 
-1 - Take all the category declarions (name =) to create the headers
+1 - Take all the category declarations (name =) to create the headers
 2 - Create a set with all values of all categories to create the rows, since we allow items in multiple categories here 
-3 - Compare the categories attached to those items against the original data object
+3 - Compare the categories attached to those items against the original data object for grading
 ```
 
 // Miscellaneous Module

@@ -1,0 +1,523 @@
+/* ===========================================
+   BASE TABLE STYLES
+   =========================================== */
+
+:host {
+	display: block;
+	width: 100%;
+}
+
+.wrap {
+	width: 100%;
+	overflow-x: auto;
+	overflow-y: visible;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	background: rgb(var(--edu-bg));
+	table-layout: auto;
+}
+
+/* Cell base styles with text wrapping */
+td, th {
+	padding: 0.75rem;
+	text-align: center;
+	vertical-align: middle;
+	border: 1px solid rgb(var(--edu-border));
+	color: rgb(var(--edu-ink));
+	font-size: 0.95rem;
+
+	/* Text wrapping and overflow handling */
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	hyphens: auto;
+	max-width: 200px;
+	min-width: 80px;
+}
+
+th {
+	font-weight: 600;
+	background: rgb(var(--edu-card));
+}
+
+/* First column (row headers) */
+th[scope="row"] {
+	text-align: left;
+	font-weight: 500;
+	background: rgb(var(--edu-card));
+	white-space: normal;
+}
+
+/* Disabled cells */
+.disabled-cell {
+	background: rgb(var(--edu-muted));
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+/* Form inputs base styles */
+input[type="text"],
+input[type="number"],
+select {
+	width: 90%;
+	max-width: 150px;
+	padding: 0.5rem;
+	border: 1px solid rgb(var(--edu-border));
+	border-radius: 4px;
+	outline: none;
+	font-family: inherit;
+	font-size: 0.9rem;
+	background: rgb(var(--edu-bg));
+	color: rgb(var(--edu-ink));
+	transition: border-color 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+	border-color: rgb(var(--edu-first-accent));
+	box-shadow: 0 0 0 2px rgb(var(--edu-first-accent) / 0.15);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	width: 18px;
+	height: 18px;
+	cursor: pointer;
+	accent-color: rgb(var(--edu-first-accent));
+}
+
+/* ===========================================
+   VARIANT: ELEGANT
+   Refined with subtle box shadows
+   =========================================== */
+
+:host([variant="elegant"]) {
+	& table {
+		border-collapse: separate;
+		border-spacing: 0;
+	}
+
+	& th {
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		background: rgb(var(--edu-card));
+		border: none;
+		border-bottom: 2px solid rgb(var(--edu-border));
+		padding: 1rem 0.75rem;
+	}
+
+	& td {
+		border: none;
+		border-bottom: 1px solid rgb(var(--edu-border) / 0.3);
+		box-shadow: inset 0 0 0 1px rgb(var(--edu-border) / 0.1);
+		transition: background 0.2s ease;
+	}
+
+	& td:hover {
+		background: rgb(var(--edu-muted) / 0.3);
+	}
+
+	& th[scope="row"] {
+		font-weight: 500;
+		text-transform: none;
+		letter-spacing: 0;
+		font-size: 0.95rem;
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: none;
+		border-bottom: 1px solid rgb(var(--edu-border));
+		border-radius: 0;
+		background: transparent;
+	}
+
+	& .disabled-cell {
+		background: rgb(var(--edu-muted) / 0.4);
+	}
+}
+
+/* ===========================================
+   VARIANT: PLAYFUL
+   Bright, rounded, with color accents
+   =========================================== */
+
+:host([variant="playful"]) {
+	& table {
+		border-collapse: separate;
+		border-spacing: 6px;
+	}
+
+	& th,
+	& td {
+		border-radius: 8px;
+		border: 2px solid rgb(var(--edu-border));
+		background: rgb(var(--edu-bg));
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	& th {
+		background: linear-gradient(135deg, rgb(var(--edu-first-accent) / 0.15), rgb(var(--edu-first-accent) / 0.05));
+		color: rgb(var(--edu-ink));
+		font-weight: 700;
+	}
+
+	& td:hover:not(.disabled-cell) {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgb(var(--edu-shadow-color) / 0.2);
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: 2px solid rgb(var(--edu-border));
+		border-radius: 12px;
+		background: rgb(var(--edu-bg));
+	}
+
+	& input[type="checkbox"],
+	& input[type="radio"] {
+		transform: scale(1.2);
+	}
+
+	& .disabled-cell {
+		background: rgb(var(--edu-muted));
+		opacity: 0.6;
+	}
+}
+
+/* ===========================================
+   VARIANT: OUTLINE
+   Bold borders, clean lines
+   =========================================== */
+
+:host([variant="outline"]) {
+	& table {
+		border: 3px solid rgb(var(--edu-border));
+	}
+
+	& th,
+	& td {
+		border: 2px solid rgb(var(--edu-border));
+		font-weight: 500;
+	}
+
+	& th {
+		background: rgb(var(--edu-card));
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		font-size: 0.85rem;
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: 3px solid rgb(var(--edu-border));
+		border-radius: 0;
+		box-shadow: 2px 2px 0px rgb(var(--edu-border) / 0.3);
+		background: rgb(var(--edu-bg));
+	}
+
+	& input[type="text"]:focus,
+	& input[type="number"]:focus,
+	& select:focus {
+		box-shadow: 3px 3px 0px rgb(var(--edu-first-accent));
+	}
+
+	& .disabled-cell {
+		background: repeating-linear-gradient(
+			45deg,
+			rgb(var(--edu-muted)),
+			rgb(var(--edu-muted)) 10px,
+			rgb(var(--edu-border) / 0.3) 10px,
+			rgb(var(--edu-border) / 0.3) 20px
+		);
+	}
+}
+
+/* ===========================================
+   VARIANT: LETTER
+   Typography-focused with serif fonts
+   =========================================== */
+
+:host([variant="letter"]) {
+	& table {
+		background: transparent;
+	}
+
+	& th,
+	& td {
+		border: none;
+		border-bottom: 1px solid rgb(var(--edu-border));
+		font-family: Georgia, serif;
+		letter-spacing: 0.3px;
+	}
+
+	& th {
+		color: rgb(var(--edu-ink));
+		font-weight: 500;
+		font-size: 1rem;
+		font-style: italic;
+		padding-bottom: 0.5rem;
+	}
+
+	& th[scope="row"] {
+		font-weight: 600;
+		font-style: normal;
+	}
+
+	& td {
+		font-size: 0.95rem;
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: none;
+		border-bottom: 1px dashed rgb(var(--edu-border));
+		border-radius: 0;
+		background: transparent;
+		font-family: Georgia, serif;
+		color: rgb(var(--edu-ink) / 0.9);
+	}
+
+	& .disabled-cell {
+		background: transparent;
+		color: rgb(var(--edu-ink) / 0.3);
+		font-style: italic;
+	}
+}
+
+/* ===========================================
+   VARIANT: SIGN
+   Bold, industrial, high-contrast
+   =========================================== */
+
+:host([variant="sign"]) {
+	& table {
+		border: 3px solid rgb(var(--edu-ink));
+	}
+
+	& th {
+		background: rgb(var(--edu-ink));
+		color: rgb(var(--edu-inverted-ink));
+		text-transform: uppercase;
+		font-style: italic;
+		font-weight: 700;
+		letter-spacing: 1.5px;
+		border: 2px solid rgb(var(--edu-ink));
+		padding: 1rem;
+	}
+
+	& td {
+		border: 2px solid rgb(var(--edu-ink));
+		font-weight: 600;
+	}
+
+	& th[scope="row"] {
+		background: rgb(var(--edu-card));
+		color: rgb(var(--edu-ink));
+		font-style: normal;
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: 2px solid rgb(var(--edu-ink));
+		border-radius: 0;
+		background: rgb(var(--edu-bg));
+		font-weight: 600;
+	}
+
+	& .disabled-cell {
+		background: repeating-linear-gradient(
+			135deg,
+			rgb(var(--edu-card)),
+			rgb(var(--edu-card)) 8px,
+			rgb(var(--edu-ink) / 0.2) 8px,
+			rgb(var(--edu-ink) / 0.2) 16px
+		);
+	}
+}
+
+/* ===========================================
+   VARIANT: MINIMAL
+   Clean, spacious, understated
+   =========================================== */
+
+:host([variant="minimal"]) {
+	& table {
+		border: none;
+	}
+
+	& th {
+		border: none;
+		border-bottom: 1px solid rgb(var(--edu-border));
+		background: transparent;
+		color: rgb(var(--edu-ink));
+		font-weight: 500;
+		font-size: 0.9rem;
+		padding: 0.5rem 0.75rem;
+	}
+
+	& td {
+		border: none;
+		border-bottom: 1px solid rgb(var(--edu-border) / 0.5);
+		background: transparent;
+	}
+
+	& tr:last-child td {
+		border-bottom: none;
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: none;
+		border-bottom: 1px solid rgb(var(--edu-border) / 0.5);
+		border-radius: 0;
+		background: transparent;
+		padding: 0.25rem;
+	}
+
+	& input[type="text"]:focus,
+	& input[type="number"]:focus,
+	& select:focus {
+		border-bottom-color: rgb(var(--edu-first-accent));
+		box-shadow: none;
+	}
+
+	& .disabled-cell {
+		background: transparent;
+		color: rgb(var(--edu-ink) / 0.3);
+	}
+}
+
+/* ===========================================
+   VARIANT: GLASS
+   Frosted glass effect with depth
+   =========================================== */
+
+:host([variant="glass"]) {
+	& table {
+		background: rgb(var(--edu-bg) / 0.7);
+		backdrop-filter: blur(10px);
+		border: 1px solid rgb(var(--edu-border) / 0.3);
+		border-radius: 12px;
+		overflow: hidden;
+	}
+
+	& th,
+	& td {
+		border: 1px solid rgb(var(--edu-border) / 0.2);
+		background: rgb(var(--edu-bg) / 0.4);
+	}
+
+	& th {
+		color: rgb(var(--edu-ink));
+		font-weight: 600;
+		background: rgb(var(--edu-card) / 0.6);
+		backdrop-filter: blur(5px);
+		border-bottom: 2px solid rgb(var(--edu-border) / 0.4);
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		background: rgb(var(--edu-bg) / 0.5);
+		border: 1px solid rgb(var(--edu-border) / 0.3);
+		border-radius: 6px;
+		backdrop-filter: blur(5px);
+	}
+
+	& input[type="text"]:focus,
+	& input[type="number"]:focus,
+	& select:focus {
+		background: rgb(var(--edu-bg) / 0.8);
+		border-color: rgb(var(--edu-first-accent) / 0.6);
+	}
+
+	& .disabled-cell {
+		background: rgb(var(--edu-muted) / 0.3);
+		backdrop-filter: blur(3px);
+	}
+}
+
+/* ===========================================
+   VARIANT: EMPTY
+   Bare minimum, dashed borders
+   =========================================== */
+
+:host([variant="empty"]) {
+	& table {
+		border: none;
+	}
+
+	& th,
+	& td {
+		border: 1px dashed rgb(var(--edu-border));
+		background: transparent;
+	}
+
+	& th {
+		background: transparent;
+		color: rgb(var(--edu-ink));
+		font-weight: 600;
+	}
+
+	& input[type="text"],
+	& input[type="number"],
+	& select {
+		border: none;
+		border-bottom: 1px dashed rgb(var(--edu-border));
+		border-radius: 0;
+		background: transparent;
+	}
+
+	& .disabled-cell {
+		background: transparent;
+		opacity: 0.4;
+	}
+}
+
+/* ===========================================
+   RESPONSIVE BEHAVIOR
+   =========================================== */
+
+@media (max-width: 768px) {
+	td, th {
+		padding: 0.5rem;
+		font-size: 0.85rem;
+		min-width: 60px;
+	}
+
+	input[type="text"],
+	input[type="number"],
+	select {
+		font-size: 0.85rem;
+		padding: 0.4rem;
+	}
+
+	input[type="checkbox"],
+	input[type="radio"] {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+@media (max-width: 480px) {
+	td, th {
+		padding: 0.4rem;
+		font-size: 0.8rem;
+		max-width: 120px;
+		min-width: 50px;
+	}
+}

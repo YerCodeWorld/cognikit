@@ -1,48 +1,103 @@
 import { BaseInteraction } from "../../../core";
-import { ClassificationData, InteractionOptions } from "../../../shared";
+import { InteractionOptions } from "../../../shared";
+import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
+import { EduTable, classificationTableGrader } from "../../../engines/tables";
 
-export class ClassificationMatrix extends BaseInteraction<ClassificationData> {
-	
-	private categories: string[];
-	private allItems: string[]; 
+/**
+ * Classification Matrix Interaction
+ *
+ * Presents a table where users can assign multiple attributes (columns) to items (rows)
+ * using checkboxes. Each item can belong to multiple categories.
+ *
+ * Example use case: "Which programming languages have these features?"
+ * - Rows: Python, Java, Rust, JavaScript
+ * - Columns: Interpreted, Strongly Typed, Supports OOP
+ */
+export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 
-	// we only need a map 'categorized'for <item and assigned category>
-	// alreadyCategorized = Object.keys(categorized).length
-	private categorized: Map<string, string> = new Map();
+	private _tableConfig: TableConfiguration;
+	private _$table!: EduTable;
 
-	constructor(options: InteractionOptions<ClassificationData>) {
-
+	constructor(options: InteractionOptions<BaseTableData>) {
 		super(options);
 
-		this.data.categories.forEach(({label, items}) => {
-			this.categories.push(label);
-			this.allItems.push(...items);
+		// Configure table for classification mode
+		this._tableConfig = {
+			rows: this.data.rows,
+			cols: this.data.cols,
+			answerKey: this.data.answerKey,
+			cellKind: 'checkbox',
+			preset: 'classification',
+			variant: this.config.variant ?? 'outline'
+		};
+
+		// Track progress per row (each row needs at least one selection)
+		this.initializeProgress(this.data.rows.length);
+	}
+
+	render(): void {
+		const content = this.getContentArea();
+
+		// Create and configure table
+		this._$table = document.createElement('edu-table') as EduTable;
+		this._$table.config = this._tableConfig;
+
+		// Listen to table changes for progress tracking
+		this._$table.addEventListener('change', () => {
+			this.updateProgressBasedOnCompletion();
 		});
-		
-		if (this.data.distractors) {
-			this.allItems.push(...this.data.distractors);
+
+		content.innerHTML = '';
+		content.append(this._$table);
+	}
+
+	/**
+	 * Update progress bar based on how many rows have at least one selection
+	 */
+	private updateProgressBasedOnCompletion(): void {
+		const state = this._$table.getState();
+		let completedRows = 0;
+
+		for (const row of this.data.rows) {
+			if (state[row]?.selectedCols.length > 0) {
+				completedRows++;
+			}
 		}
 
-		this.initializeProgress(this.allItems.length);
-
+		this.updateProgress(completedRows);
 	}
 
-	// runs automatically 
-	render(): void {
-		
-		
-	
-	}
-
-	getCurrentState(): any {
-		
+	getCurrentState(): TableCompletion {
+		return this._$table.getState();
 	}
 
 	isInteractionComplete(): boolean {
-		return this.allItems.length === this.categorized.size;
+		const state = this._$table.getState();
+
+		// All rows must have at least one selection
+		return this.data.rows.every(row =>
+			state[row]?.selectedCols.length > 0
+		);
 	}
 
-	submitForScoring(): void {}
+	protected submitForScoring(): void {
+		const userData = this._$table.getState();
 
+		// Grade using classification grader (allows partial credit)
+		const result = classificationTableGrader(
+			this.data.answerKey,
+			userData,
+			this.data.rows,
+			this.data.cols
+		);
+
+		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
+
+		// Disable interaction after submission
+		this.disableCheckButton();
+		this.shell.setAttribute("inert", "");
+
+		// Call parent to trigger interactionHandler
+		super.submitForScoring();
+	}
 }
-
