@@ -1,6 +1,6 @@
 import { Module } from "../../shared";
 import { classificationParser, classificationValidator } from "./implementation";
-import { SimpleClassification, OpenClassification } from "./interactions";
+import { OpenClassification, ClassificationMatrix } from "./interactions";
 
 export const classificationModule: Module = {
 
@@ -11,9 +11,8 @@ export const classificationModule: Module = {
 		parser: classificationParser,
 		validator: classificationValidator,
 		interactions: {
-			'simpleClassification': SimpleClassification,
 			'openClassification': OpenClassification,
-			'classificationMatrix': '',
+			'classificationMatrix': ClassificationMatrix,
 			'closedCardSorting': '',
 			'OpenCardSorting': '',
 		}
@@ -22,4 +21,4 @@ export const classificationModule: Module = {
 	help: './doc/classification.md',
 }
 
-export { SimpleClassification, OpenClassification };
+export { OpenClassification, ClassificationMatrix };

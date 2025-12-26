@@ -1,2 +1,1 @@
-export { classificationModule, SimpleClassification, OpenClassification } from "./module";
-export { ClassificationMatrix } from "./interactions/classificationMatrix"; 
+export { classificationModule, OpenClassification, ClassificationMatrix } from "./module"; 

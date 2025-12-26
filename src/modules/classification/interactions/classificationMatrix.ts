@@ -1,58 +1,87 @@
-import { BaseInteraction } from "../../../core";
-import { InteractionOptions } from "../../../shared";
+import { BaseInteraction } from "../../../core/BaseInteraction";
+import { InteractionConfig } from "../../../shared";
 import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
 import { EduTable, classificationTableGrader } from "../../../engines/tables";
 
 /**
- * Classification Matrix Interaction
+ * ClassificationMatrixV2 - Shell-Agnostic Classification Interaction
  *
- * Presents a table where users can assign multiple attributes (columns) to items (rows)
- * using checkboxes. Each item can belong to multiple categories.
+ * Table-based interaction using checkboxes to assign multiple attributes
+ * to items. Built on V2 architecture - works with or without shell.
  *
- * Example use case: "Which programming languages have these features?"
- * - Rows: Python, Java, Rust, JavaScript
- * - Columns: Interpreted, Strongly Typed, Supports OOP
+ * @example
+ * ```typescript
+ * // With shell
+ * const interaction = new ClassificationMatrixV2(data, config);
+ * shell.setInteraction(interaction);
+ *
+ * // Without shell
+ * const interaction = new ClassificationMatrixV2(data, config);
+ * document.getElementById('app').appendChild(interaction);
+ * ```
  */
 export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 
 	private _tableConfig: TableConfiguration;
 	private _$table!: EduTable;
 
-	constructor(options: InteractionOptions<BaseTableData>) {
-		super(options);
+	constructor(data: BaseTableData, config: InteractionConfig) {
+		super(data, config);
 
 		// Configure table for classification mode
 		this._tableConfig = {
-			rows: this.data.rows,
-			cols: this.data.cols,
-			answerKey: this.data.answerKey,
+			rows: data.rows,
+			cols: data.cols,
+			answerKey: data.answerKey,
 			cellKind: 'checkbox',
 			preset: 'classification',
-			variant: this.config.variant ?? 'outline'
+			variant: config.variant ?? 'outline'
 		};
 
-		// Track progress per row (each row needs at least one selection)
-		this.initializeProgress(this.data.rows.length);
+		// Initialize progress tracking (one per row)
+		this.initializeProgress(data.rows.length);
 	}
 
-	render(): void {
-		const content = this.getContentArea();
+	// ==================== LIFECYCLE ====================
 
-		// Update variant to current config value (in case it changed via setVariant)
+	protected initialize(): void {
+		// Set up any initial state if needed
+	}
+
+	protected cleanup(): void {
+		// Clean up event listeners if needed
+	}
+
+	protected onVariantChange(newVariant: string): void {
+		// Update table variant when shell changes it
+		this._tableConfig.variant = newVariant as any;
+		if (this._$table) {
+			this._$table.config = this._tableConfig;
+		}
+	}
+
+	// ==================== RENDERING ====================
+
+	render(): void {
+		// Update table config variant to match current
 		this._tableConfig.variant = this.config.variant;
 
-		// Create and configure table
+		// Create table
 		this._$table = document.createElement('edu-table') as EduTable;
 		this._$table.config = this._tableConfig;
 
-		// Listen to table changes for progress tracking
+		// Listen to table changes
 		this._$table.addEventListener('change', () => {
 			this.updateProgressBasedOnCompletion();
+			this.emitStateChange();
 		});
 
-		content.innerHTML = '';
-		content.append(this._$table);
+		// Render directly to this element
+		this.innerHTML = '';
+		this.appendChild(this._$table);
 	}
+
+	// ==================== INTERACTION LOGIC ====================
 
 	/**
 	 * Update progress bar based on how many rows have at least one selection
@@ -67,7 +96,7 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 			}
 		}
 
-		this.updateProgress(completedRows);
+		this.setProgress(completedRows);
 	}
 
 	getCurrentState(): TableCompletion {
@@ -83,10 +112,35 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 		);
 	}
 
-	protected submitForScoring(): void {
-		const userData = this._$table.getState();
+	onHint(): void {
+		const state = this._$table.getState();
+		const emptyRows = this.data.rows.filter(row =>
+			!state[row] || state[row].selectedCols.length === 0
+		);
 
-		// Grade using classification grader (allows partial credit)
+		if (emptyRows.length === 0) {
+			alert('All rows are complete! Click "Check" to submit.');
+			this.emitHintShown('All rows complete');
+			return;
+		}
+
+		// Show hint for first incomplete row
+		const firstEmpty = emptyRows[0];
+		alert(`Hint: You haven't classified "${firstEmpty}" yet. Which categories does it belong to?`);
+		this.emitHintShown(`Incomplete row: ${firstEmpty}`);
+	}
+
+	// ==================== GRADING ====================
+
+	/**
+	 * Override submit to include grading
+	 */
+	public submit(): void {
+		// Check completion first (will throw if not complete)
+		super.submit();
+
+		// Grade the response
+		const userData = this.getCurrentState();
 		const result = classificationTableGrader(
 			this.data.answerKey,
 			userData,
@@ -96,11 +150,25 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 
 		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
-		// Disable interaction after submission
-		this.disableCheckButton();
-		this.shell.setAttribute("inert", "");
-
-		// Call parent to trigger interactionHandler
-		super.submitForScoring();
+		// Could emit a grading event here if needed
+		this.dispatchEvent(new CustomEvent('interaction:graded', {
+			detail: { result },
+			bubbles: true,
+			composed: true
+		}));
 	}
+
+	// ==================== RESET ====================
+
+	public reset(): void {
+		super.reset();
+		if (this._$table) {
+			this._$table.reset();
+		}
+	}
+}
+
+// Register as custom element
+if (!customElements.get('classification-matrix')) {
+	customElements.define('classification-matrix', ClassificationMatrix);
 }

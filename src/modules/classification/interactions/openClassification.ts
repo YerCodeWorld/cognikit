@@ -1,42 +1,40 @@
-import { BaseInteraction } from "../../../core";
+import { BaseInteraction } from "../../../core/BaseInteraction";
+import { InteractionConfig } from "../../../shared";
+import { ClassificationData } from "../../../shared";
 import { EduChip, EduBlock } from "../../../ui";
-import { ClassificationData, InteractionOptions } from "../../../shared";
 import { shuffle } from "../../../shared";
 import { classificationGrading } from "../implementation";
 
-export class OpenClassification extends BaseInteraction<ClassificationData> { 
+export class OpenClassification extends BaseInteraction<ClassificationData> {
 
-	private categories: string[] = ["none"]; 
-	private allItems: string[] = []; 
+	private categories: string[] = ["none"];
+	private allItems: string[] = [];
 
-	// for the dialog and the categorized state
 	private categoryColors: string[] = [
-		'#94a3b8', 
+		'#94a3b8',
 		'#3b82f6',
 		'#10b981',
-		'#f59e0b', 
+		'#f59e0b',
 		'#ef4444',
-		'#8b5cf6', 
-		'#ec4899', 
-		'#14b8a6', 
-		'#f97316', 
-		'#6366f1'  
-	]
+		'#8b5cf6',
+		'#ec4899',
+		'#14b8a6',
+		'#f97316',
+		'#6366f1'
+	];
 
-	// more state-like
 	private categorized: Map<string, string>;
 	private currentCategory: string;
 	private currentColor: string = this.categoryColors[0];
-	
-	// els 
-	private $categoriesDlg: HTMLDialogElement;
-	private $categorySwatch: EduBlock;
-	private $swatchLabel: HTMLElement;
-	private $swatchColor: HTMLSpanElement;
 
-	constructor(options: InteractionOptions<ClassificationData>) {
+	// DOM elements
+	private $categoriesDlg!: HTMLDialogElement;
+	private $categorySwatch!: EduBlock;
+	private $swatchLabel!: HTMLElement;
+	private $swatchColor!: HTMLSpanElement;
 
-		super(options);
+	constructor(data: ClassificationData, config: InteractionConfig) {
+		super(data, config);
 
 		this.data.categories.forEach(({label, items}) => {
 			this.categories.push(label);
@@ -44,7 +42,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		});
 
 		this.currentCategory = this.categories[0];
-		
+
 		if (this.data.distractors) {
 			this.allItems.push(...this.data.distractors);
 		}
@@ -53,16 +51,28 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 		this.categorized = new Map();
 		this.initializeProgress(this.allItems.length);
-
 	}
 
+	protected initialize(): void {}
+	protected cleanup(): void {}
+
+	protected onVariantChange(newVariant: string): void {
+		// Update UI components when variant changes
+		this.querySelectorAll('edu-chip, edu-block').forEach((el: any) => {
+			if (el.variant !== undefined) {
+				el.variant = newVariant;
+			}
+		});
+	}
+
+	// ==================== RENDERING ====================
+
 	render(): void {
-		
-		const content = this.getContentArea();
-		content.innerHTML = `
+		this.innerHTML = `
 			<style>
 				:host {
 					--current-color: #94a3b8;
+					display: block;
 				}
 
 				.container {
@@ -186,8 +196,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				<div class="items-container"></div>
 
 				<hr class="divider">
-			<!-- just a place holder -->
-			<div id="category-swatch-container"></div>
+				<div id="category-swatch-container"></div>
 			</div>
 
 			<dialog id="dlg">
@@ -199,44 +208,33 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				</footer>
 			</dialog>
 		`;
-		
-		content.style.setProperty('--current-color', this.currentColor);
 
-		// categories
-		this.$categoriesDlg = content.querySelector("#dlg") as HTMLDialogElement;
-		this.setCategories(this.$categoriesDlg, content);
+		this.style.setProperty('--current-color', this.currentColor);
 
-		// swatch
-		const swatchContainer = content.querySelector("#category-swatch-container") as HTMLDivElement;
+		// Categories dialog
+		this.$categoriesDlg = this.querySelector("#dlg") as HTMLDialogElement;
+		this.setCategories(this.$categoriesDlg);
+
+		// Category swatch
+		const swatchContainer = this.querySelector("#category-swatch-container") as HTMLDivElement;
 		this.setSwatch(swatchContainer);
 
-		// items
-		const itemsContainer = content.querySelector(".items-container") as HTMLDivElement;
-		this.setItems(itemsContainer, content);	
+		// Items
+		const itemsContainer = this.querySelector(".items-container") as HTMLDivElement;
+		this.setItems(itemsContainer);
 	}
 
-	private setItems(container: HTMLDivElement, root: HTMLElement): void {
+	private setItems(container: HTMLDivElement): void {
 		this.allItems.forEach((item, i) => {
-
-			// asuming we are sure the custom element exists
 			const chip = document.createElement("edu-chip") as EduChip;
-			chip.variant =	this.config.variant; 
+			chip.variant = this.config.variant;
 			chip.textContent = item;
 			chip.dataset.label = item;
-			chip.id = `chip-00${i}`; // no idea if this is necessary but ok 
-			
-			// all this s* just to recolor the chip with the original color in case it rerenders
-			if (this.categorized.get(chip.dataset.label)) {
-				const category = this.categorized.get(chip.dataset.label);
-				const index = this.categories.indexOf(category);
-				const color = this.categoryColors[index];
-				chip.style.setProperty('--current-color', color);
-				chip.classList.add('colorized');
-			}
+			chip.id = `chip-00${i}`;
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;
-				const label = chip.dataset.label;
+				const label = chip.dataset.label!;
 
 				// Toggle if clicking same category
 				if (this.categorized.get(label) === this.currentCategory) {
@@ -244,6 +242,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					chip.classList.remove('colorized');
 					chip.style.setProperty('--current-color', '');
 					this.decrementProgress();
+					this.emitStateChange();
 					return;
 				}
 
@@ -256,6 +255,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				this.categorized.set(label, this.currentCategory);
 				chip.classList.add('colorized');
 				chip.style.setProperty('--current-color', this.currentColor);
+				this.emitStateChange();
 			});
 
 			container.append(chip);
@@ -278,8 +278,8 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 		container.appendChild(this.$categorySwatch);
 
-		this.$swatchLabel = this.$categorySwatch.querySelector('.swatch-label');
-		this.$swatchColor = this.$categorySwatch.querySelector('.swatch-color');
+		this.$swatchLabel = this.$categorySwatch.querySelector('.swatch-label')!;
+		this.$swatchColor = this.$categorySwatch.querySelector('.swatch-color')!;
 		this.updateSwatch();
 	}
 
@@ -288,8 +288,8 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		this.$swatchColor.style.backgroundColor = this.currentColor;
 	}
 
-	private setCategories(dialog: HTMLDialogElement, root: HTMLElement): void {
-		const dlgContent = dialog.querySelector(".categories-container");
+	private setCategories(dialog: HTMLDialogElement): void {
+		const dlgContent = dialog.querySelector(".categories-container")!;
 		this.categories.forEach((cat, i) => {
 			const categoryBlock = document.createElement("edu-block") as EduBlock;
 			categoryBlock.variant = this.config.variant;
@@ -305,10 +305,10 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 			categoryBlock.addEventListener("click", (e) => {
 				const block = e.currentTarget as HTMLElement;
-				this.currentCategory = block.dataset.category;
-				this.currentColor = block.dataset.color;
+				this.currentCategory = block.dataset.category!;
+				this.currentColor = block.dataset.color!;
 
-				root.style.setProperty('--current-color', this.currentColor);
+				this.style.setProperty('--current-color', this.currentColor);
 				this.updateSwatch();
 				this.$categoriesDlg.close();
 			});
@@ -317,12 +317,13 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		});
 	}
 
+	// ==================== INTERACTION LOGIC ====================
+
 	getCurrentState(): any {
 		return {
 			categorized: Object.fromEntries(this.categorized),
-			progress: this.getProgress()
+			progress: this.progressTracker.current
 		};
-
 	}
 
 	isInteractionComplete(): boolean {
@@ -339,14 +340,57 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		return true;
 	}
 
-	submitForScoring(): void {
-		const score = classificationGrading(this.data.categories, this.categorized);
-		console.log(`Score: ${score.score.toFixed(1)}% (${score.correct}/${score.total})`);
-		
-		this.disableCheckButton();
-		this.shell.setAttribute("inert", "");
-		super.submitForScoring();
+	onHint(): void {
+		const uncategorized = this.allItems.filter(item => !this.categorized.has(item));
+
+		if (uncategorized.length === 0) {
+			alert('All items are categorized! Click "Check" to submit.');
+			this.emitHintShown('All items categorized');
+			return;
+		}
+
+		const firstUncategorized = uncategorized[0];
+		alert(`Hint: You haven't categorized "${firstUncategorized}" yet. Which category does it belong to?`);
+		this.emitHintShown(`Uncategorized item: ${firstUncategorized}`);
 	}
 
+	// ==================== GRADING ====================
+
+	/**
+	 * Override submit to include grading
+	 */
+	public submit(): void {
+		// Check completion first (will throw if not complete)
+		super.submit();
+
+		// Grade the response
+		const result = classificationGrading(this.data.categories, this.categorized);
+
+		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
+
+		// Emit grading event
+		this.dispatchEvent(new CustomEvent('interaction:graded', {
+			detail: { result },
+			bubbles: true,
+			composed: true
+		}));
+	}
+
+	// ==================== RESET ====================
+
+	public reset(): void {
+		super.reset();
+		this.categorized.clear();
+
+		// Reset all chips
+		this.querySelectorAll('edu-chip').forEach((chip: any) => {
+			chip.classList.remove('colorized');
+			chip.style.setProperty('--current-color', '');
+		});
+	}
 }
 
+// Register as custom element
+if (!customElements.get('open-classification')) {
+	customElements.define('open-classification', OpenClassification);
+}
