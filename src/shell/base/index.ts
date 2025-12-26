@@ -1,0 +1,1 @@
+export { InteractionsBaseShell } from "./script";
