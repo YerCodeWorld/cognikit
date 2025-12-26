@@ -1,5 +1,6 @@
 import CSS from "./styles.css";
 import { TableConfiguration, TableState, CellValue, CellKind, TableCompletion, RowValues, EduTableChangeDetail } from "../../types/Tables"; 
+import { shuffle } from "../../shared/utils";
 import { hash, escapeHtml } from "../../shared";
 
 type EduTableElement = HTMLElement & {
@@ -131,16 +132,18 @@ export class EduTable extends HTMLElement implements EduTableElement {
 		}
 
 		const config = this._config;
-
+		
+		const cols = config.shuffle ? shuffle(config.cols) : config.cols; 
 		const header = `
 			<tr>
 				<th></th>
-				${config.cols.map(c => `<th scope="col">${escapeHtml(c)}</th>`).join('')}
+				${cols.map(c => `<th scope="col">${escapeHtml(c)}</th>`).join('')}
 			</tr>
 		`;
-
-		const body = config.rows.map(r => {
-			const cells = config.cols.map(c => this.renderCell(config, r, c)).join('');
+		
+		const rows = config.shuffle ? shuffle(config.rows) : config.rows;
+		const body = rows.map(r => {
+			const cells = cols.map(c => this.renderCell(config, r, c)).join('');
 			return `<tr><th scope="row">${escapeHtml(r)}</th>${cells}</tr>`;
 		}).join('');
 
