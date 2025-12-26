@@ -23,24 +23,13 @@ export type ItemData =
 	BaseTableData 	   |
 	FreeRecallData;
 
-export interface IInteractionInstance {
-	readonly id: string;
-	render(): void;
-	isInteractionComplete(): boolean; 
-	getCurrentState(): any;
-	destroy(): void;
-}
-
-export interface InteractionOptions<T extends ItemData = ItemData> {
-	mount: HTMLElement;
-	data: T;
-	config: InteractionConfig;
-	interactionHandler: (r: InteractionResult) => void;  }
-
+// This must be changed to something more broad 
+// 'IShellConfiguration'
 export interface InteractionConfig {
 
 	variant: Variant;  
 	prompt: string;  
+	
 	headerEnabled: boolean;  // 'promptEnabled' instead...
 	autoCheckButton: boolean;
 	
