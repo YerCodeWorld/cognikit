@@ -1,1 +1,1 @@
-export { EduApplicationWindow } from "./window";
+export { InteractionsBaseShell } from "./base";
