@@ -1,263 +1,293 @@
-import { EduApplicationWindow } from "../shell";
-import { 
-	IInteractionInstance, 
-	InteractionConfig, 
-	InteractionOptions, 
-	ItemData, 
-	InteractionResult, 
-	Variant 
-} from "../shared";
+import { ProgressTracker } from "./utilities/ProgressTracker";
+import { ItemData, InteractionConfig, Variant } from "../shared";
 
-export abstract class BaseInteraction<T extends ItemData>
-	implements IInteractionInstance {
+/**
+ * Standard events emitted by all interactions
+ * Shells and external systems can listen to these
+ */
+export type InteractionEventMap = {
+	'interaction:ready': CustomEvent<{ id: string }>;
+	'interaction:progress': CustomEvent<{ current: number; total: number; percentage: number }>;
+	'interaction:state-change': CustomEvent<{ state: any; isComplete: boolean }>;
+	'interaction:complete': CustomEvent<{ state: any; id: string }>;
+	'interaction:hint-shown': CustomEvent<{ message?: string }>;
+	'interaction:error': CustomEvent<{ error: Error; message: string }>;
+};
 
+export abstract class BaseInteraction<T extends ItemData> extends HTMLElement {
+
+	// ==================== PROPERTIES ====================
+
+	/** Unique identifier for this interaction instance */
 	public readonly id: string;
 
-	protected readonly mount: HTMLElement;
-	protected readonly data: T;
-	protected readonly config: InteractionConfig;
-	protected readonly shell: EduApplicationWindow;
-	protected readonly interactionHandler?: (r: InteractionResult) => void;
+	/** Data for this interaction (questions, answers, etc.) */
+	protected data: T;
 
-	// Track progress
-	private progressTotal: number = 0;
-	private progressCurrent: number = 0;
+	/** Configuration (variant, timer, etc.) */
+	protected config: InteractionConfig;
 
-	constructor(options: InteractionOptions<T>) {
+	/** Progress tracking utility */
+	protected progressTracker: ProgressTracker;
+
+	/** Whether the interaction has been initialized */
+	private _initialized = false;
+
+	// ==================== CONSTRUCTOR ====================
+
+	constructor(data: T, config: InteractionConfig) {
+		super();
 
 		this.id = crypto.randomUUID();
-		this.mount = options.mount;
-		this.data = options.data;
-		this.config = options.config;
-		this.interactionHandler = options.interactionHandler;
+		this.data = data;
+		this.config = config;
+		this.progressTracker = new ProgressTracker();
 
-		this.shell = document.createElement("edu-window") as EduApplicationWindow;
-
-		this.setupShell();
-		this.setupEventListeners();
-
-		this.mount.appendChild(this.shell);
-
-		requestAnimationFrame(() => {
-			this.render();
-		});
-	}
-
-	private setupShell(): void {
-		this.shell.setAttribute("variant", this.config.variant ?? 'outline');
-		this.shell.setAttribute("heading", this.config.prompt ?? 'No prompt');
-		this.shell.setAttribute("show-header", this.config.headerEnabled ? 'true' : 'false');
-		this.shell.setAttribute("show-footer", this.config.footerEnabled ? 'true' : 'false');
-
-		if (this.config.timer && this.config.timer > 0) {
-			this.shell.setAttribute("timer", String(this.config.timer));
-		}
-
-		const footerMode = this.config.footerAction === 'navigation' ? 'sequential' : 'static';
-		this.shell.setAttribute("footer-mode", footerMode);
-
-		if (this.config.footerAction === 'navigation') {
-			// Default to reasonable count, can be overridden by child classes
-			this.shell.setAttribute("radio-count", "5");
+		// Set variant attribute for styling
+		if (config.variant) {
+			this.setAttribute('variant', config.variant);
 		}
 	}
 
-	private setupEventListeners(): void {
-		// Check button click handler
-		this.shell.addEventListener('click', (e) => {
-			const checkBtn = this.shell.getCheckBtn();
-			if (e.composedPath().includes(checkBtn)) {
-				this.onCheckButtonClick();
-			}
-		});
+	// ==================== LIFECYCLE (Web Component) ====================
 
-		// Timer complete handler
-		this.shell.addEventListener('timer-complete', () => {
-			this.onTimerComplete();
-		});
-
-		// Radio navigation handler
-		this.shell.addEventListener('click', (e) => {
-			const radioNav = this.shell.getRadioNav();
-			const clickedLabel = e.composedPath().find(
-				el => (el as HTMLElement).tagName === 'LABEL' &&
-				(el as HTMLElement).parentElement === radioNav
-			) as HTMLLabelElement | undefined;
-
-			if (clickedLabel) {
-				const inputId = clickedLabel.getAttribute('for');
-				const match = inputId?.match(/step-(\d+)/);
-				if (match) {
-					const stepIndex = parseInt(match[1], 10);
-					this.onNavigationChange(stepIndex);
-				}
-			}
-		});
+	connectedCallback() {
+		if (!this._initialized) {
+			this._initialized = true;
+			this.initialize();
+			requestAnimationFrame(() => {
+				this.render();
+				this.emitReady();
+			});
+		}
 	}
 
-	// ==================== ABSTRACT METHODS ====================
+	disconnectedCallback() {
+		this.cleanup();
+	}
+
+	// ==================== ABSTRACT METHODS (Must Implement) ====================
+
+	/**
+	 * Render the interaction's UI
+	 * Called automatically after connectedCallback
+	 */
 	abstract render(): void;
+
+	/**
+	 * Get the current state/response from the user
+	 * @returns User's current answers/selections
+	 */
 	abstract getCurrentState(): any;
+
+	/**
+	 * Check if the interaction is complete
+	 * @returns true if user has provided all required responses
+	 */
 	abstract isInteractionComplete(): boolean;
 
-	// ==================== LIFECYCLE HOOKS ====================
-	protected onCheckButtonClick(): void {
-		// Default: submit for scoring
-		this.submitForScoring();
-		this.shell.stopTimer();
-	}
-
-	protected onTimerComplete(): void {
-		// Default: auto-submit when time's up
-		console.log(`Timer complete for interaction ${this.id}`);
-		this.submitForScoring();
-	}
-
-	protected onNavigationChange(stepIndex: number): void {
-		// Override in child class to handle step changes
-		console.log(`Navigation changed to step ${stepIndex}`);
-	}
-
-	// ==================== PROGRESS ====================
 	/**
-	 * Initialize progress tracking with a total count
+	 * Provide a hint to the user
+	 * Implementation is interaction-specific
+	 */
+	abstract onHint(): void;
+
+	// ==================== OPTIONAL LIFECYCLE HOOKS ====================
+
+	/**
+	 * Called once when interaction is first connected to DOM
+	 * Override to set up event listeners, initialize state, etc.
+	 */
+	protected initialize(): void {
+		// Override in subclass if needed
+	}
+
+	/**
+	 * Called when interaction is removed from DOM
+	 * Override to clean up event listeners, timers, etc.
+	 */
+	protected cleanup(): void {
+		// Override in subclass if needed
+	}
+
+	/**
+	 * Called when variant changes
+	 * Override to update interaction styling
+	 */
+	protected onVariantChange(newVariant: Variant): void {
+		// Override in subclass if needed
+	}
+
+	// ==================== PROGRESS TRACKING ====================
+
+	/**
+	 * Initialize progress tracking with total number of steps/items
 	 */
 	protected initializeProgress(total: number): void {
-		this.progressTotal = total;
-		this.progressCurrent = 0;
-		this.shell.setTotal(total);
+		this.progressTracker.initialize(total);
+		this.emitProgress();
 	}
 
 	/**
-	 * Update progress by setting current value
+	 * Set current progress value
 	 */
-	protected updateProgress(current: number): void {
-		this.progressCurrent = current;
-		this.shell.setProgress(current, this.progressTotal);
+	protected setProgress(current: number): void {
+		this.progressTracker.setCurrent(current);
+		this.emitProgress();
 	}
 
+	/**
+	 * Increment progress by 1
+	 */
 	protected incrementProgress(): void {
-		this.shell.increment();
-		this.progressCurrent++;
-		// not all use cases might want this i guess, so let's just add this flag
-		if ((this.progressCurrent === this.progressTotal) && this.config.autoCheckButton) {
-			this.showCheckButton();
-		} 
+		this.progressTracker.increment();
+		this.emitProgress();
 	}
 
+	/**
+	 * Decrement progress by 1
+	 */
 	protected decrementProgress(): void {
-		this.shell.decrement();
-		this.progressCurrent--;
-		this.hideCheckButton();
+		this.progressTracker.decrement();
+		this.emitProgress();
 	}
 
 	/**
-	 * Reset progress to 0
+	 * Get current progress information
 	 */
-	protected resetProgress(): void {
-		this.progressCurrent = 0;
-		this.shell.resetProgress();
-	}
-
-	/**
-	 * Get current progress values
-	 */
-	protected getProgress(): { current: number; total: number } {
+	protected getProgress(): { current: number; total: number; percentage: number } {
 		return {
-			current: this.progressCurrent,
-			total: this.progressTotal
+			current: this.progressTracker.current,
+			total: this.progressTracker.total,
+			percentage: this.progressTracker.getPercentage()
 		};
 	}
 
-	// ==================== SHELL HELPERS ====================
+	// ==================== EVENT EMISSION (Communication) ====================
 
-	protected setNavigationSteps(count: number): void {
-		this.shell.setAttribute('radio-count', String(count));
+	/**
+	 * Emit ready event (interaction initialized and rendered)
+	 */
+	private emitReady(): void {
+		this.dispatchEvent(new CustomEvent('interaction:ready', {
+			detail: { id: this.id },
+			bubbles: true,
+			composed: true
+		}));
 	}
 
 	/**
-	 * Need for showing only when progress is complete
+	 * Emit progress update event
 	 */
-	protected showCheckButton(): void {
-		this.shell.showCheckButton();
-	}
-
-	protected hideCheckButton(): void {
-		this.shell.hideCheckButton();
-	}
-
-	protected enableCheckButton(): void {
-		this.shell.getCheckBtn().disabled = false;
-	}
-
-	protected disableCheckButton(): void {
-		this.shell.getCheckBtn().disabled = true;
-	}
-
-	protected pauseTimer(): void {
-		this.shell.pauseTimer();
-	}
-
-	protected resumeTimer(): void {
-		this.shell.resumeTimer();
-	}
-
-	protected resetTimer(): void {
-		this.shell.resetTimer();
+	protected emitProgress(): void {
+		const progress = this.getProgress();
+		this.dispatchEvent(new CustomEvent('interaction:progress', {
+			detail: progress,
+			bubbles: true,
+			composed: true
+		}));
 	}
 
 	/**
-	 * Get access to the shell's content area for rendering
+	 * Emit state change event (user modified their response)
 	 */
-	protected getContentArea(): HTMLElement {
-		const shadowRoot = this.shell.shadowRoot;
-		if (!shadowRoot) {
-			throw new Error('Shadow root not available on shell element');
-		}
-		const content = shadowRoot.querySelector('[part="content"]') as HTMLElement;
-		if (!content) {
-			throw new Error('Content area not found in shell shadow DOM');
-		}
-		return content;
+	protected emitStateChange(): void {
+		this.dispatchEvent(new CustomEvent('interaction:state-change', {
+			detail: {
+				state: this.getCurrentState(),
+				isComplete: this.isInteractionComplete()
+			},
+			bubbles: true,
+			composed: true
+		}));
 	}
-
-	// ==================== SCORING ====================
 
 	/**
-	 * Submit the interaction for scoring
-	 * Override this in child classes to implement scoring logic
+	 * Emit completion event (interaction finished)
 	 */
-	protected submitForScoring(): void {
-		const state = this.getCurrentState();
-		const isComplete = this.isInteractionComplete();
-
-		if (!isComplete) {
-			console.warn(`Interaction ${this.id} submitted but not complete`);
-		}
-
-		if (this.interactionHandler) {
-			// TODO: Determine result based on scoring logic
-			// For now, just call with a placeholder
-			this.interactionHandler('a');
-		}
-
-		console.log('Submitted for scoring:', { id: this.id, state, isComplete });
+	protected emitComplete(): void {
+		this.dispatchEvent(new CustomEvent('interaction:complete', {
+			detail: {
+				state: this.getCurrentState(),
+				id: this.id
+			},
+			bubbles: true,
+			composed: true
+		}));
 	}
 
+	/**
+	 * Emit hint shown event
+	 */
+	protected emitHintShown(message?: string): void {
+		this.dispatchEvent(new CustomEvent('interaction:hint-shown', {
+			detail: { message },
+			bubbles: true,
+			composed: true
+		}));
+	}
+
+	/**
+	 * Emit error event
+	 */
+	protected emitError(error: Error, message?: string): void {
+		this.dispatchEvent(new CustomEvent('interaction:error', {
+			detail: {
+				error,
+				message: message || error.message
+			},
+			bubbles: true,
+			composed: true
+		}));
+	}
+
+	// ==================== PUBLIC API (External Control) ====================
+
+	/**
+	 * Submit the interaction (triggers complete event)
+	 * Can be called by shell or external code
+	 */
+	public submit(): void {
+		if (!this.isInteractionComplete()) {
+			const error = new Error('Cannot submit incomplete interaction');
+			this.emitError(error, 'Please complete all required fields before submitting');
+			throw error;
+		}
+		this.emitComplete();
+	}
+
+	/**
+	 * Show hint to user
+	 * Can be called by shell hint button or external code
+	 */
+	public hint(): void {
+		this.onHint();
+	}
+
+	/**
+	 * Reset the interaction to initial state
+	 * Override in subclass to implement reset logic
+	 */
 	public reset(): void {
-		this.resetProgress();
-		this.resetTimer();
+		this.progressTracker.reset();
+		this.emitProgress();
 		this.render();
 	}
 
+	/**
+	 * Change the visual variant
+	 * Updates attribute and calls hook
+	 */
 	public setVariant(variant: Variant): void {
 		this.config.variant = variant;
-		this.shell.setAttribute('variant', variant);
-		this.render();
+		this.setAttribute('variant', variant);
+		this.onVariantChange(variant);
 	}
 
-	public destroy(): void {
-		this.mount.innerHTML = '';
+	/**
+	 * Get current variant
+	 */
+	public getVariant(): Variant {
+		return (this.getAttribute('variant') as Variant) || this.config.variant || 'outline';
 	}
-
 }
