@@ -22,6 +22,8 @@ export interface TableConfiguration {
 
 	preset?: 'lookup' | 'n-ary' | 'classification' | 'adjacency';
 	variant?: Variant;
+
+	shuffle?: boolean;
 }
 
 export type RowValues = {
