@@ -94,7 +94,10 @@ export class EduTable extends HTMLElement implements EduTableElement {
 		return completion;
 	}
 
-	attributeChangedCallback() {}
+	attributeChangedCallback() {
+		// Variant is set on the host element, CSS uses :host([variant="..."])
+		// No action needed - styles update automatically
+	}
 
 	private initState(config: TableConfiguration): TableState {
 		const state: TableState = {}

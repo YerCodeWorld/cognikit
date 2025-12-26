@@ -38,6 +38,9 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 	render(): void {
 		const content = this.getContentArea();
 
+		// Update variant to current config value (in case it changed via setVariant)
+		this._tableConfig.variant = this.config.variant;
+
 		// Create and configure table
 		this._$table = document.createElement('edu-table') as EduTable;
 		this._$table.config = this._tableConfig;
