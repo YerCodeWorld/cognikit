@@ -36,9 +36,9 @@ export function basicTableDataParser(code: string): ParseResult {
 	let rows: string[] = [], cols: string[] = [];	
 	let answerKey: Map<string, string[]> = new Map<string, string[]>();	
 	const errors: Record<string, string> = {};
-
+	
 	const categoryPattern = 
-		/^\s*(?<category>[A-Z_][A-Z0-9]*)\s*=\s*(?<items>[^;]+?)\s*;\s*$/gm; 
+		/^\s*(?<category>[A-Z_](?:[A-Z0-9_]* ?[A-Z0-9_]+)*)\s*=\s*(?<items>[^;]+?)\s*;\s*$/gm;
 
 	const matches = [...code.matchAll(categoryPattern)];
 
@@ -47,6 +47,7 @@ export function basicTableDataParser(code: string): ParseResult {
 			'No valid category entries found. Expected lines like: CATEGORY = item1 | item2;';
 	}
 
+	const seen = new Set<string>();
 	for (const match of matches) {		
 		const rawCategory = match.groups?.category ?? '';
 		const rawItems = match.groups?.items ?? '';
@@ -76,20 +77,15 @@ export function basicTableDataParser(code: string): ParseResult {
 
 		cols.push(category);
 
-		const seen = new Set<string>();
-		const uniqueItems: string[] = [];
 		for (const item of items) {
 			if (seen.has(item)) {
-				errors[`parse.duplicateItem.${category}`] =
-					`Category "${category}" includes duplicate item "${item}". Remove duplicates.`;
 				continue;
 			}
 			seen.add(item);
-			uniqueItems.push(item);
 			rows.push(item);
 		}
 
-		answerKey.set(category, uniqueItems);
+		answerKey.set(category, items);
 	}
 
 	const data: BaseTableData = { rows, cols, answerKey };
@@ -142,7 +138,7 @@ export function basicTableDataValidator(
 		}
 	}
 
-	// 3) Detect duplicate items inside a category list (optional but usually helpful)
+	// 3) Detect duplicate items inside a category list 
 	for (const [col, items] of answerKey.entries()) {
 		const seen = new Set<string>();
 		for (const item of items) {
