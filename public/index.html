@@ -1,9 +1,11 @@
+<!-- AI GENERATED -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>CogniKit - Open Classification Demo</title>
+	<title>CogniKit  Architecture Demo</title>
 	<style>
 		* {
 			margin: 0;
@@ -12,165 +14,380 @@
 		}
 
 		body {
-			font-family: system-ui, -apple-system, sans-serif;
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 			min-height: 100vh;
 			padding: 2rem;
+			color: #333;
 		}
 
-		.demo-container {
-			max-width: 1000px;
-			margin: 0 auto;
-		}
-
-		.page-header {
+		.header {
 			text-align: center;
 			color: white;
-			margin-bottom: 2rem;
+			margin-bottom: 3rem;
 		}
 
-		.page-header h1 {
-			font-size: 2.5rem;
+		.header h1 {
+			font-size: 3rem;
+			font-weight: 800;
 			margin-bottom: 0.5rem;
 			text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 		}
 
-		.page-header p {
-			font-size: 1.1rem;
+		.header p {
+			font-size: 1.2rem;
 			opacity: 0.9;
 		}
 
-		#quiz-mount {
+		.container {
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		.controls {
 			background: white;
-			padding: 2rem;
+			padding: 1.5rem;
 			border-radius: 12px;
-			box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+			box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+			margin-bottom: 2rem;
+			display: flex;
+			gap: 2rem;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+
+		.control-group {
+			display: flex;
+			gap: 0.75rem;
+			align-items: center;
+		}
+
+		.control-group label {
+			font-weight: 600;
+			color: #555;
+		}
+
+		.control-group select {
+			padding: 0.5rem 1rem;
+			border: 2px solid #ddd;
+			border-radius: 6px;
+			font-size: 0.95rem;
+			background: white;
+			cursor: pointer;
+			transition: border-color 0.2s;
+		}
+
+		.control-group select:hover {
+			border-color: #667eea;
+		}
+
+		.demo-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+			gap: 2rem;
+			margin-bottom: 2rem;
+		}
+
+		.demo-section {
+			background: white;
+			border-radius: 12px;
+			box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+			overflow: hidden;
+		}
+
+		.demo-section-header {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			padding: 1rem 1.5rem;
+			font-weight: 700;
+			font-size: 1.1rem;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.demo-section-header .badge {
+			background: rgba(255,255,255,0.3);
+			padding: 0.25rem 0.75rem;
+			border-radius: 12px;
+			font-size: 0.85rem;
+			font-weight: 600;
+		}
+
+		.demo-section-content {
+			padding: 1.5rem;
+			min-height: 400px;
+		}
+
+		.standalone-container {
+			border: 2px dashed #ddd;
+			padding: 1.5rem;
+			border-radius: 8px;
+			background: #fafafa;
+		}
+
+		.standalone-controls {
+			display: flex;
+			gap: 1rem;
+			margin-top: 1rem;
+			padding-top: 1rem;
+			border-top: 2px solid #ddd;
+		}
+
+		.btn {
+			padding: 0.75rem 1.5rem;
+			border: none;
+			border-radius: 6px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.2s;
+			font-size: 0.95rem;
+		}
+
+		.btn-primary {
+			background: #667eea;
+			color: white;
+		}
+
+		.btn-primary:hover {
+			background: #5568d3;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+		}
+
+		.btn-secondary {
+			background: #e2e8f0;
+			color: #334155;
+		}
+
+		.btn-secondary:hover {
+			background: #cbd5e1;
+		}
+
+		.btn-hint {
+			background: #fbbf24;
+			color: white;
+		}
+
+		.btn-hint:hover {
+			background: #f59e0b;
+		}
+
+		.event-log {
+			background: #1e293b;
+			color: #10b981;
+			font-family: 'Courier New', monospace;
+			font-size: 0.85rem;
+			padding: 1rem;
+			border-radius: 6px;
+			max-height: 200px;
+			overflow-y: auto;
+			margin-top: 1rem;
+		}
+
+		.event-log div {
+			margin-bottom: 0.25rem;
+		}
+
+		.event-log .timestamp {
+			color: #64748b;
+			margin-right: 0.5rem;
+		}
+
+		.event-log .event-name {
+			color: #60a5fa;
+			font-weight: 600;
+		}
+
+		.event-log .event-detail {
+			color: #94a3b8;
 		}
 
 		.info-box {
-			margin-top: 2rem;
-			padding: 1.5rem;
-			background: rgba(255, 255, 255, 0.95);
-			border-radius: 8px;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+			background: #eff6ff;
+			border-left: 4px solid #3b82f6;
+			padding: 1rem;
+			margin-bottom: 1rem;
+			border-radius: 4px;
 		}
 
 		.info-box h3 {
-			color: #667eea;
-			margin-bottom: 0.75rem;
-		}
-
-		.info-box ul {
-			list-style-position: inside;
-			color: #374151;
-			line-height: 1.8;
-		}
-
-		.info-box li {
+			color: #1e40af;
 			margin-bottom: 0.5rem;
+			font-size: 1rem;
 		}
 
-		.features {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-			gap: 1rem;
-			margin-top: 2rem;
-		}
-
-		.feature-card {
-			background: rgba(255, 255, 255, 0.95);
-			padding: 1.25rem;
-			border-radius: 8px;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-		}
-
-		.feature-card h4 {
-			color: #667eea;
-			margin-bottom: 0.5rem;
-			font-size: 1.1rem;
-		}
-
-		.feature-card p {
-			color: #6b7280;
-			font-size: 0.95rem;
+		.info-box p {
+			color: #1e3a8a;
+			font-size: 0.9rem;
 			line-height: 1.5;
+		}
+
+		@media (max-width: 768px) {
+			.demo-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.header h1 {
+				font-size: 2rem;
+			}
+
+			body {
+				padding: 1rem;
+			}
 		}
 	</style>
 </head>
 <body>
-	<div class="demo-container">
-		<div class="page-header">
-			<h1>CogniKit Open Classification</h1>
-			<p>Click chips to assign them to color-coded categories</p>
-		</div>
+	<div class="header">
+		<h1>🧠 CogniKit  Architecture Demo</h1>
+		<p>Shell-Agnostic Interactions with Event-Driven Architecture</p>
+	</div>
 
-		<div id="quiz-mount"></div>
-
-		<div class="info-box">
-			<h3>How to use this interaction:</h3>
-			<ul>
-				<li><strong>Step 1:</strong> Click the "Choose a Category" button to open the category selector</li>
-				<li><strong>Step 2:</strong> Select a category with its color</li>
-				<li><strong>Step 3:</strong> Click on items to assign them to the selected category</li>
-				<li><strong>Step 4:</strong> Click again on a categorized item to toggle/remove its category</li>
-				<li><strong>Step 5:</strong> Once all items are categorized, click "Check" to see your score</li>
-				<li><strong>Result:</strong> Green borders = correct, Red borders = incorrect</li>
-			</ul>
-		</div>
-
-		<div class="features">
-			<div class="feature-card">
-				<label>Change Accent</label>
-				<input type="color" id="colorPicker"></input>
-			</div>
-			<div class="feature-card">
-				<label>Change Variant</label>
-				<select id="variantPicker">
-					<option>outline</option>
-					<option>sign</option>
-					<option>letter</option>
-					<option>playful</option>
-					<option>elegant</option>
-					<option>minimal</option>
-					<option>glass</option>
-					<option>empty</option>
+	<div class="container">
+		<!-- Global Controls -->
+		<div class="controls">
+			<div class="control-group">
+				<label for="variant-select">Variant:</label>
+				<select id="variant-select">
+					<option value="elegant">Elegant</option>
+					<option value="playful">Playful</option>
+					<option value="outline" selected>Outline</option>
+					<option value="letter">Letter</option>
+					<option value="sign">Sign</option>
+					<option value="minimal">Minimal</option>
+					<option value="glass">Glass</option>
+					<option value="empty">Empty</option>
 				</select>
 			</div>
+			<div class="control-group">
+				<label for="timer-select">Timer:</label>
+				<select id="timer-select">
+					<option value="0">No Timer</option>
+					<option value="60">60 seconds</option>
+					<option value="120" selected>2 minutes</option>
+					<option value="300">5 minutes</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Classification Matrix Demos -->
+		<h2 style="color: white; margin-bottom: 1rem; font-size: 1.5rem;">📊 Classification Matrix</h2>
+		<div class="demo-grid">
+			<!-- With Shell -->
+			<div class="demo-section">
+				<div class="demo-section-header">
+					<span>Classification Matrix</span>
+					<span class="badge">WITH SHELL</span>
+				</div>
+				<div class="demo-section-content">
+					<div class="info-box">
+						<h3>Event-Driven Shell</h3>
+						<p>The shell listens to interaction events and automatically updates the UI (progress bar, check button, timer). No tight coupling!</p>
+					</div>
+					<div id="matrix-with-shell"></div>
+					<div class="event-log" id="matrix-shell-log"></div>
+				</div>
+			</div>
+
+			<!-- Without Shell -->
+			<div class="demo-section">
+				<div class="demo-section-header">
+					<span>Classification Matrix</span>
+					<span class="badge">STANDALONE</span>
+				</div>
+				<div class="demo-section-content">
+					<div class="info-box">
+						<h3>Shell-Agnostic</h3>
+						<p>The same interaction works standalone. You provide your own UI and listen to events directly.</p>
+					</div>
+					<div class="standalone-container">
+						<div id="matrix-standalone"></div>
+						<div class="standalone-controls">
+							<button class="btn btn-primary" id="matrix-submit">✓ Submit</button>
+							<button class="btn btn-hint" id="matrix-hint">💡 Hint</button>
+							<button class="btn btn-secondary" id="matrix-reset">↺ Reset</button>
+						</div>
+					</div>
+					<div class="event-log" id="matrix-standalone-log"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Open Classification Demos -->
+		<h2 style="color: white; margin-bottom: 1rem; font-size: 1.5rem;">🏷️ Open Classification</h2>
+		<div class="demo-grid">
+			<!-- With Shell -->
+			<div class="demo-section">
+				<div class="demo-section-header">
+					<span>Open Classification</span>
+					<span class="badge">WITH SHELL</span>
+				</div>
+				<div class="demo-section-content">
+					<div class="info-box">
+						<h3>Event-Driven Shell</h3>
+						<p>Click items to classify them into categories. Shell automatically tracks progress and enables check button when complete.</p>
+					</div>
+					<div id="open-with-shell"></div>
+					<div class="event-log" id="open-shell-log"></div>
+				</div>
+			</div>
+
+			<!-- Without Shell -->
+			<div class="demo-section">
+				<div class="demo-section-header">
+					<span>Open Classification</span>
+					<span class="badge">STANDALONE</span>
+				</div>
+				<div class="demo-section-content">
+					<div class="info-box">
+						<h3>Custom Integration</h3>
+						<p>Same interaction, different presentation. Perfect for embedding in custom UIs or frameworks.</p>
+					</div>
+					<div class="standalone-container">
+						<div id="open-standalone"></div>
+						<div class="standalone-controls">
+							<button class="btn btn-primary" id="open-submit">✓ Submit</button>
+							<button class="btn btn-hint" id="open-hint">💡 Hint</button>
+							<button class="btn btn-secondary" id="open-reset">↺ Reset</button>
+						</div>
+					</div>
+					<div class="event-log" id="open-standalone-log"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<script type="module">
-		import { OpenClassification } from './app.js';
+		import { ClassificationMatrix, OpenClassification, InteractionsBaseShell } from './app.js';
 
-		const picker = document.getElementById("colorPicker");
-		const variantPicker = document.getElementById("variantPicker");
-				// Sample quiz data about animals and their habitats
-		const quizData = {
-			type: 'classification',
-			categories: [
-				{
-					label: 'Mammals',
-					items: ['Lion', 'Elephant', 'Dolphin', 'Bat']
-				},
-				{
-					label: 'Birds',
-					items: ['Eagle', 'Penguin', 'Parrot', 'Owl']
-				},
-				{
-					label: 'Reptiles',
-					items: ['Snake', 'Crocodile', 'Turtle', 'Lizard']
-				},
-				{
-					label: 'Fish',
-					items: ['Shark', 'Salmon', 'Goldfish', 'Tuna']
-				}
-			],
-			distractors: ['Jellyfish', 'Coral']
+		// ==================== SAMPLE DATA ====================
+
+		const matrixData = {
+			rows: ['Apple', 'Carrot', 'Chicken', 'Bread', 'Milk'],
+			cols: ['Fruit', 'Vegetable', 'Protein', 'Grain', 'Dairy'],
+			answerKey: new Map([
+				['Fruit', ['Apple']],
+				['Vegetable', ['Carrot']],
+				['Protein', ['Chicken']],
+				['Grain', ['Bread']],
+				['Dairy', ['Milk']]
+			])
 		};
 
-		// Configuration for the interaction
+		const openData = {
+			type: 'classification',
+			categories: [
+				{ label: 'Mammals', items: ['Dog', 'Cat', 'Elephant', 'Whale'] },
+				{ label: 'Birds', items: ['Eagle', 'Penguin', 'Sparrow'] },
+				{ label: 'Reptiles', items: ['Snake', 'Lizard', 'Crocodile'] }
+			],
+			distractors: ['Rock', 'Cloud']
+		};
+
 		const config = {
 			variant: 'outline',
-			prompt: 'Classify these animals into their correct groups',
+			prompt: 'Classify the items',
 			headerEnabled: true,
 			autoCheckButton: true,
 			footerEnabled: true,
@@ -178,46 +395,173 @@
 			stimulus: 'text',
 			counterEnabled: true,
 			animationsEnabled: true,
-			timer: 60, // No timer for this demo
-			retries: 0,
-			construct: 'Animal Classification',
+			timer: 120,
+			retries: 3,
+			construct: 'classification',
 			shuffle: false
 		};
 
-		// Mount point
-		const mount = document.getElementById('quiz-mount');
+		// ==================== HELPER FUNCTIONS ====================
 
-		// Handler for when the quiz is submitted
-		const interactionHandler = (result) => {
-			console.log('Quiz completed with result:', result);
-		};
+		function logEvent(logElement, eventName, detail) {
+			const timestamp = new Date().toLocaleTimeString();
+			const div = document.createElement('div');
+			div.innerHTML = `<span class="timestamp">[${timestamp}]</span><span class="event-name">${eventName}</span> <span class="event-detail">${JSON.stringify(detail)}</span>`;
+			logElement.appendChild(div);
+			logElement.scrollTop = logElement.scrollHeight;
+		}
 
-		// Create and initialize the interaction
-		const quiz = new OpenClassification({
-			mount: mount,
-			data: quizData,
-			config: config,
-			interactionHandler: interactionHandler
+		function setupEventListeners(interaction, logElement) {
+			interaction.addEventListener('interaction:ready', (e) => {
+				logEvent(logElement, 'ready', { id: e.detail.id });
+			});
+
+			interaction.addEventListener('interaction:progress', (e) => {
+				logEvent(logElement, 'progress', {
+					current: e.detail.current,
+					total: e.detail.total,
+					percentage: e.detail.percentage
+				});
+			});
+
+			interaction.addEventListener('interaction:state-change', (e) => {
+				logEvent(logElement, 'state-change', { isComplete: e.detail.isComplete });
+			});
+
+			interaction.addEventListener('interaction:complete', (e) => {
+				logEvent(logElement, 'complete', { id: e.detail.id });
+			});
+
+			interaction.addEventListener('interaction:hint-shown', (e) => {
+				logEvent(logElement, 'hint-shown', { message: e.detail.message });
+			});
+
+			interaction.addEventListener('interaction:graded', (e) => {
+				logEvent(logElement, 'graded', {
+					score: e.detail.result.score.toFixed(1) + '%',
+					correct: e.detail.result.correct,
+					total: e.detail.result.total
+				});
+			});
+
+			interaction.addEventListener('interaction:error', (e) => {
+				logEvent(logElement, 'error', { message: e.detail.message });
+			});
+		}
+
+		// ==================== CLASSIFICATION MATRIX WITH SHELL ====================
+
+		const matrixShell = new InteractionsBaseShell();
+		matrixShell.setAttribute('heading', 'Food Classification');
+		matrixShell.setAttribute('timer', '120');
+		matrixShell.setAttribute('variant', 'outline');
+		matrixShell.setAttribute('show-hint-button', 'true');
+
+		const matrixWithShell = new ClassificationMatrix(matrixData, config);
+		setupEventListeners(matrixWithShell, document.getElementById('matrix-shell-log'));
+
+		matrixShell.setInteraction(matrixWithShell);
+		document.getElementById('matrix-with-shell').appendChild(matrixShell);
+
+		matrixShell.addEventListener('shell:interaction-complete', (e) => {
+			logEvent(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
 		});
 
-		variantPicker.addEventListener("change", (e) => {
-			const val = e.target.value;
-			quiz.setVariant(val);
+		// ==================== CLASSIFICATION MATRIX STANDALONE ====================
+
+		const matrixStandalone = new ClassificationMatrix(matrixData, config);
+		setupEventListeners(matrixStandalone, document.getElementById('matrix-standalone-log'));
+		document.getElementById('matrix-standalone').appendChild(matrixStandalone);
+
+		document.getElementById('matrix-submit').addEventListener('click', () => {
+			try {
+				matrixStandalone.submit();
+			} catch (error) {
+				alert(error.message);
+			}
 		});
 
-		picker.addEventListener("change", (e) => {
-			const hex = e.target.value;
-
-			const r = parseInt(hex.substring(1, 3), 16);
-			const g = parseInt(hex.substring(3, 5), 16);
-			const b = parseInt(hex.substring(5, 7), 16);
-
-			quiz.shell.style.setProperty('--edu-first-accent', `${r} ${g} ${b}`);	
+		document.getElementById('matrix-hint').addEventListener('click', () => {
+			matrixStandalone.hint();
 		});
 
+		document.getElementById('matrix-reset').addEventListener('click', () => {
+			matrixStandalone.reset();
+			logEvent(document.getElementById('matrix-standalone-log'), 'reset', { manual: true });
+		});
 
+		// ==================== OPEN CLASSIFICATION WITH SHELL ====================
 
-		console.log('OpenClassification quiz initialized:', quiz);
+		const openShell = new InteractionsBaseShell();
+		openShell.setAttribute('heading', 'Animal Classification');
+		openShell.setAttribute('timer', '120');
+		openShell.setAttribute('variant', 'outline');
+		openShell.setAttribute('show-hint-button', 'true');
+
+		const openWithShell = new OpenClassification(openData, config);
+		setupEventListeners(openWithShell, document.getElementById('open-shell-log'));
+
+		openShell.setInteraction(openWithShell);
+		document.getElementById('open-with-shell').appendChild(openShell);
+
+		openShell.addEventListener('shell:interaction-complete', (e) => {
+			logEvent(document.getElementById('open-shell-log'), 'shell:complete', { state: 'submitted' });
+		});
+
+		// ==================== OPEN CLASSIFICATION STANDALONE ====================
+
+		const openStandalone = new OpenClassification(openData, config);
+		setupEventListeners(openStandalone, document.getElementById('open-standalone-log'));
+		document.getElementById('open-standalone').appendChild(openStandalone);
+
+		document.getElementById('open-submit').addEventListener('click', () => {
+			try {
+				openStandalone.submit();
+			} catch (error) {
+				alert(error.message);
+			}
+		});
+
+		document.getElementById('open-hint').addEventListener('click', () => {
+			openStandalone.hint();
+		});
+
+		document.getElementById('open-reset').addEventListener('click', () => {
+			openStandalone.reset();
+			logEvent(document.getElementById('open-standalone-log'), 'reset', { manual: true });
+		});
+
+		// ==================== GLOBAL CONTROLS ====================
+
+		const variantSelect = document.getElementById('variant-select');
+		const timerSelect = document.getElementById('timer-select');
+
+		const allInteractions = [matrixWithShell, matrixStandalone, openWithShell, openStandalone];
+		const allShells = [matrixShell, openShell];
+
+		variantSelect.addEventListener('change', (e) => {
+			const variant = e.target.value;
+
+			// Update all interactions
+			allInteractions.forEach(interaction => {
+				interaction.setVariant(variant);
+			});
+
+			// Update all shells
+			allShells.forEach(shell => {
+				shell.setAttribute('variant', variant);
+			});
+		});
+
+		timerSelect.addEventListener('change', (e) => {
+			const timer = e.target.value;
+
+			// Update all shells
+			allShells.forEach(shell => {
+				shell.setAttribute('timer', timer);
+			});
+		});
 	</script>
 </body>
 </html>
+
