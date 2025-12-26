@@ -98,7 +98,7 @@ input[type="radio"] {
 :host([variant="elegant"]) {
 	& table {
 		border-collapse: separate;
-		border-spacing: 0;
+		border-spacing: 6;
 	}
 
 	& th {
@@ -460,6 +460,7 @@ input[type="radio"] {
 :host([variant="empty"]) {
 	& table {
 		border: none;
+		background: none;
 	}
 
 	& th,
