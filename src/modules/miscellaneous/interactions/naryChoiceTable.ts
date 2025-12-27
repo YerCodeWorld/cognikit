@@ -18,7 +18,8 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 			answerKey: data.answerKey,
 			cellKind: 'radio',
 			preset: 'n-ary',
-			variant: config.variant ?? 'outline'
+			variant: config.variant ?? 'outline',
+			shuffle: true 
 		};
 
 		// Initialize progress tracking (one per row)
@@ -27,13 +28,8 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 
 	// ==================== LIFECYCLE ====================
 
-	protected initialize(): void {
-		// Set up any initial state if needed
-	}
-
-	protected cleanup(): void {
-		// Clean up event listeners if needed
-	}
+	protected initialize(): void {}
+	protected cleanup(): void {}
 
 	protected onVariantChange(newVariant: string): void {
 		// Update table variant when shell changes it
