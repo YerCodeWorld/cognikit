@@ -230,7 +230,6 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 			chip.variant = this.config.variant;
 			chip.textContent = item;
 			chip.dataset.label = item;
-			chip.id = `chip-00${i}`;
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;

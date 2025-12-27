@@ -35,7 +35,8 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 			answerKey: data.answerKey,
 			cellKind: 'checkbox',
 			preset: 'classification',
-			variant: config.variant ?? 'outline'
+			variant: config.variant ?? 'outline',
+			shuffle: true   // use config.shuffle instead
 		};
 
 		// Initialize progress tracking (one per row)
