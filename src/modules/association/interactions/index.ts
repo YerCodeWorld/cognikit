@@ -1,0 +1,1 @@
+export { SimultaneousAssociation } from "./simultaneousAssociation";
