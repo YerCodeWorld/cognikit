@@ -1,8 +1,51 @@
 import { BaseTableData } from "../types/Tables";
 
 export type Variant = 'elegant' | 'playful' | 'outline' | 'letter' | 'sign' | 'minimal' | 'glass' | 'empty'; 
-export type Stimulus = 'image' | 'text' | 'audio' | 'video' | 'html' | 'mixed';
-export type InteractionResult = 'a' | 'b';
+
+export type StimulusModality = 
+	'image' 	| 
+	'text' 		| 
+	'audio' 	| 
+	'video' 	| 
+	'tts' 		| 
+	'interactive'   | 
+	'data'   	| 
+	'anchor' 	| 
+	'dynamic'	| 
+	'composite';
+
+export type ResponseModality = 
+	'click' | 
+	'write' | 
+	'draw' | 
+	'manipulate' | 
+	'upload' | 
+	'other';  
+
+export type InteractionPresentationMode = 
+	'normal' | 
+	'mobile' | 
+	'classrooms'; 
+
+export type InteractionDisplayMode = 
+	'linear' |
+	'paginating' |
+	'sequential' |
+	'automatic-sequencing' |
+	'game'; 
+
+export type CognitiveOp = 
+	'discrimination' |
+	'classification' |
+	'freerecall' 	 |
+	'production' 	 |
+	'association' 	 |
+	'comparisson' 	 |
+	'transformation' |
+	'seriation' 	 |
+	'recognition' 	 |
+	'cuedrecall' 	 |
+	'evaluation';
 
 export type CognitiveProcess = 
 	'discrimination' |
@@ -17,69 +60,52 @@ export type CognitiveProcess =
 	'cuedrecall' 	 |
 	'evaluation';
 
+type IInteractionSpec = any;
+
+// refactor to InteractionBaseSpec
+export type InteractionConfig = {
+	construct: string;
+	content: string;
+
+	variant: Variant;  
+	shuffle: boolean;
+
+	stimulus?: StimulusModality;
+	responseModality?: ResponseModality;
+	displayMode?: InteractionPresentationMode;
+	animationsEnabled?: boolean;
+	
+	immediateChecking?: boolean;
+	studyMode?: boolean;
+	inLineFeeback?: boolean;
+
+	attemptLimit: number | null;
+	timer: number | null;
+}
+
+// ================== DATA STRUCTURES ===================
+
 export type ItemData = 
 	ClassificationData | 
 	AssociationData	   |
-	BaseTableData 	   |
-	FreeRecallData;
+	BaseTableData;
 
-// This must be changed to something more broad 
-// 'IShellConfiguration'
-export interface InteractionConfig {
-
-	variant: Variant;  
-	prompt: string;  
-	
-	headerEnabled: boolean;  // 'promptEnabled' instead...
-	autoCheckButton: boolean;
-	
-	footerEnabled: boolean;
-	footerAction: 'check' | 'navigation'; 
-	
-	stimulus: Stimulus; 
-
-	counterEnabled: boolean;
-	animationsEnabled: boolean;
-
-	timer: number;
-	retries: number;
-	construct: string;  // specify what we are measuring (could be used as a label in the display)
-
-	// interaction implementation level
-	shuffle: boolean;
-}
-
-export interface ClassificationData {
+export type ClassificationData = {
 	type: 'classification'; 
 	categories: { label: string; items: string[] }[];
 	distractors?: string[];
 }
 
-export interface AssociationData {
+export type AssociationData = {
 	type: 'association';
 	pairs: { left: string; right: string }[];
 	distractors?: string[];
 }
 
-export interface FreeRecallData {
-	type: 'freerecall';
-	instructions: { prompt: string; words: string[] }[];
-}
-
-// to be completed later when we get things straight 
-export interface DiscriminationData {}
-export interface ComparisonData {}
-export interface CuedRecallData {}
-export interface TransformationData {}
-export interface SeriationData {}
-export interface RecognitionData {}
-export interface EvaluationData {}
-
-
 export interface Module {
 
 	id: string;
-	process: CognitiveProcess;
+	process: CognitiveOp;
 
 	implementation: {
 		parser(code: string): ParsingResult;  
@@ -95,9 +121,10 @@ export interface IInteraction {
 	name: string;
 	data?: ItemData;
 	css: string;
-	examples: Record<string, string>;  // how the 'code' is written 
+	examples: Record<string, string>; 
 }
 
+// -------------- get rid of this
 export type ParsingResult = {
 	ok: boolean;
 	data?: ItemData | null; 
@@ -106,6 +133,6 @@ export type ParsingResult = {
 
 export type ValidationResult = {
 	ok: boolean;
-	errors: Record<string, string> | null; // return the errors in a more detailed way 
+	errors: Record<string, string> | null; 
 }
 

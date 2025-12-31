@@ -1,5 +1,7 @@
 import { Variant } from "../../shared/";
 
+// Update to support different stimulus 
+
 const HTML: string = `
 	<style>
 		:host {
@@ -17,10 +19,9 @@ const HTML: string = `
 
 		button {
 			display: inline-flex;
-			align-items: center;
-			justify-content: center;
 			background: rgb(var(--edu-card));
 			border: 1px solid rgb(var(--edu-border));
+			justify-content: center;
 			padding: 0.5rem 1rem;
 			cursor: pointer;
 			font-size: 1rem;
@@ -31,6 +32,8 @@ const HTML: string = `
 			margin: 0.25rem;
 			border-radius: var(--edu-radius);
 			color: rgb(var(--edu-ink));
+			width: 100%;
+			box-sizing: border-box;
 		}
 
 		button:hover:not(:disabled) {
@@ -123,12 +126,8 @@ const HTML: string = `
 				color: rgb(var(--edu-inverted-ink));
 			}
 
-			& button:active:not(:disabled) {
-				background: rgb(var(--edu-border));
-			}
-
-			& .prefix {
-				color: rgb(var(--edu-first-accent));
+			& button:hover:not(:disabled) .prefix {
+				color: rgb(var(--edu-inverted-ink));
 			}
 		}
 
@@ -289,6 +288,7 @@ const HTML: string = `
 		:host([variant="outline"][selected]) button {
 			background: rgb(var(--edu-first-accent) / 0.1);
 			border-color: rgb(var(--edu-first-accent));
+			color: rgb(var(--edu-ink));
 			border-width: 2px;
 		}
 
@@ -322,6 +322,8 @@ const HTML: string = `
 			border-color: rgb(var(--edu-first-accent));
 		}
 
+		/** @keyframes playing audio animation **/
+
 	</style>
 	<button part="button" type="button" aria-pressed="false">
 		<span class="prefix" part="prefix"></span>
@@ -339,21 +341,15 @@ export class EduChip extends HTMLElement {
 	
 	private $button!: HTMLButtonElement;
 	private $prefix!: HTMLSpanElement;
-	private $wrapEl!: HTMLDivElement;
 	
 	constructor() {
 		super(); 
 		this.attachShadow({ mode: "open" });
 
-		const wrap = document.createElement("div");
-		wrap.className = '';
-		wrap.innerHTML = HTML; 
+		this.shadowRoot!.innerHTML = HTML; 
 
-		this.shadowRoot.append(wrap);
-
-		this.$wrapEl = wrap;
-		this.$prefix = wrap.querySelector(".prefix");
-		this.$button = wrap.querySelector("button");
+		this.$prefix = this.shadowRoot!.querySelector(".prefix");
+		this.$button = this.shadowRoot!.querySelector("button");
 	}
 
 	connectedCallback() {
@@ -375,7 +371,6 @@ export class EduChip extends HTMLElement {
 		this.$button.setAttribute("aria-pressed", pressed);
 	}
 
-	// API
 	get variant(): Variant {
 		return (this.getAttribute("variant") ?? "outline") as Variant;
 	}
@@ -402,7 +397,6 @@ export class EduChip extends HTMLElement {
 	get value(){ return this.getAttribute("value") ?? ""; }
 	set value(v){ this.setAttribute("value", String(v)); }
 	
-	/** Toggle selected state */
 	toggle(force?: boolean){
 		if (typeof force === "boolean") this.selected = force;
 		else this.selected = !this.selected;

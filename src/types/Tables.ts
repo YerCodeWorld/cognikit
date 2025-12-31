@@ -1,6 +1,5 @@
 import { Variant } from "../shared";
 
-// Used by parsers
 export type BaseTableData = { rows: string[]; cols: string[]; answerKey: Map<string, string[]>; }
 
 export type CellValue = string | number | boolean | null;
@@ -28,7 +27,7 @@ export interface TableConfiguration {
 
 export type RowValues = {
 	selectedCols: string[];            // derived for checkbox/radio
-	values: Record<string, CellValue>; // always present (raw)
+	values: Record<string, CellValue>; 
 };
 
 export type TableCompletion = Record<string, RowValues>;

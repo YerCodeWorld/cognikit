@@ -1,5 +1,3 @@
-
-
 In 'assessment design', a construct is the specific knowledge, skill, or attribute an assessment 
 is **intended to measure**. Unlike directly observable physical traits, these must be inferred from 
 a student's responses to specific tasks.

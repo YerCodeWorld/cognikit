@@ -1,3 +1,16 @@
+export const randomHexColorsList: string[] = [
+	'#6366f1', // Indigo 
+	'#10b981', // Emerald
+	'#06b6d4', // Cyan
+	'#ec4899', // Pink
+	'#8b5cf6', // Violet
+	'#3b82f6', // Blue
+	'#f59e0b', // Amber
+	'#f43f5e', // Rose
+	'#84cc16', // Lime
+	'#a855f7'  // Purple
+];
+
 export function shuffle<T>(array: T[]): T[] {
 	let currentIndex = array.length, randomIndex: number;
 	while (currentIndex !== 0) {
@@ -30,4 +43,9 @@ export function escapeHtml(s: string) {
 	));
 }
 
+export function extractDistractors(s: string): { ok: boolean; data?: any; errors?: Record<string, string> } {
+	const distractors: string[] = [];
+	const cleanedcode: string = '';
+	return { ok: true, data: { content: distractors, remain: cleanedcode }}
+}
 

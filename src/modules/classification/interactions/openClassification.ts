@@ -3,7 +3,7 @@ import { InteractionConfig } from "../../../shared";
 import { ClassificationData } from "../../../shared";
 import { EduChip, EduBlock } from "../../../ui";
 import { shuffle } from "../../../shared";
-import { classificationGrading } from "../implementation";
+import { classificationGrader } from "../utilities";
 
 export class OpenClassification extends BaseInteraction<ClassificationData> {
 
@@ -49,15 +49,14 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 		this.allItems = shuffle(this.allItems);
 
-		this.categorized = new Map();
+		this.categorized = new Map<string, string>();
 		this.initializeProgress(this.allItems.length);
 	}
 
 	protected initialize(): void {}
 	protected cleanup(): void {}
 
-	protected onVariantChange(newVariant: string): void {
-		// Update UI components when variant changes
+	onVariantChange(newVariant: string): void {
 		this.querySelectorAll('edu-chip, edu-block').forEach((el: any) => {
 			if (el.variant !== undefined) {
 				el.variant = newVariant;
@@ -85,17 +84,25 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				.items-container {
 					display: flex;
 					flex-wrap: wrap;
-					gap: 0.5rem;
+					gap: 0.9rem;
 					padding: 1rem;
 					background: rgb(var(--edu-muted));
 					border-radius: 8px;
 					min-height: 200px;
+				}
+				
+				edu-chip {
+					
 				}
 
 				.divider {
 					border: none;
 					border-top: 1px solid rgb(var(--edu-border));
 					margin: 0.5rem 0;
+				}
+
+				#category-swatch-container {
+					padding: 0 20% 0 20%;
 				}
 
 				.swatch-content {
@@ -123,6 +130,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				dialog {
 					background: rgb(var(--edu-card));
 					border: 2px solid rgb(var(--edu-border));
+					color: rgb(var(--edu-ink));
 					border-radius: 12px;
 					padding: 1.5rem;
 					box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -171,6 +179,10 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					border: 2px solid rgba(0, 0, 0, 0.1);
 				}
 
+				edu-chip::part(button) {
+					height: 100%;
+				}
+
 				/* Chip colorization */
 				edu-chip.colorized {
 					position: relative;
@@ -181,8 +193,8 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					position: absolute;
 					top: -2px;
 					left: -2px;
-					right: -2px;
-					bottom: -2px;
+					right: -8px;
+					bottom: -8px;
 					border-radius: 10px;
 					border: 3px solid var(--current-color);
 					background: var(--current-color);
@@ -211,15 +223,12 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 		this.style.setProperty('--current-color', this.currentColor);
 
-		// Categories dialog
 		this.$categoriesDlg = this.querySelector("#dlg") as HTMLDialogElement;
 		this.setCategories(this.$categoriesDlg);
 
-		// Category swatch
 		const swatchContainer = this.querySelector("#category-swatch-container") as HTMLDivElement;
 		this.setSwatch(swatchContainer);
 
-		// Items
 		const itemsContainer = this.querySelector(".items-container") as HTMLDivElement;
 		this.setItems(itemsContainer);
 	}
@@ -262,7 +271,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	}
 
 	private setSwatch(container: HTMLDivElement): void {
-		this.$categorySwatch = document.createElement("edu-block") as EduBlock;
+		this.$categorySwatch = new EduBlock;
 		this.$categorySwatch.variant = this.config.variant;
 		this.$categorySwatch.innerHTML = `
 			<div class="swatch-content">
@@ -290,7 +299,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	private setCategories(dialog: HTMLDialogElement): void {
 		const dlgContent = dialog.querySelector(".categories-container")!;
 		this.categories.forEach((cat, i) => {
-			const categoryBlock = document.createElement("edu-block") as EduBlock;
+			const categoryBlock = new EduBlock();
 			categoryBlock.variant = this.config.variant;
 
 			const color = this.categoryColors[i % this.categoryColors.length];
@@ -355,19 +364,13 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 	// ==================== GRADING ====================
 
-	/**
-	 * Override submit to include grading
-	 */
 	public submit(): void {
-		// Check completion first (will throw if not complete)
 		super.submit();
 
-		// Grade the response
-		const result = classificationGrading(this.data.categories, this.categorized);
+		const result = classificationGrader(this.data.categories, this.categorized);
 
 		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
-		// Emit grading event
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
 			detail: { result },
 			bubbles: true,
@@ -381,7 +384,6 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		super.reset();
 		this.categorized.clear();
 
-		// Reset all chips
 		this.querySelectorAll('edu-chip').forEach((chip: any) => {
 			chip.classList.remove('colorized');
 			chip.style.setProperty('--current-color', '');

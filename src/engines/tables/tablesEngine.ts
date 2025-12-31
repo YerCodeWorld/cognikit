@@ -1,7 +1,6 @@
 import CSS from "./styles.css";
 import { TableConfiguration, TableState, CellValue, CellKind, TableCompletion, RowValues, EduTableChangeDetail } from "../../types/Tables"; 
-import { shuffle } from "../../shared/utils";
-import { hash, escapeHtml } from "../../shared";
+import { shuffle, hash, escapeHtml } from "../../shared/utils";
 
 type EduTableElement = HTMLElement & {
 	config: TableConfiguration;
@@ -66,7 +65,6 @@ export class EduTable extends HTMLElement implements EduTableElement {
 	getValue() { return this._state; }
 	setValue(next: TableState) { this._state = next; this.render(); }
 	
-	// I actually confused myself already with the difference of getState and getValue
 	getState(): TableCompletion {
 		const config = this._config;
 		if (!config) return {} as TableCompletion;
@@ -80,7 +78,6 @@ export class EduTable extends HTMLElement implements EduTableElement {
 			for (const c of config.cols) {
 				const v = rowVals[c] ?? null;
 				
-				// keep it more specific for n-ary and classification 
 				if ((config.cellKind === 'checkbox' || config.cellKind === 'radio') && v === true) {
 					selectedCols.push(c);
 				}
@@ -95,9 +92,12 @@ export class EduTable extends HTMLElement implements EduTableElement {
 		return completion;
 	}
 
-	attributeChangedCallback() {
-		// Variant is set on the host element, CSS uses :host([variant="..."])
-		// No action needed - styles update automatically
+	attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+		if (oldValue === newValue) return;
+
+		if (name === 'variant') {
+			this.setAttribute('variant', newValue);
+		}
 	}
 
 	private initState(config: TableConfiguration): TableState {
@@ -207,7 +207,7 @@ export class EduTable extends HTMLElement implements EduTableElement {
 		if (!this._config) return;
 		this._state = this.initState(this._config);
 		this.render();
-		// Emit a reset event instead of a change event with empty values
+
 		this.dispatchEvent(new CustomEvent('reset', {
 			bubbles: true,
 			composed: true
@@ -240,7 +240,6 @@ export class EduTable extends HTMLElement implements EduTableElement {
 
 	private onInput = (e: Event) => {}
 
-	// update state
 	private applyCellValue(r: string, c: string, value: CellValue) {
 		const config = this._config;
 		if (!config) return;

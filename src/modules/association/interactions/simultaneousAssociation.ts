@@ -15,7 +15,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	private currentEl: EduChip;
 	private currentColor: string;
 
-	// DOM
 	private $leftCol: HTMLDivElement;
 	private $rightCol: HTMLDivElement;
 
@@ -41,7 +40,7 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	protected initialize(): void {}
 	protected cleanup(): void {}
 
-	protected onVariantChange(newVariant: Variant): void {
+	onVariantChange(newVariant: Variant): void {
 		this.querySelectorAll('edu-chip').forEach((el: EduChip) => {
 			if (el.variant !== undefined) el.variant = newVariant;
 		});
@@ -59,27 +58,22 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					display: grid;
 					grid-template-columns: 1fr 1fr;
 					gap: 40px;
-					padding: 1rem;
+					padding: 1rem 4rem 1rem 4rem;
 				}
 
 				.column {
 					display: flex;
 					flex-direction: column;
 					gap: 0.75rem;
-					align-items: center;
 					justify-content: center;
-				}
-
-				edu-chip {
-					transition: all 0.2s ease;
-					cursor: pointer;
+					width: 100%;
+					margin: 0 auto;
 				}
 
 				edu-chip:hover {
 					transform: translateY(-2px);
 				}
 
-				/* Selection state - blue border */
 				edu-chip.selected {
 					position: relative;
 				}
@@ -89,7 +83,7 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					position: absolute;
 					top: -2px;
 					left: -2px;
-					right: -2px;
+					right: -10px;
 					bottom: -2px;
 					border-radius: 10px;
 					border: 3px solid #3b82f6;
@@ -98,7 +92,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					pointer-events: none;
 				}
 
-				/* Matched state - uses dynamic color */
 				edu-chip.colorized {
 					position: relative;
 				}
@@ -108,12 +101,12 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					position: absolute;
 					top: -2px;
 					left: -2px;
-					right: -2px;
+					right: -10px;
 					bottom: -2px;
 					border-radius: 10px;
 					border: 3px solid var(--current-color);
 					background: var(--current-color);
-					opacity: 0.6;
+					opacity: 0.2;
 					pointer-events: none;
 				}
 			</style>
@@ -130,7 +123,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	}
 
 	private renderItems() {
-		// LEFT COLUMN (items to be matched)
 		this.leftItems.forEach(item => {
 			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.config.variant;
@@ -141,7 +133,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				const chip = e.currentTarget as EduChip;
 				const val = chip.dataset.val;
 
-				// If clicking currently selected item, deselect it
 				if (this.currentSelected === val) {
 					chip.classList.remove('selected');
 					this.currentSelected = '';
@@ -149,7 +140,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					return;
 				}
 
-				// If item is already matched, unmatch it
 				if (this.matched.get(val)) {
 					const rightElVal = this.matched.get(val);
 					const rightChip = this.querySelector(`[data-val="${rightElVal}"]`) as EduChip;
@@ -166,7 +156,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					return;
 				}
 
-				// Update selection
 				if (this.currentSelected) this.currentEl.classList.remove('selected');
 				this.currentSelected = val;
 				this.currentEl = chip;
@@ -176,7 +165,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			this.$leftCol.append(chip);
 		});
 
-		// RIGHT COLUMN (options to match with)
 		this.rightItems.forEach(item => {
 			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.config.variant;
@@ -187,7 +175,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				const chip = e.currentTarget as EduChip;
 				const val = chip.dataset.val;
 
-				// If clicking currently selected right item, deselect it
 				if (this.currentSelected === val) {
 					this.currentSelected = '';
 					this.currentEl = null;
@@ -195,19 +182,14 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 					return;
 				}
 
-				// Prevent selecting already matched right items
 				const mapVals = [...this.matched.values()];
 				if (mapVals.includes(val)) return;
 
-				// If left item is selected, create match
 				if (this.currentSelected) {
-					// Check if currentSelected is from LEFT column AND val is from RIGHT column
 					if (this.leftItems.includes(this.currentSelected) && this.rightItems.includes(val)) {
-						// Generate a unique color for this match
 						const colorIndex = this.matched.size % randomHexColorsList.length;
 						const matchColor = randomHexColorsList[colorIndex];
 
-						// Create the match
 						this.matched.set(this.currentSelected, val);
 						this.matchColors.set(this.currentSelected, matchColor);
 
@@ -219,17 +201,14 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 						this.incrementProgress();
 						this.emitStateChange();
 
-						// Clear selection
 						this.currentSelected = '';
 						this.currentEl = null;
 						return;
 					} else {
-						// Deselect if trying to match right to right or left to left
 						this.currentEl.classList.remove('selected');
 					}
 				}
 
-				// Select this right item
 				this.currentSelected = val;
 				this.currentEl = chip;
 				chip.classList.add('selected');

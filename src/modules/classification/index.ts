@@ -1,1 +1,1 @@
-export { classificationModule, OpenClassification, ClassificationMatrix } from "./module"; 
+export * from "./module"; 

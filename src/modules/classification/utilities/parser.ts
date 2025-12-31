@@ -1,6 +1,5 @@
-import { extractDistractors } from "../utils";
-import { ItemData, ClassificationData, ParsingResult, ValidationResult } from "../../shared";
-import { GradingResult } from "../../types/Grading";
+import { extractDistractors } from "../../../shared/utils";
+import { ItemData, ClassificationData, ParsingResult } from "../../../shared";
 
 /**
  * Example
@@ -54,25 +53,4 @@ export function classificationParser(code: string): ParsingResult {
 	}
 }	
 
-export function classificationValidator(data: ClassificationData): ValidationResult {
-	return { ok: false, errors: { 'none': '' } }
-}
 
-// still sketch-like
-export function classificationGrading(correctData: ClassificationData["categories"], userData: Map<string, string>): GradingResult {
-	let correctCount = 0;
-	let totalCount = 0;
-
-	correctData.forEach(category => {
-		category.items.forEach(correctItem => {
-			totalCount++;
-			const userCategory = userData.get(correctItem);
-			if (userCategory === category.label) {
-				correctCount++;
-			}
-		});
-	});
-	
-	const score = totalCount > 0 ? (correctCount / totalCount) * 100 : 0;
-	return { score: score, correct: correctCount, total: totalCount }; 	
-}

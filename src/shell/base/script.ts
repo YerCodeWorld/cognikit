@@ -1,6 +1,29 @@
 import HTML from './index.html';
 import { BaseInteraction } from "../../core/BaseInteraction";
-import { ItemData } from "../../shared";
+import { ItemData, Variant } from "../../shared";
+
+// update the shell do that it receives a config: IBaseShellConfig object
+/** type IBaseShellConfig {
+	variant: Variant;  
+	prompt: string;  
+	
+	headerEnabled: boolean;  // 'promptEnabled' instead...
+	promtEnabled: boolean;
+	counterEnabled: boolean;
+	timer: number;
+
+	autoCheckButton: boolean;
+	
+	footerEnabled: boolean;
+	footerAction: 'check' | 'navigation'; 
+	
+	stimulus: Stimulus; 
+
+	animationsEnabled: boolean;
+
+	retries: number;
+	construct: string;  // specify what we are measuring (could be used as a label in the display)
+}**/ 
 
 export class InteractionsBaseShell extends HTMLElement {
 
@@ -27,7 +50,7 @@ export class InteractionsBaseShell extends HTMLElement {
 	private $wrapEl!: HTMLElement;
 	private $styleEl!: HTMLStyleElement;
 	private $checkBtn!: HTMLButtonElement;
-	private $hintBtn!: HTMLButtonElement;
+	// private $hintBtn!: HTMLButtonElement;
 	private $radioNav!: HTMLElement;
 	private $progressBar!: HTMLProgressElement;
 
@@ -67,11 +90,11 @@ export class InteractionsBaseShell extends HTMLElement {
 		this.$contentEl = wrap.querySelector('[part="content"]')!;
 
 		// Create hint button
-		this.$hintBtn = document.createElement('button');
-		this.$hintBtn.textContent = '💡 Hint';
-		this.$hintBtn.className = 'hint-btn';
-		this.$hintBtn.dataset.hidden = 'true';
-		this.$footerEl.appendChild(this.$hintBtn);
+		// this.$hintBtn = document.createElement('button');
+		// this.$hintBtn.textContent = '💡 Hint';
+		// this.$hintBtn.className = 'hint-btn';
+		// this.$hintBtn.dataset.hidden = 'true';
+		// this.$footerEl.appendChild(this.$hintBtn);
 
 		// Set up shell's own event listeners
 		this.setupShellListeners();
@@ -86,13 +109,13 @@ export class InteractionsBaseShell extends HTMLElement {
 		if (!this.hasAttribute("show-footer")) this.setAttribute("show-footer", "true");
 		if (!this.hasAttribute("footer-mode")) this.setAttribute("footer-mode", "static");
 		if (!this.hasAttribute("timer")) this.setAttribute("timer", "0");
-		if (!this.hasAttribute("show-hint-button")) this.setAttribute("show-hint-button", "false");
+		// if (!this.hasAttribute("show-hint-button")) this.setAttribute("show-hint-button", "false");
 
 		this.sync();
 
 		// Initially hide action buttons
 		this.$checkBtn.dataset.hidden = 'true';
-		this.$hintBtn.dataset.hidden = 'true';
+		// this.$hintBtn.dataset.hidden = 'true';
 	}
 
 	disconnectedCallback() {
@@ -105,6 +128,10 @@ export class InteractionsBaseShell extends HTMLElement {
 
 		if (name === 'timer') {
 			this.initTimer();
+		}
+
+		if (name === 'variant' && this.interaction) {
+			this.interaction.onVariantChange(newValue as Variant);
 		}
 
 		this.sync();
@@ -134,9 +161,9 @@ export class InteractionsBaseShell extends HTMLElement {
 		this.$contentEl.appendChild(interaction);
 
 		// Show hint button if configured
-		if (this.getAttribute('show-hint-button') === 'true') {
-			this.$hintBtn.dataset.hidden = 'false';
-		}
+		// if (this.getAttribute('show-hint-button') === 'true') {
+		//	this.$hintBtn.dataset.hidden = 'false';
+		//}
 	}
 
 	/**
@@ -166,17 +193,23 @@ export class InteractionsBaseShell extends HTMLElement {
 		});
 
 		// Hint button clicked
-		this.$hintBtn.addEventListener('click', () => {
-			if (this.interaction) {
-				this.interaction.hint();
-			}
-		});
+		// this.$hintBtn.addEventListener('click', () => {
+		//	if (this.interaction) {
+		//		this.interaction.hint();
+		//	}
+		//});
 
 		// Radio navigation (for sequential mode)
 		this.$radioNav.addEventListener('change', (e) => {
 			const target = e.target as HTMLInputElement;
+
 			if (target.type === 'radio') {
 				const stepIndex = parseInt(target.id.replace('step-', ''), 10);
+
+				if (this.interaction) {
+					this.interaction.setSteps(stepIndex);
+				}
+
 				this.dispatchEvent(new CustomEvent('navigation-change', {
 					detail: { step: stepIndex },
 					bubbles: true,
@@ -387,8 +420,12 @@ export class InteractionsBaseShell extends HTMLElement {
 	}
 
 	private renderRadioNav(): void {
-		const count = parseInt(this.getAttribute('radio-count') ?? '3', 10);
+		let count = parseInt(this.getAttribute('radio-count') ?? '3', 10);
 		this.$radioNav.innerHTML = '';
+
+		if (this.interaction) {
+			// count = this.interaction.slidesNumber;
+		}
 
 		for (let i = 1; i <= count; i++) {
 			const input = document.createElement('input');

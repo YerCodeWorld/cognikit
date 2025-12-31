@@ -88,6 +88,10 @@ modules/<process>/
 
 ---
 
+### Architecture Overview
+
+[https://sage-babka-680d4e.netlify.app]
+
 ### Common Patterns
 
 Both the *engines* and each module support a specific 'grammar', some sort of simple text-based quizz construction; those are based on the idea

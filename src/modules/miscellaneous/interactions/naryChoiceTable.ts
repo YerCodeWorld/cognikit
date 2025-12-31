@@ -1,5 +1,5 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig } from "../../../shared";
+import { InteractionConfig, Variant } from "../../../shared";
 import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
 import { EduTable, naryTableGrader } from "../../../engines/tables";
 
@@ -31,11 +31,9 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	protected initialize(): void {}
 	protected cleanup(): void {}
 
-	protected onVariantChange(newVariant: string): void {
-		// Update table variant when shell changes it
-		this._tableConfig.variant = newVariant as any;
+	onVariantChange(newVariant: Variant): void {
+		this._tableConfig.variant = newVariant;
 		if (this._$table) {
-			// Just update the variant attribute, don't reset entire config
 			this._$table.setAttribute('variant', newVariant);
 		}
 	}

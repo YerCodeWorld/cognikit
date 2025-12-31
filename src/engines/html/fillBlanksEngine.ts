@@ -10,7 +10,6 @@ export function createDSLParser() {
 
 	type Ctx = { elsCounter: number; answerMap: Map<string, any> };
 
-	// helpers (pure)
 	const splitPipes = (s: string) =>
 		s.split("|").map(t => t.trim()).filter(Boolean);
 
@@ -26,7 +25,6 @@ export function createDSLParser() {
 		return array;
 	}
 
-	// grammar builders (close over ctx)
 	const buildGrammar = (ctx: Ctx) => {
 		function parseTX(content: string, pos: number, blocksCounter?: number): string {
 
@@ -266,6 +264,8 @@ They promised to return next @sl(Monday | [Saturday] | Thursday) to try new frui
 		return parse(code);
 	}
 
+	console.log(test());
+
 	return {
 		parse,              // dslParser
 		checkAnswers,       // checkAnswers
@@ -273,7 +273,7 @@ They promised to return next @sl(Monday | [Saturday] | Thursday) to try new frui
 		test                // testSystem
 	};
 }
-
+//
 // ---------- usage ----------
 /*
 import { createDSLParser } from "./dsl-parser";
@@ -286,3 +286,5 @@ const { html, answerMap } = result.content!;
 const score = dsl.checkAnswers(answerMap, document);
 }
 */
+
+createDSLParser();

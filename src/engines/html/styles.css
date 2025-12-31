@@ -1,0 +1,30 @@
+/* ===========================================
+   BASE INPUT ENGINE STYLES =========================================== */
+:host {
+}
+:host([variant="elegant"]) {
+}
+:host([variant="playful"]) {
+}
+:host([variant="outline"]) {
+}
+:host([variant="letter"]) {
+}
+:host([variant="sign"]) {
+}
+:host([variant="minimal"]) {
+}
+:host([variant="glass"]) {
+}
+:host([variant="empty"]) {
+}
+
+/* ===========================================
+   RESPONSIVE BEHAVIOR
+   =========================================== */
+
+@media (max-width: 768px) {
+}
+
+@media (max-width: 480px) {
+}

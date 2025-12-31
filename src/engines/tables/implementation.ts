@@ -12,8 +12,8 @@ type ValidationResult = { ok: boolean; errors?: Record<string, string>; }
  * The classification table presents a default configuration where we have non-equal rows and columns and 
  * participant is presented with check boxes on each cell to add 'attributes' to each row item. 
  * 
- * The n-ary table is just a superset or the latter, with the discrepancies being using radio buttons instead
- * (single selection) and not allowing a row items to be in more than one category (this is handled in the 
+ * The n-ary table is just a superset or the former, with the discrepancies being using radio buttons instead
+ * (single selection) and not allowing row items to be in more than one category (this is handled in the 
  * n-ary table validator). 
  * 
  * For grading, we take the row item and the checked columns. Using the answerKey, we check if those columns
@@ -187,15 +187,6 @@ export function basicTableDataValidator(
 	return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true };
 }
 
-/**
- * Grader for N-ary tables (radio buttons - single selection per row)
- * Each row is either 100% correct or 0% wrong
- *
- * @param answerKey Map of category -> items that belong to that category
- * @param userData User's selections from the table
- * @param rows All row items
- * @returns GradingResult with score, correct count, and total count
- */
 export function naryTableGrader(
 	answerKey: Map<string, string[]>,
 	userData: TableCompletion,
@@ -205,10 +196,8 @@ export function naryTableGrader(
 	const totalCount = rows.length;
 
 	for (const row of rows) {
-		// Get user's selected column for this row (should be exactly 1)
 		const userSelected = userData[row]?.selectedCols ?? [];
 
-		// Find which column this row should belong to
 		let correctColumn: string | null = null;
 		for (const [col, items] of answerKey.entries()) {
 			if (items.includes(row)) {
@@ -217,8 +206,6 @@ export function naryTableGrader(
 			}
 		}
 
-		// Check if user selected the correct column
-		// N-ary requires exactly one selection, and it must match
 		if (userSelected.length === 1 && userSelected[0] === correctColumn) {
 			correctCount++;
 		}
@@ -229,16 +216,6 @@ export function naryTableGrader(
 	return { score, correct: correctCount, total: totalCount };
 }
 
-/**
- * Grader for Classification tables (checkboxes - multiple selections per row)
- * Allows partial credit when a row has mixed correct/incorrect selections
- *
- * @param answerKey Map of category -> items that belong to that category
- * @param userData User's selections from the table
- * @param rows All row items
- * @param cols All column headers
- * @returns GradingResult with score, correct count, and total count
- */
 export function classificationTableGrader(
 	answerKey: Map<string, string[]>,
 	userData: TableCompletion,
@@ -249,10 +226,7 @@ export function classificationTableGrader(
 	let totalPossibleSelections = 0;
 
 	for (const row of rows) {
-		// Get user's selected columns for this row
 		const userSelected = new Set(userData[row]?.selectedCols ?? []);
-
-		// Find which columns this row SHOULD belong to
 		const correctColumns = new Set<string>();
 		for (const [col, items] of answerKey.entries()) {
 			if (items.includes(row)) {
@@ -260,10 +234,6 @@ export function classificationTableGrader(
 			}
 		}
 
-		// Count correct selections for this row
-		// A selection is correct if:
-		// - User selected a column that should be selected (true positive)
-		// - User didn't select a column that shouldn't be selected (true negative)
 		for (const col of cols) {
 			const shouldBeSelected = correctColumns.has(col);
 			const wasSelected = userSelected.has(col);

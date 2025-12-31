@@ -1,6 +1,15 @@
-import { Module } from "../../shared";
-import { classificationParser, classificationValidator } from "./implementation";
-import { OpenClassification, ClassificationMatrix } from "./interactions";
+import { Module, IInteraction, ClassificationData } from "../../shared";
+import { 
+	classificationParser, 
+	classificationValidator, 
+	classificationGrader 
+} from "./utilities";
+
+import { 
+	OpenClassification, 
+	ClassificationMatrix, 
+	SequentialClassification 
+} from "./interactions";
 
 export const classificationModule: Module = {
 
@@ -13,6 +22,7 @@ export const classificationModule: Module = {
 		interactions: {
 			'openClassification': OpenClassification,
 			'classificationMatrix': ClassificationMatrix,
+			'sequentialClassification': SequentialClassification,
 			'closedCardSorting': '',
 			'OpenCardSorting': '',
 		}
@@ -21,4 +31,18 @@ export const classificationModule: Module = {
 	help: './doc/classification.md',
 }
 
-export { OpenClassification, ClassificationMatrix };
+const openClassification: IInteraction = {
+	id: 'OCLS-001',
+	name: 'Open Classification',
+	css: '',
+	examples: {'001': 
+`
+America = DR | Venezuela | Ecuador;
+Europe = Poland | France;
+Asia = China | Pakistan | Thailand | India;
+= Antartica | Madagascar;
+`
+	}	
+}
+
+export { OpenClassification, ClassificationMatrix, SequentialClassification };
