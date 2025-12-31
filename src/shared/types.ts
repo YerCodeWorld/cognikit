@@ -15,38 +15,29 @@ export type StimulusModality =
 	'composite';
 
 export type ResponseModality = 
-	'click' | 
+	'select' | 
 	'write' | 
 	'draw' | 
 	'manipulate' | 
+	'locate' | 
 	'upload' | 
-	'other';  
+	'speak' | 
+	'other' | 
+	'none';
 
 export type InteractionPresentationMode = 
 	'normal' | 
 	'mobile' | 
-	'classrooms'; 
+	'classrooms' |
+	'study';
 
-export type InteractionDisplayMode = 
-	'linear' |
-	'paginating' |
-	'sequential' |
-	'automatic-sequencing' |
-	'game'; 
+export type InteractionMechanic = 
+	'single-slide' | 
+	'sequential' | 
+	'automatic-sequencing' | 
+	'game';
 
-export type CognitiveOp = 
-	'discrimination' |
-	'classification' |
-	'freerecall' 	 |
-	'production' 	 |
-	'association' 	 |
-	'comparisson' 	 |
-	'transformation' |
-	'seriation' 	 |
-	'recognition' 	 |
-	'cuedrecall' 	 |
-	'evaluation';
-
+// Refactor to CognitiveOp 
 export type CognitiveProcess = 
 	'discrimination' |
 	'classification' |
@@ -65,31 +56,31 @@ type IInteractionSpec = any;
 // refactor to InteractionBaseSpec
 export type InteractionConfig = {
 	construct: string;
-	content: string;
+	description: string;
 
 	variant: Variant;  
 	shuffle: boolean;
 
 	stimulus?: StimulusModality;
 	responseModality?: ResponseModality;
-	displayMode?: InteractionPresentationMode;
+	presentationMode?: InteractionPresentationMode;
+
+	playIntroAnimation?: boolean;
 	animationsEnabled?: boolean;
-	
-	immediateChecking?: boolean;
-	studyMode?: boolean;
-	inLineFeeback?: boolean;
+
+	inLineFeedback?: boolean;
 
 	attemptLimit: number | null;
 	timer: number | null;
 }
 
 // ================== DATA STRUCTURES ===================
-
+//
 export type ItemData = 
 	ClassificationData | 
 	AssociationData	   |
-	BaseTableData;
-
+	BaseTableData 	   |
+	FreeRecallData;
 export type ClassificationData = {
 	type: 'classification'; 
 	categories: { label: string; items: string[] }[];
@@ -102,10 +93,28 @@ export type AssociationData = {
 	distractors?: string[];
 }
 
+export type FreeRecallData = {
+	type: 'freerecall';
+	instructions: { prompt: string; words: string[] }[];
+}
+
+export type SeriationData = {
+	type: 'seriation';
+	items: string[];
+}
+//
+// to be completed later when we get things straight 
+export interface DiscriminationData {}
+export interface ComparisonData {}
+export interface CuedRecallData {}
+export interface TransformationData {}
+export interface RecognitionData {}
+export interface EvaluationData {}
+
 export interface Module {
 
 	id: string;
-	process: CognitiveOp;
+	process: CognitiveProcess;
 
 	implementation: {
 		parser(code: string): ParsingResult;  

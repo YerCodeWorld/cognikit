@@ -1,4 +1,5 @@
 import { Variant } from "../../shared/";
+import { AnimationsManager } from "../../styles/utilities/AnimationsManager";
 
 // Update to support different stimulus 
 
@@ -343,13 +344,16 @@ export class EduChip extends HTMLElement {
 	private $prefix!: HTMLSpanElement;
 	
 	constructor() {
-		super(); 
+		super();
 		this.attachShadow({ mode: "open" });
 
-		this.shadowRoot!.innerHTML = HTML; 
+		this.shadowRoot!.innerHTML = HTML;
 
 		this.$prefix = this.shadowRoot!.querySelector(".prefix");
 		this.$button = this.shadowRoot!.querySelector("button");
+
+		// Inject animation keyframes into Shadow DOM
+		AnimationsManager.injectKeyframes(this.shadowRoot!);
 	}
 
 	connectedCallback() {
