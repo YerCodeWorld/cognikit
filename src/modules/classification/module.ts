@@ -1,4 +1,5 @@
-import { Module, IInteraction } from "../../shared";
+import { Module } from "../../shared";
+import { IInteraction } from "../../types/Interactions";
 import { ClassificationData } from "../../types/Data";
 
 import { 

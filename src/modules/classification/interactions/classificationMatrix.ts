@@ -1,5 +1,6 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, InteractionMechanic, Variant } from "../../../shared";
+import { Variant } from "../../../shared/types";
+import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
 import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
 import { EduTable, classificationTableGrader } from "../../../engines/tables";
 

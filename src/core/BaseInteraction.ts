@@ -1,5 +1,6 @@
 import { ProgressTracker } from "./utilities/ProgressTracker";
-import { InteractionConfig, Variant, InteractionMechanic } from "../shared";
+import { Variant } from "../shared";
+import { InteractionConfig, InteractionMechanic } from "../types/Interactions";
 import { InteractionData } from "../types/Data";
 import { AnimationsManager, SoundManager } from "../shared/managers";
 

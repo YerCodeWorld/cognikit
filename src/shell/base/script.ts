@@ -1,6 +1,6 @@
 import HTML from './index.html';
 import { BaseInteraction } from "../../core/BaseInteraction";
-import {  Variant } from "../../shared";
+import { Variant } from "../../shared";
 import { InteractionData } from "../../types/Data";
 
 // update the shell do that it receives a config: IBaseShellConfig object

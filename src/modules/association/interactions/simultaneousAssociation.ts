@@ -1,5 +1,6 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, Variant, InteractionMechanic } from "../../../shared/types";
+import { Variant } from "../../../shared/types";
+import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
 import { AssociationData } from "../../../types/Data";
 import { randomHexColorsList, shuffle } from "../../../shared/utils";
 import { EduChip } from "../../../ui/misc/chip";

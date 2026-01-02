@@ -1,2 +1,0 @@
-//type ParsingResult = '';
-//type ValidationResult = '';

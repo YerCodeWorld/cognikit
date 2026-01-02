@@ -1,5 +1,14 @@
 import CSS from "./styles.css";
-import { TableConfiguration, TableState, CellValue, CellKind, TableCompletion, RowValues, EduTableChangeDetail } from "../../types/Tables"; 
+import { 
+	TableConfiguration, 
+	TableState, 
+	CellValue, 
+	CellKind, 
+	TableCompletion, 
+	RowValues, 
+	EduTableChangeDetail 
+} from "../../types/Tables"; 
+
 import { shuffle, hash, escapeHtml } from "../../shared/utils";
 
 type EduTableElement = HTMLElement & {

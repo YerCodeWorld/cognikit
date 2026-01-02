@@ -28,21 +28,6 @@ export type ResponseModality =
 	'other' | 
 	'none';
 
-export type InteractionPresentationMode = 
-	'normal' | 
-	'mobile' | 
-	'classrooms' |
-	'study';
-
-export type InteractionMechanic =
-	'static' 		      |
-	'sequential' 		      | 
-	'automatic-sequencing' 	      | 
-	'prefers-horizontal-overflow' |
-	'prefers-vertical-overflow'   |
-	'implements-open-canvas'      |
-	'game';
-
 export type CognitiveOp = 
 	'discrimination' |
 	'classification' |
@@ -56,58 +41,10 @@ export type CognitiveOp =
 	'cuedrecall' 	 |
 	'evaluation';
 
-// Refactor to CognitiveOp 
-export type CognitiveProcess = 
-	'discrimination' |
-	'classification' |
-	'freerecall' 	 |
-	'production' 	 |
-	'association' 	 |
-	'comparisson' 	 |
-	'transformation' |
-	'seriation' 	 |
-	'recognition' 	 |
-	'cuedrecall' 	 |
-	'evaluation';
-
-type IInteractionSpec = any;
-
-// refactor to InteractionBaseSpec
-export type InteractionConfig = {
-	construct: string;
-	data: string;
-
-	variant: Variant;  
-	shuffle: boolean;
-
-	stimulus?: StimulusModality;
-	responseModality?: ResponseModality;
-	presentationMode?: InteractionPresentationMode;
-
-	playStaggeringAnimation?: boolean;
-	animationsEnabled?: boolean;
-	soundEnabled?: boolean;
-
-	inLineFeedback?: boolean;
-	immediateCheck?: boolean;
-
-	attemptLimit: number | null;
-	timer: number | null;
-}
-
-export interface IInteraction {
-	id: string;
-	name: string;
-	data?: InteractionData;
-	css: string;
-	examples: Record<string, string>; 
-}
-
 export interface Module {
 
 	id: string;
-	process: CognitiveProcess;
-
+	process: CognitiveOp;
 	implementation: {
 		parser(code: string): ParsingResult;  
 		validator(data: InteractionData): ValidationResult;
@@ -116,7 +53,6 @@ export interface Module {
 
 	help: string;
 }
-
 
 // -------------- get rid of this
 export type ParsingResult = {

@@ -35,7 +35,6 @@ export interface DiscriminationData {
 	data: { content: string; targets: { [pos: string]: string }[] };
 }
 
-
 export interface CuedRecallData {}
 
 export interface RecognitionData {

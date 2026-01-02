@@ -1,4 +1,4 @@
-import { IInteraction } from "../../shared";
+import { IInteraction } from "../../types/Interactions";
 import { AssociationData } from "../../types/Data";
 
 const simultaneousAssociation: IInteraction = {

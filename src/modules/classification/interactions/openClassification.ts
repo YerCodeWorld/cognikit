@@ -1,5 +1,6 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, InteractionMechanic } from "../../../shared";
+import { Variant } from "../../../shared/types";
+import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
 import { ClassificationData } from "../../../types/Data";
 import { EduChip, EduBlock } from "../../../ui";
 import { shuffle } from "../../../shared";
@@ -58,8 +59,8 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	protected initialize(): void {}
 	protected cleanup(): void {}
 
-	onVariantChange(newVariant: string): void {
-		this.querySelectorAll('edu-chip, edu-block').forEach((el: any) => {
+	onVariantChange(newVariant: Variant): void {
+		this.querySelectorAll('edu-chip, edu-block').forEach((el: EduChip | EduBlock) => {
 			if (el.variant !== undefined) {
 				el.variant = newVariant;
 			}

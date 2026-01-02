@@ -6,7 +6,8 @@
  */
 
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, InteractionMechanic, Variant } from "../../../shared";
+import { Variant } from "../../../shared/types";
+import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
 import { ClassificationData } from "../../../types/Data";
 import { EduChip, EduBlock } from "../../../ui";
 import { shuffle, randomHexColorsList } from "../../../shared";
