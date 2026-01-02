@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#f7f9fc">
+    <title>EduChip Component - All Capabilities</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --edu-bg:            247 249 252;
+            --edu-card:          255 255 255;
+            --edu-ink:           31 41 55;
+            --edu-second-ink:    71 85 105;
+            --edu-third-ink:     100 116 139;
+            --edu-inverted-ink:  248 250 252;
+            --edu-success:       22 163 74;
+            --edu-error:         220 38 38;
+            --edu-warning:       255 222 33;
+            --edu-neutral:       14 165 233;
+            --edu-first-accent:  173 198 255;
+            --edu-second-accent: 245 158 11;
+            --edu-third-accent:  236 72 153;
+            --edu-border:        229 231 235;
+            --edu-muted:         243 244 246;
+            --edu-radius:        0.375rem;
+            --edu-shadow-color:  0 0 0;
+            --edu-pad:           1rem;
+            --edu-mar:           0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: rgb(var(--edu-bg));
+            min-height: 100vh;
+            padding: 2rem;
+            color: rgb(var(--edu-ink));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: rgb(var(--edu-ink));
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgb(var(--edu-second-ink));
+            margin-bottom: 3rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: rgb(var(--edu-ink));
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid rgb(var(--edu-first-accent));
+        }
+
+        .section-description {
+            color: rgb(var(--edu-second-ink));
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .demo-card {
+            background: rgb(var(--edu-card));
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.08);
+        }
+
+        .demo-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: rgb(var(--edu-ink));
+        }
+
+        .demo-card p {
+            color: rgb(var(--edu-second-ink));
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .chip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        code {
+            background: rgb(var(--edu-muted));
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: rgb(var(--edu-second-ink));
+        }
+
+        .info-box {
+            background: rgba(var(--edu-first-accent), 0.1);
+            border-left: 4px solid rgb(var(--edu-first-accent));
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .info-box strong {
+            color: rgb(var(--edu-ink));
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .demo-card {
+                padding: 1.5rem;
+            }
+
+            .chip-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 EduChip Component Showcase</h1>
+        <p class="subtitle">Comprehensive demonstration of all chip capabilities, modalities, states, and variants</p>
+
+        <!-- SECTION: Basic Variants -->
+        <section class="section">
+            <h2 class="section-title">1. All Variants</h2>
+            <p class="section-description">
+                Eight different visual styles to match any design aesthetic. Click chips to select them.
+            </p>
+
+            <div class="demo-card">
+                <h3>Variant Showcase</h3>
+                <div class="chip-row">
+                    <edu-chip variant="elegant" prefix="1">Elegant</edu-chip>
+                    <edu-chip variant="playful" prefix="2">Playful</edu-chip>
+                    <edu-chip variant="outline" prefix="3">Outline</edu-chip>
+                    <edu-chip variant="letter" prefix="A">Letter</edu-chip>
+                    <edu-chip variant="minimal" prefix="B">Minimal</edu-chip>
+                    <edu-chip variant="glass" prefix="C">Glass</edu-chip>
+                    <edu-chip variant="card" prefix="D">Card</edu-chip>
+                    <edu-chip variant="sign" prefix="E">Sign</edu-chip>
+                    <edu-chip variant="empty" prefix="F">Empty</edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: States -->
+        <section class="section">
+            <h2 class="section-title">2. Interactive States</h2>
+            <p class="section-description">
+                Visual feedback for selection, disabled, and grading states.
+            </p>
+
+            <div class="demo-card">
+                <h3>Selection & Disabled States</h3>
+                <div class="chip-row">
+                    <edu-chip variant="outline" prefix="1">Normal</edu-chip>
+                    <edu-chip variant="outline" prefix="2" selected>Selected</edu-chip>
+                    <edu-chip variant="outline" prefix="3" disabled>Disabled</edu-chip>
+                    <edu-chip variant="playful" prefix="4" selected>Selected Playful</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Grading States (Feedback)</h3>
+                <p>Perfect for showing quiz results with visual badges</p>
+                <div class="chip-row">
+                    <edu-chip variant="outline" prefix="1" state="correct">Correct Answer</edu-chip>
+                    <edu-chip variant="elegant" prefix="2" state="wrong">Wrong Answer</edu-chip>
+                    <edu-chip variant="playful" prefix="3" state="missed">Missed Item</edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Custom Colors -->
+        <section class="section">
+            <h2 class="section-title">3. Custom Colors</h2>
+            <p class="section-description">
+                Override the default accent color with any custom hex color across all variants.
+            </p>
+
+            <div class="demo-card">
+                <h3>Color Customization</h3>
+                <div class="chip-row">
+                    <edu-chip variant="outline" color="#e91e63">Pink Outline</edu-chip>
+                    <edu-chip variant="playful" color="#4caf50">Green Playful</edu-chip>
+                    <edu-chip variant="elegant" color="#ff5722">Orange Elegant</edu-chip>
+                    <edu-chip variant="outline" color="#9c27b0" selected>Purple Selected</edu-chip>
+                    <edu-chip variant="playful" color="#00bcd4">Cyan Playful</edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Modalities -->
+        <section class="section">
+            <h2 class="section-title">4. Content Modalities</h2>
+            <p class="section-description">
+                Different types of content that chips can display and interact with.
+            </p>
+
+            <div class="demo-card">
+                <h3>Text Modality</h3>
+                <p>Supports plain text and HTML content</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" modality="text" data="Plain text content">Text Chip</edu-chip>
+                    <edu-chip prefix="2" modality="text" data="<strong>Bold</strong> and <em>italic</em> text">HTML Text</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Image Modality</h3>
+                <p>Display images directly in chips</p>
+                <div class="chip-row">
+                    <edu-chip prefix="A" modality="image" data="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=100&auto=format&fit=crop"></edu-chip>
+                    <edu-chip prefix="B" modality="image" data="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=100&auto=format&fit=crop"></edu-chip>
+                    <edu-chip prefix="C" modality="image" data="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=100&auto=format&fit=crop"></edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Audio Modality</h3>
+                <p>Play audio files with inline controls (click the play button)</p>
+                <div class="info-box">
+                    <strong>Note:</strong> Audio chips show a play button. Click it to start/pause playback.
+                </div>
+                <div class="chip-row">
+                    <edu-chip prefix="1" modality="audio" data="https://pixabay.com/sound-effects/small-dog-running-and-barking-while-playing-fetch-inside-18257/" display="in-line">Sample Audio 1</edu-chip>
+                    <edu-chip prefix="2" modality="audio" data="/assets/audio/sample2.mp3" display="in-line">Sample Audio 2</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Video Modality</h3>
+                <p>Click to open video in a modal dialog</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" modality="video" data="https://www.pexels.com/download/video/6548176/" display="in-line">Sample Video</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Interactive Modalities</h3>
+                <p>Click to open rich HTML content in a dialog</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" modality="data" data="<h3>Statistical Data</h3><p>This is dynamic data content with HTML.</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>">View Data</edu-chip>
+                    <edu-chip prefix="2" modality="interactive" data="<h3>Interactive Content</h3><p>You can put any HTML here including forms, charts, etc.</p>">Open Interactive</edu-chip>
+                    <edu-chip prefix="3" modality="dynamic" data="<h3>Dynamic Content</h3><p>Content that updates in real-time</p>">Dynamic View</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>File Upload (Anchor)</h3>
+                <p>Click to trigger file upload dialog</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" modality="anchor" data="Upload Document">Choose File</edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Draggable -->
+        <section class="section">
+            <h2 class="section-title">5. Draggable Chips</h2>
+            <p class="section-description">
+                Chips can show a drag handle for drag-and-drop interactions.
+            </p>
+
+            <div class="demo-card">
+                <h3>Drag Handle Examples</h3>
+                <p>Notice the drag icon (☰) on the right side</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" draggable>Draggable Text</edu-chip>
+                    <edu-chip prefix="2" modality="image" data="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=80&auto=format&fit=crop" draggable></edu-chip>
+                    <edu-chip prefix="3" variant="playful" draggable>Draggable Playful</edu-chip>
+                    <edu-chip prefix="4" modality="audio" data="/assets/audio/sample1.mp3" draggable>Draggable Audio</edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Complex Combinations -->
+        <section class="section">
+            <h2 class="section-title">6. Advanced Combinations</h2>
+            <p class="section-description">
+                Combining multiple features for powerful, flexible components.
+            </p>
+
+            <div class="demo-card">
+                <h3>All Features Combined</h3>
+                <div class="chip-row">
+                    <edu-chip
+                        prefix="1"
+                        variant="playful"
+                        color="#e91e63"
+                        state="correct"
+                        draggable>
+                        Correct + Draggable
+                    </edu-chip>
+
+                    <edu-chip
+                        prefix="2"
+                        variant="outline"
+                        modality="image"
+                        data="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=100&auto=format&fit=crop"
+                        selected
+                        draggable>
+                    </edu-chip>
+
+                    <edu-chip
+                        prefix="3"
+                        variant="elegant"
+                        color="#4caf50"
+                        state="wrong">
+                        Custom Color + Wrong
+                    </edu-chip>
+
+                    <edu-chip
+                        prefix="4"
+                        variant="glass"
+                        modality="data"
+                        data="<h2>Advanced Content</h2><p>This chip combines glass variant with interactive data modality</p>"
+                        color="#ff5722">
+                        Glass + Data + Color
+                    </edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Real-World Examples -->
+        <section class="section">
+            <h2 class="section-title">7. Real-World Use Cases</h2>
+            <p class="section-description">
+                Practical examples showing how chips work in actual educational scenarios.
+            </p>
+
+            <div class="demo-card">
+                <h3>Multiple Choice Quiz</h3>
+                <p>Click to select an answer</p>
+                <div class="chip-grid">
+                    <edu-chip prefix="A" variant="outline">Paris</edu-chip>
+                    <edu-chip prefix="B" variant="outline">London</edu-chip>
+                    <edu-chip prefix="C" variant="outline">Berlin</edu-chip>
+                    <edu-chip prefix="D" variant="outline">Madrid</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Classification Exercise (Draggable)</h3>
+                <p>Drag items to categories</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" variant="playful" color="#4caf50" draggable>Apple</edu-chip>
+                    <edu-chip prefix="2" variant="playful" color="#4caf50" draggable>Banana</edu-chip>
+                    <edu-chip prefix="3" variant="playful" color="#ff5722" draggable>Carrot</edu-chip>
+                    <edu-chip prefix="4" variant="playful" color="#ff5722" draggable>Broccoli</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Audio Listening Exercise</h3>
+                <p>Listen to pronunciations</p>
+                <div class="chip-row">
+                    <edu-chip prefix="1" modality="audio" data="/assets/audio/sample1.mp3" variant="minimal">Listen: Hello</edu-chip>
+                    <edu-chip prefix="2" modality="audio" data="/assets/audio/sample2.mp3" variant="minimal">Listen: Goodbye</edu-chip>
+                    <edu-chip prefix="3" modality="audio" data="/assets/audio/sample1.mp3" variant="minimal">Listen: Thank you</edu-chip>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>Graded Quiz Results</h3>
+                <p>Visual feedback after submission</p>
+                <div class="chip-grid">
+                    <edu-chip prefix="1" state="correct">2 + 2 = 4</edu-chip>
+                    <edu-chip prefix="2" state="wrong">3 + 3 = 7</edu-chip>
+                    <edu-chip prefix="3" state="correct">5 × 5 = 25</edu-chip>
+                    <edu-chip prefix="4" state="missed">10 ÷ 2 = 5</edu-chip>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: API Reference -->
+        <section class="section">
+            <h2 class="section-title">8. Attributes Reference</h2>
+
+            <div class="demo-card">
+                <h3>Available Attributes</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 2px solid rgb(var(--edu-border));">
+                        <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Attribute</th>
+                        <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Values</th>
+                        <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Description</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>variant</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">elegant, playful, outline, letter, minimal, glass, card, sign, empty</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Visual style variant</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>prefix</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">any string</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Left-side identifier (number/letter)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>modality</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">text, image, audio, video, tts, anchor, interactive, data, dynamic, composite</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Content type</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>data</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">string/URL/HTML</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Content data for modality</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>display</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">in-line, dialog</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">How to display modality content</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>state</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">correct, wrong, missed</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Grading feedback state</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>color</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">hex color (#rrggbb)</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Custom accent color</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>selected</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">boolean</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Selected state</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
+                        <td style="padding: 0.75rem;"><code>disabled</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">boolean</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Disabled state</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem;"><code>draggable</code></td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">boolean</td>
+                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Show drag handle</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { EduChip, EduDialog } from './app.js';
+
+        // Add click handlers to make chips selectable
+        document.querySelectorAll('edu-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                // Don't toggle if it has a modality action button
+                if (e.target.classList.contains('modality-action')) return;
+
+                chip.toggle();
+            });
+
+            // Listen for file uploads
+            chip.addEventListener('file-upload', (e) => {
+                console.log('File uploaded:', e.detail.file);
+                alert(`File selected: ${e.detail.file.name}`);
+            });
+        });
+
+        console.log('✨ EduChip showcase loaded! Click chips to interact.');
+    </script>
+</body>
+</html>

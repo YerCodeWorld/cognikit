@@ -12,12 +12,20 @@ export type SeriationData = {
 	items: string[];
 }
 
-
 // to be completed later when we get things straight 
-export interface DiscriminationData {}
-export interface ComparisonData {}
-export interface CuedRecallData {}
-export interface TransformationData {}
-export interface RecognitionData {}
-export interface EvaluationData {}
+export interface DiscriminationData {
+	type: 'discrimination';
+	data: { content: string; targets: { [pos: string]: string }[] };
+}
 
+
+export interface CuedRecallData {}
+
+export interface RecognitionData {
+	type: 'recognition';
+	data: { question: string; correctOptions: string[]; options: string[] }[];
+}
+
+export interface ComparisonData {}
+// export interface EvaluationData {}
+// export interface TransformationData {}

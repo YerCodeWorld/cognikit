@@ -1,5 +1,5 @@
 import { Variant } from "../../shared";
-import { AnimationsManager } from "../../styles/utilities/AnimationsManager";
+import { AnimationsManager } from "../../shared/managers";
 
 const HTML = `
 <style>
@@ -168,7 +168,6 @@ export class EduBlock extends HTMLElement {
 		this.shadowRoot!.innerHTML = HTML;
 		this.$blockEl = this.shadowRoot!.querySelector('.block') as HTMLDivElement;
 
-		// Inject animation keyframes into Shadow DOM
 		AnimationsManager.injectKeyframes(this.shadowRoot!);
 	}
 

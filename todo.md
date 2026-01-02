@@ -7,7 +7,7 @@
 6 - Declare configurations which are interaction-specifc and create a public methods to get it
 
 7 - Update chip.ts to support all the different Stimulus
-7.1 Update chip.ts to support success/missed/disabled/failure states
+7.1 Update chip.ts to support success/missed/disabled/failure states [x]
 
 8 - Update BaseInteraction to include abstract methods properties like interaction mechanics
 9 - Update shell to read properties from interaction like stimulus & data to render proper content

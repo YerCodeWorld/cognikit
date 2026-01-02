@@ -14,6 +14,10 @@ export type StimulusModality =
 	'dynamic'	| 
 	'composite';
 
+export type ResponseObjectModality = 
+	Extract<StimulusModality, 'image' | 'text' | 'audio' | 'video' | 'tts' | 'anchor'> | 
+	'complex'; 
+
 export type ResponseModality = 
 	'select' | 
 	'write' | 
@@ -21,7 +25,6 @@ export type ResponseModality =
 	'manipulate' | 
 	'locate' | 
 	'upload' | 
-	'speak' | 
 	'other' | 
 	'none';
 
@@ -36,6 +39,19 @@ export type InteractionMechanic =
 	'sequential' | 
 	'automatic-sequencing' | 
 	'game';
+
+export type CognitiveOp = 
+	'discrimination' |
+	'classification' |
+	'freerecall' 	 |
+	'production' 	 |
+	'association' 	 |
+	'comparisson' 	 |
+	'transformation' |
+	'seriation' 	 |
+	'recognition' 	 |
+	'cuedrecall' 	 |
+	'evaluation';
 
 // Refactor to CognitiveOp 
 export type CognitiveProcess = 
@@ -56,7 +72,7 @@ type IInteractionSpec = any;
 // refactor to InteractionBaseSpec
 export type InteractionConfig = {
 	construct: string;
-	description: string;
+	data: string;
 
 	variant: Variant;  
 	shuffle: boolean;
@@ -65,10 +81,12 @@ export type InteractionConfig = {
 	responseModality?: ResponseModality;
 	presentationMode?: InteractionPresentationMode;
 
-	playIntroAnimation?: boolean;
+	playStaggeringAnimation?: boolean;
 	animationsEnabled?: boolean;
+	soundEnabled?: boolean;
 
 	inLineFeedback?: boolean;
+	immediateCheck?: boolean;
 
 	attemptLimit: number | null;
 	timer: number | null;
@@ -79,8 +97,8 @@ export type InteractionConfig = {
 export type ItemData = 
 	ClassificationData | 
 	AssociationData	   |
-	BaseTableData 	   |
-	FreeRecallData;
+	BaseTableData;
+
 export type ClassificationData = {
 	type: 'classification'; 
 	categories: { label: string; items: string[] }[];
@@ -92,24 +110,6 @@ export type AssociationData = {
 	pairs: { left: string; right: string }[];
 	distractors?: string[];
 }
-
-export type FreeRecallData = {
-	type: 'freerecall';
-	instructions: { prompt: string; words: string[] }[];
-}
-
-export type SeriationData = {
-	type: 'seriation';
-	items: string[];
-}
-//
-// to be completed later when we get things straight 
-export interface DiscriminationData {}
-export interface ComparisonData {}
-export interface CuedRecallData {}
-export interface TransformationData {}
-export interface RecognitionData {}
-export interface EvaluationData {}
 
 export interface Module {
 

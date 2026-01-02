@@ -9,3 +9,4 @@ export type GradingResult = {
 	userResponse?:  any;
 }
 
+export type GradingState = 'correct' | 'wrong' | 'missed';

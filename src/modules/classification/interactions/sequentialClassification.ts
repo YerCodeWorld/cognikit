@@ -11,8 +11,7 @@ import { EduChip, EduBlock } from "../../../ui";
 import { shuffle, randomHexColorsList } from "../../../shared";
 import { classificationGrader } from "../utilities";
 
-// import { AnimationsManager } from "../../../styles/utilities/AnimationsManager";
-// import { SoundManager } from "shared/managers/SoundManager
+import { AnimationsManager } from "../../../shared/managers";
 
 export class SequentialClassification extends BaseInteraction<ClassificationData> {
 

@@ -1,5 +1,6 @@
 import { ProgressTracker } from "./utilities/ProgressTracker";
-import { ItemData, InteractionConfig, Variant } from "../shared";
+import { ItemData, InteractionConfig, Variant, InteractionMechanic } from "../shared";
+import { AnimationsManager, SoundManager } from "../shared/managers";
 
 export type InteractionEventMap = {
 	'interaction:ready': CustomEvent<{ id: string }>;
@@ -12,16 +13,18 @@ export type InteractionEventMap = {
 
 export abstract class BaseInteraction<T extends ItemData> extends HTMLElement {
 	
-	// abstract isSequential: boolean;
-	// abstract prefersHorizontalOverflow: boolean;
-
 	// ==================== PROPERTIES ====================
 
 	public readonly id: string;
+	public readonly interactionMechanic: InteractionMechanic;
 
 	protected data: T;
 	protected config: InteractionConfig;
+
 	protected progressTracker: ProgressTracker;
+	protected animationsManager: AnimationsManager;
+	protected soundManager: SoundManager;
+
 	private _initialized = false;
 
 	// ==================== CONSTRUCTOR ====================
@@ -32,11 +35,19 @@ export abstract class BaseInteraction<T extends ItemData> extends HTMLElement {
 		this.id = crypto.randomUUID();
 		this.data = data;
 		this.config = config;
+
 		this.progressTracker = new ProgressTracker();
+		
+		this.soundManager = new SoundManager();
+		this.soundManager.isEnabled = this.config.soundEnabled;
+
+		this.animationsManager = new AnimationsManager();
+		this.animationsManager.isEnabled = this.config.animationsEnabled;
 
 		if (config.variant) {
 			this.setAttribute('variant', config.variant);
 		}
+
 	}
 
 	// ==================== LIFECYCLE (Web Component) ====================

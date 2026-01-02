@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f7f9fc">
+    <title>CogniKit - Sequential Classification Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+	:root {
+		--edu-bg:            247 249 252;
+		--edu-card:          255 255 255;
+
+		--edu-ink:           31 41 55;
+		--edu-second-ink:    71 85 105;
+		--edu-third-ink:     100 116 139;
+
+		--edu-inverted-ink:  248 250 252;
+
+		--edu-success:       22 163 74;
+		--edu-error:         220 38 38;
+		--edu-warning:       255 222 33;
+		--edu-neutral:       14 165 233;
+
+		--edu-first-accent:  173 198 255;
+
+		--edu-second-accent: 245 158 11;
+		--edu-third-accent:  236 72 153;
+
+		--edu-border:        229 231 235;
+		--edu-muted:         243 244 246;
+
+		--edu-radius:        0.375rem;
+		--edu-shadow-color:  0 0 0;
+
+		--edu-pad:	1rem;
+		--edu-mar:	0;
+	}
+
+	/* Dark Theme */
+	[data-theme="dark"] {
+		--edu-bg:            17 24 39;
+		--edu-card:          31 41 55;
+
+		--edu-ink:           248 250 252;
+		--edu-second-ink:    209 213 219;
+		--edu-third-ink:     156 163 175;
+
+		--edu-inverted-ink:  31 41 55;
+
+		--edu-border:        55 65 81;
+		--edu-muted:         45 55 72;
+
+		--edu-shadow-color:  0 0 0;
+	}
+
+	/* Dark Blue Theme */
+	[data-theme="dark-blue"] {
+		--edu-bg:            15 23 42;
+		--edu-card:          30 41 59;
+
+		--edu-ink:           241 245 249;
+		--edu-second-ink:    203 213 225;
+		--edu-third-ink:     148 163 184;
+
+		--edu-inverted-ink:  15 23 42;
+
+		--edu-first-accent:  96 165 250;
+
+		--edu-border:        51 65 85;
+		--edu-muted:         40 52 73;
+
+		--edu-shadow-color:  0 0 0;
+	}
+
+
+	body {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+		background: rgb(var(--edu-bg));
+		min-height: 100vh;
+		min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+		padding: 2rem;
+		padding-bottom: max(100px, env(safe-area-inset-bottom));
+		padding-left: max(2rem, env(safe-area-inset-left));
+		padding-right: max(2rem, env(safe-area-inset-right));
+		transition: background 0.3s ease;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		overflow-x: hidden;
+	}
+
+        .container {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		margin: 0 auto;
+		max-width: 1400px;
+		padding: 2rem 1rem;
+        }
+
+        /* Bottom Control Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgb(var(--edu-card));
+            border-top: 2px solid rgb(var(--edu-border));
+            padding: 1rem 2rem;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            padding-left: max(2rem, env(safe-area-inset-left));
+            padding-right: max(2rem, env(safe-area-inset-right));
+            box-shadow: 0 -4px 20px rgba(var(--edu-shadow-color), 0.1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .bottom-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: rgb(var(--edu-ink));
+            font-size: 0.9rem;
+        }
+
+        .control-group select,
+        .control-group input[type="color"] {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid rgb(var(--edu-border));
+            background: rgb(var(--edu-bg));
+            color: rgb(var(--edu-ink));
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px; /* Apple HIG minimum touch target */
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+
+        .control-group select:hover,
+        .control-group input[type="color"]:hover {
+            border-color: rgb(var(--edu-first-accent));
+        }
+
+        .control-group select:active,
+        .control-group input[type="color"]:active {
+            transform: scale(0.98);
+        }
+
+        .control-group input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 0.25rem;
+        }
+
+        .demo-section {
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .demo-section h2 {
+            color: rgb(var(--edu-ink));
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 5px rgba(var(--edu-shadow-color), 0.2);
+        }
+
+        .demo-card {
+            background: rgb(var(--edu-card));
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(var(--edu-shadow-color), 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .demo-card h3 {
+            margin-bottom: 1rem;
+            color: rgb(var(--edu-ink));
+            font-size: 1.3rem;
+        }
+
+        .demo-card p {
+            color: rgb(var(--edu-second-ink));
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .interaction-wrapper {
+            min-height: 400px;
+            width: 100%;
+        }
+
+        /* Shell styling is handled by the component itself */
+        edu-window {
+            display: block;
+            width: 100%;
+        }
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                padding-bottom: 140px;
+            }
+
+            .container {
+                padding: 1rem 0.5rem;
+            }
+
+            .demo-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .demo-card {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .demo-card h3 {
+                font-size: 1.2rem;
+            }
+
+            .demo-card p {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+
+            .interaction-wrapper {
+                min-height: 350px;
+            }
+
+            .bottom-bar {
+                padding: 0.75rem 1rem;
+            }
+
+            .bottom-bar-content {
+                gap: 1rem;
+            }
+
+            .control-group {
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+
+            .control-group label {
+                font-size: 0.85rem;
+            }
+
+            .control-group select {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.75rem;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+                padding-bottom: 180px;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .demo-section {
+                margin-bottom: 1.5rem;
+            }
+
+            .demo-section h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .demo-card {
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.15);
+            }
+
+            .demo-card h3 {
+                font-size: 1.1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .demo-card p {
+                font-size: 0.85rem;
+                line-height: 1.5;
+                margin-bottom: 1rem;
+            }
+
+            .interaction-wrapper {
+                min-height: 300px;
+            }
+
+            /* Bottom bar - stack vertically on mobile */
+            .bottom-bar {
+                padding: 0.75rem;
+            }
+
+            .bottom-bar-content {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .control-group label {
+                font-size: 0.9rem;
+                flex-shrink: 0;
+            }
+
+            .control-group select,
+            .control-group input[type="color"] {
+                flex: 1;
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+
+            .control-group input[type="color"] {
+                width: 80px;
+            }
+        }
+
+        /* Very small mobile */
+        @media (max-width: 360px) {
+            body {
+                padding: 0.25rem;
+                padding-bottom: 200px;
+            }
+
+            .demo-section h2 {
+                font-size: 1.2rem;
+            }
+
+            .demo-card {
+                padding: 0.75rem;
+            }
+
+            .demo-card h3 {
+                font-size: 1rem;
+            }
+
+            .demo-card p {
+                font-size: 0.8rem;
+            }
+
+            .interaction-wrapper {
+                min-height: 250px;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding-bottom: 80px;
+            }
+
+            .bottom-bar-content {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .control-group {
+                flex: 0 1 auto;
+                min-width: 140px;
+            }
+
+            .interaction-wrapper {
+                min-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="demo-section">
+            <h2>With InteractionsBaseShell</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="shell-demo"></edu-window>
+                </div>
+            </div>
+        </div>
+
+	<div class="demo-section">
+            <h2>Simultaneous Association</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="association-shell"></edu-window>
+                </div>
+            </div>
+        </div>
+
+	<div class="demo-section">
+            <h2>Matrix</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="matrix-shell"></edu-window>
+                </div>
+            </div>
+        </div>
+
+	<div class="demo-section">
+            <h2>Matrix</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="open-shell"></edu-window>
+                </div>
+            </div>
+        </div>
+
+	<div class="demo-section">
+            <h2>Matrix</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="nary-shell"></edu-window>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Control Bar -->
+    <div class="bottom-bar">
+        <div class="bottom-bar-content">
+            <div class="control-group">
+                <label for="theme-select">Theme:</label>
+                <select id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="dark-blue">Dark Blue</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="variant-select">Variant:</label>
+                <select id="variant-select">
+                    <option value="elegant">Elegant</option>
+                    <option value="playful">Playful</option>
+                    <option value="outline" selected>Outline</option>
+                    <option value="letter">Letter</option>
+                    <option value="sign">Sign</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="glass">Glass</option>
+                    <option value="empty">Empty</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="accent-color">Accent Color:</label>
+                <input type="color" id="accent-color" value="#adc6ff">
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+		ClassificationMatrix, 
+		NaryChoiceTable,
+		OpenClassification,
+		SequentialClassification,
+		SimultaneousAssociation,
+		InteractionsBaseShell 
+	} from './app.js';
+
+        // ==================== DATA ====================
+	/**
+	 * Hard-cooding the data like won't be a problem when we use the parsers I am creating.
+	 * We would create data strings with the mini-DSLs, and the create a helper function that
+	 * parses the string -> uses validator -> renders if valid using the corresponding interaction class
+	 **/
+	const animalsData = {
+		type: 'classification',
+		categories: [
+		{
+		    label: 'Ocean',
+		    items: ['Dolphin', 'Shark', 'Octopus', 'Whale']
+		},
+		{
+		    label: 'Land',
+		    items: ['Lion', 'Elephant', 'Tiger', 'Bear']
+		},
+		{
+		    label: 'Air',
+		    items: ['Eagle', 'Parrot', 'Hawk', 'Owl']
+		}
+	]
+	};
+
+	const naryData = {
+		rows: ['2 + 2 = 4', '3 + 3 = 7', 'Paris is in France', 'Tokyo is in China', 'Water boils at 100?C'],
+		cols: ['True', 'False'],
+		answerKey: new Map([
+			['True', ['2 + 2 = 4', 'Paris is in France', 'Water boils at 100?C']],
+			['False', ['3 + 3 = 7', 'Tokyo is in China']]
+		])
+	};
+
+	const associationData = {
+		type: 'association',
+		pairs: [
+			{ left: 'Dog', right: 'Barks' },
+			{ left: 'Cat', right: 'Meows' },
+			{ left: 'Bird', right: 'Chirps' },
+			{ left: 'Cow', right: 'Moos' },
+			{ left: 'Lion', right: 'Roars' }
+		],
+		distractors: ['Hisses', 'Croaks']
+	};
+
+	const matrixData = {
+		rows: ['Apple', 'Carrot', 'Chicken', 'Banana', 'Lettuce', 'Pork'],
+		cols: ['Fruit', 'Vegetable', 'Protein'],
+		answerKey: new Map([
+			['Fruit', ['Apple', 'Banana']],
+			['Vegetable', ['Carrot', 'Lettuce']],
+			['Protein', ['Chicken', 'Pork']]
+		])
+	};
+		
+	const openData = {
+		type: 'classification',
+		categories: [
+			{ label: 'Mammals', items: ['Dog', 'Cat', 'Elephant', 'Whale'] },
+			{ label: 'Birds', items: ['Eagle', 'Penguin', 'Sparrow'] },
+			{ label: 'Reptiles', items: ['Snake', 'Lizard', 'Crocodile'] }
+		],
+		distractors: ['Rock', 'Cloud']
+	};
+
+	// ==================== CONFIG ====================
+
+	let currentVariant = 'outline';
+
+	const baseConfig = {
+	    variant: currentVariant,
+	    shuffle: true,
+		animationsEnabled: true
+	};
+
+        // ==================== SHELL DEMO ====================
+
+        const shellDemo = document.getElementById('shell-demo');
+        const shellInteraction = new SequentialClassification(animalsData, baseConfig);
+
+        shellDemo.setInteraction(shellInteraction);
+	shellDemo.setAttribute("heading", "Classify all animals");
+	shellDemo.setAttribute("timer", 120);
+        shellDemo.addEventListener('shell:interaction-complete', (e) => {
+            console.log('[Shell Demo] Completed!', e.detail);
+        });
+
+	// ==================== ASSOCIATION ==================
+	const associationShell = document.getElementById("association-shell");
+	associationShell.setAttribute('heading', 'Animal Sounds');
+	associationShell.setAttribute('timer', '120');
+	associationShell.setAttribute('variant', 'outline');
+	associationShell.setAttribute('show-hint-button', 'true');
+
+	const associationWithShell = new SimultaneousAssociation(associationData, baseConfig);
+	associationShell.setInteraction(associationWithShell);
+
+	associationShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('association-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+
+	// ================== MATRIX =================
+	const matrixShell = document.getElementById('matrix-shell');
+	matrixShell.setAttribute('heading', 'Food Classification');
+	matrixShell.setAttribute('timer', '120');
+	matrixShell.setAttribute('variant', 'outline');
+	matrixShell.setAttribute('show-hint-button', 'true');
+
+	const matrixWithShell = new ClassificationMatrix(matrixData, baseConfig);
+	matrixShell.setInteraction(matrixWithShell);
+
+	matrixShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+	
+	// ================= OPEN CLASSIFICATION ====================
+	const openShell = document.getElementById('open-shell');
+	openShell.setAttribute('heading', 'Food Classification');
+	openShell.setAttribute('timer', '120');
+	openShell.setAttribute('variant', 'outline');
+	openShell.setAttribute('show-hint-button', 'true');
+
+	const openWithShell = new OpenClassification(openData, baseConfig);
+	openShell.setInteraction(openWithShell);
+
+	openShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+
+	// ================== N-ARY CHOICE TABLE =================
+	const naryShell = document.getElementById('nary-shell');
+	naryShell.setAttribute('heading', 'Food Classification');
+	naryShell.setAttribute('timer', '120');
+	naryShell.setAttribute('variant', 'outline');
+	naryShell.setAttribute('show-hint-button', 'true');
+
+	const naryInteraction = new NaryChoiceTable(naryData, baseConfig);
+	naryShell.setInteraction(naryInteraction);
+
+	naryShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+
+	// ==================== GLOBAL CONTROLS ====================
+
+	const themeSelect = document.getElementById('theme-select');
+	const variantSelect = document.getElementById('variant-select');
+	const accentColorPicker = document.getElementById('accent-color');
+
+	// Theme switcher
+	themeSelect.addEventListener('change', (e) => {
+		const theme = e.target.value;
+		if (theme === 'light') {
+			document.documentElement.removeAttribute('data-theme');
+		} else {
+			document.documentElement.setAttribute('data-theme', theme);
+		}
+	});
+
+	// Variant switcher
+	variantSelect.addEventListener('change', (e) => {
+		currentVariant = e.target.value;
+		shellDemo.setAttribute('variant', currentVariant);
+		associationShell.setAttribute('variant', currentVariant);
+		matrixShell.setAttribute('variant', currentVariant);
+		openShell.setAttribute('variant', currentVariant);
+		naryShell.setAttribute('variant', currentVariant);
+	});
+
+	// Accent color picker
+	accentColorPicker.addEventListener('input', (e) => {
+		const color = e.target.value;
+		// Convert hex to RGB
+		const r = parseInt(color.substr(1, 2), 16);
+		const g = parseInt(color.substr(3, 2), 16);
+		const b = parseInt(color.substr(5, 2), 16);
+		document.documentElement.style.setProperty('--edu-first-accent', `${r} ${g} ${b}`);
+	});
+
+    </script>
+</body>
+</html>
+
