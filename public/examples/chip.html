@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#f7f9fc">
-    <title>EduChip Component - All Capabilities</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<title>Live Chip Editor - CogniKit</title>
+	<link rel="stylesheet" href="./styles/global.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
         :root {
             --edu-bg:            247 249 252;
@@ -42,469 +36,460 @@
             --edu-mar:           0;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: rgb(var(--edu-bg));
-            min-height: 100vh;
-            padding: 2rem;
-            color: rgb(var(--edu-ink));
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			background: rgb(var(--edu-background));
+			color: rgb(var(--edu-ink));
+			min-height: 100dvh;
+			padding: 2rem;
+			padding-bottom: max(2rem, env(safe-area-inset-bottom));
+		}
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: rgb(var(--edu-ink));
-        }
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+		}
 
-        .subtitle {
-            font-size: 1.1rem;
-            color: rgb(var(--edu-second-ink));
-            margin-bottom: 3rem;
-        }
+		h1 {
+			font-size: 2rem;
+			margin-bottom: 0.5rem;
+			color: rgb(var(--edu-first-accent));
+		}
 
-        .section {
-            margin-bottom: 4rem;
-        }
+		.subtitle {
+			color: rgb(var(--edu-second-ink));
+			margin-bottom: 3rem;
+			font-size: 1rem;
+		}
 
-        .section-title {
-            font-size: 1.8rem;
-            color: rgb(var(--edu-ink));
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid rgb(var(--edu-first-accent));
-        }
+		.editor-layout {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 2rem;
+			align-items: start;
+		}
 
-        .section-description {
-            color: rgb(var(--edu-second-ink));
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
+		.preview-section {
+			background: rgb(var(--edu-card));
+			border: 1px solid rgb(var(--edu-border));
+			border-radius: var(--edu-radius);
+			padding: 3rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: 400px;
+			position: sticky;
+			top: 2rem;
+		}
 
-        .demo-card {
-            background: rgb(var(--edu-card));
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.08);
-        }
+		.preview-label {
+			font-size: 0.85rem;
+			color: rgb(var(--edu-second-ink));
+			margin-bottom: 2rem;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			font-weight: 600;
+		}
 
-        .demo-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: rgb(var(--edu-ink));
-        }
+		.controls-section {
+			background: rgb(var(--edu-card));
+			border: 1px solid rgb(var(--edu-border));
+			border-radius: var(--edu-radius);
+			padding: 2rem;
+		}
 
-        .demo-card p {
-            color: rgb(var(--edu-second-ink));
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
+		.control-group {
+			margin-bottom: 1.5rem;
+		}
 
-        .chip-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
+		.control-group label {
+			display: block;
+			font-size: 0.9rem;
+			font-weight: 600;
+			margin-bottom: 0.5rem;
+			color: rgb(var(--edu-ink));
+		}
 
-        .chip-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
+		.control-group input[type="text"],
+		.control-group input[type="color"],
+		.control-group select,
+		.control-group textarea {
+			width: 100%;
+			padding: 0.75rem;
+			border: 1px solid rgb(var(--edu-border));
+			border-radius: 6px;
+			background: rgb(var(--edu-background));
+			color: rgb(var(--edu-ink));
+			font-size: 0.95rem;
+			font-family: inherit;
+			min-height: 44px;
+		}
 
-        code {
-            background: rgb(var(--edu-muted));
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            color: rgb(var(--edu-second-ink));
-        }
+		.control-group textarea {
+			resize: vertical;
+			min-height: 80px;
+			font-family: 'Courier New', monospace;
+		}
 
-        .info-box {
-            background: rgba(var(--edu-first-accent), 0.1);
-            border-left: 4px solid rgb(var(--edu-first-accent));
-            padding: 1rem;
-            border-radius: 4px;
-            margin: 1rem 0;
-        }
+		.control-group input[type="color"] {
+			height: 50px;
+			cursor: pointer;
+		}
 
-        .info-box strong {
-            color: rgb(var(--edu-ink));
-        }
+		.checkbox-group {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 0.5rem 0;
+		}
 
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
+		.checkbox-group input[type="checkbox"] {
+			width: 24px;
+			height: 24px;
+			cursor: pointer;
+		}
 
-            h1 {
-                font-size: 2rem;
-            }
+		.checkbox-group label {
+			margin: 0;
+			cursor: pointer;
+		}
 
-            .demo-card {
-                padding: 1.5rem;
-            }
+		.code-preview {
+			margin-top: 2rem;
+			padding-top: 2rem;
+			border-top: 1px solid rgb(var(--edu-border));
+		}
 
-            .chip-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+		.code-preview h3 {
+			font-size: 1rem;
+			margin-bottom: 1rem;
+			color: rgb(var(--edu-first-accent));
+		}
+
+		.code-block {
+			background: rgb(var(--edu-background));
+			border: 1px solid rgb(var(--edu-border));
+			border-radius: 6px;
+			padding: 1rem;
+			font-family: 'Courier New', monospace;
+			font-size: 0.85rem;
+			overflow-x: auto;
+			white-space: pre-wrap;
+			word-break: break-all;
+			color: rgb(var(--edu-second-ink));
+		}
+
+		.copy-button {
+			margin-top: 0.5rem;
+			padding: 0.5rem 1rem;
+			background: rgb(var(--edu-first-accent));
+			color: white;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-size: 0.9rem;
+			min-height: 44px;
+			transition: all 0.2s;
+		}
+
+		.copy-button:hover {
+			opacity: 0.9;
+			transform: translateY(-1px);
+		}
+
+		.copy-button:active {
+			transform: translateY(0);
+		}
+
+		/* Mobile responsive */
+		@media (max-width: 768px) {
+			body {
+				padding: 1rem;
+			}
+
+			.editor-layout {
+				grid-template-columns: 1fr;
+			}
+
+			.preview-section {
+				position: static;
+				padding: 2rem 1rem;
+				min-height: 300px;
+			}
+
+			h1 {
+				font-size: 1.5rem;
+			}
+		}
+	</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎨 EduChip Component Showcase</h1>
-        <p class="subtitle">Comprehensive demonstration of all chip capabilities, modalities, states, and variants</p>
+	<div class="container">
+		<h1>Live Chip Editor</h1>
+		<p class="subtitle">Customize and preview your chip component in real-time</p>
 
-        <!-- SECTION: Basic Variants -->
-        <section class="section">
-            <h2 class="section-title">1. All Variants</h2>
-            <p class="section-description">
-                Eight different visual styles to match any design aesthetic. Click chips to select them.
-            </p>
+		<div class="editor-layout">
+			<!-- Preview Section -->
+			<div class="preview-section">
+				<div class="preview-label">Live Preview</div>
+				<edu-chip id="liveChip" variant="outline" prefix="A">Option Text</edu-chip>
+			</div>
 
-            <div class="demo-card">
-                <h3>Variant Showcase</h3>
-                <div class="chip-row">
-                    <edu-chip variant="elegant" prefix="1">Elegant</edu-chip>
-                    <edu-chip variant="playful" prefix="2">Playful</edu-chip>
-                    <edu-chip variant="outline" prefix="3">Outline</edu-chip>
-                    <edu-chip variant="letter" prefix="A">Letter</edu-chip>
-                    <edu-chip variant="minimal" prefix="B">Minimal</edu-chip>
-                    <edu-chip variant="glass" prefix="C">Glass</edu-chip>
-                    <edu-chip variant="card" prefix="D">Card</edu-chip>
-                    <edu-chip variant="sign" prefix="E">Sign</edu-chip>
-                    <edu-chip variant="empty" prefix="F">Empty</edu-chip>
-                </div>
-            </div>
-        </section>
+			<!-- Controls Section -->
+			<div class="controls-section">
+				<h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Controls</h2>
 
-        <!-- SECTION: States -->
-        <section class="section">
-            <h2 class="section-title">2. Interactive States</h2>
-            <p class="section-description">
-                Visual feedback for selection, disabled, and grading states.
-            </p>
+				<div class="control-group">
+					<label for="variantSelect">Variant</label>
+					<select id="variantSelect">
+						<option value="outline" selected>Outline</option>
+						<option value="elegant">Elegant</option>
+						<option value="playful">Playful</option>
+						<option value="empty">Empty</option>
+						<option value="letter">Letter</option>
+						<option value="minimal">Minimal</option>
+						<option value="glass">Glass</option>
+						<option value="card">Card</option>
+						<option value="sign">Sign</option>
+					</select>
+				</div>
 
-            <div class="demo-card">
-                <h3>Selection & Disabled States</h3>
-                <div class="chip-row">
-                    <edu-chip variant="outline" prefix="1">Normal</edu-chip>
-                    <edu-chip variant="outline" prefix="2" selected>Selected</edu-chip>
-                    <edu-chip variant="outline" prefix="3" disabled>Disabled</edu-chip>
-                    <edu-chip variant="playful" prefix="4" selected>Selected Playful</edu-chip>
-                </div>
-            </div>
+				<div class="control-group">
+					<label for="prefixInput">Prefix (optional)</label>
+					<input type="text" id="prefixInput" placeholder="e.g., A, 1, i" value="A">
+				</div>
 
-            <div class="demo-card">
-                <h3>Grading States (Feedback)</h3>
-                <p>Perfect for showing quiz results with visual badges</p>
-                <div class="chip-row">
-                    <edu-chip variant="outline" prefix="1" state="correct">Correct Answer</edu-chip>
-                    <edu-chip variant="elegant" prefix="2" state="wrong">Wrong Answer</edu-chip>
-                    <edu-chip variant="playful" prefix="3" state="missed">Missed Item</edu-chip>
-                </div>
-            </div>
-        </section>
+				<div class="control-group">
+					<label for="contentInput">Content (slot content)</label>
+					<textarea id="contentInput" placeholder="Enter chip content">Option Text</textarea>
+				</div>
 
-        <!-- SECTION: Custom Colors -->
-        <section class="section">
-            <h2 class="section-title">3. Custom Colors</h2>
-            <p class="section-description">
-                Override the default accent color with any custom hex color across all variants.
-            </p>
+				<div class="control-group">
+					<label for="modalitySelect">Modality</label>
+					<select id="modalitySelect">
+						<option value="text" selected>Text</option>
+						<option value="image">Image</option>
+						<option value="audio">Audio</option>
+						<option value="video">Video</option>
+						<option value="tts">Text-to-Speech</option>
+						<option value="anchor">Anchor (File Upload)</option>
+						<!-- All the others require to set the inner HTML of the chip -->
+						<option value="complex">Complex</option>
+					</select>
+				</div>
 
-            <div class="demo-card">
-                <h3>Color Customization</h3>
-                <div class="chip-row">
-                    <edu-chip variant="outline" color="#e91e63">Pink Outline</edu-chip>
-                    <edu-chip variant="playful" color="#4caf50">Green Playful</edu-chip>
-                    <edu-chip variant="elegant" color="#ff5722">Orange Elegant</edu-chip>
-                    <edu-chip variant="outline" color="#9c27b0" selected>Purple Selected</edu-chip>
-                    <edu-chip variant="playful" color="#00bcd4">Cyan Playful</edu-chip>
-                </div>
-            </div>
-        </section>
+				<div class="control-group">
+					<label for="dataInput">Data (for modality)</label>
+					<textarea id="dataInput" placeholder="e.g., URL, text, etc."></textarea>
+				</div>
 
-        <!-- SECTION: Modalities -->
-        <section class="section">
-            <h2 class="section-title">4. Content Modalities</h2>
-            <p class="section-description">
-                Different types of content that chips can display and interact with.
-            </p>
+				<div class="control-group">
+					<label for="displaySelect">Display Mode</label>
+					<select id="displaySelect">
+						<option value="in-line" selected>In-line</option>
+						<option value="dialog">Dialog</option>
+					</select>
+				</div>
 
-            <div class="demo-card">
-                <h3>Text Modality</h3>
-                <p>Supports plain text and HTML content</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" modality="text" data="Plain text content">Text Chip</edu-chip>
-                    <edu-chip prefix="2" modality="text" data="<strong>Bold</strong> and <em>italic</em> text">HTML Text</edu-chip>
-                </div>
-            </div>
+				<div class="control-group">
+					<label for="stateSelect">State (feedback)</label>
+					<select id="stateSelect">
+						<option value="" selected>None</option>
+						<option value="correct">Correct</option>
+						<option value="wrong">Wrong</option>
+						<option value="missed">Missed</option>
+					</select>
+				</div>
 
-            <div class="demo-card">
-                <h3>Image Modality</h3>
-                <p>Display images directly in chips</p>
-                <div class="chip-row">
-                    <edu-chip prefix="A" modality="image" data="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=100&auto=format&fit=crop"></edu-chip>
-                    <edu-chip prefix="B" modality="image" data="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=100&auto=format&fit=crop"></edu-chip>
-                    <edu-chip prefix="C" modality="image" data="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=100&auto=format&fit=crop"></edu-chip>
-                </div>
-            </div>
+				<div class="control-group">
+					<label for="colorInput">Custom Color</label>
+					<input type="color" id="colorInput" value="#6366f1">
+					<div class="control-group checkbox-group">
+						<input type="checkbox" id="coloredCheck">
+						<label for="coloredCheck">colored</label>
+					</div>
 
-            <div class="demo-card">
-                <h3>Audio Modality</h3>
-                <p>Play audio files with inline controls (click the play button)</p>
-                <div class="info-box">
-                    <strong>Note:</strong> Audio chips show a play button. Click it to start/pause playback.
-                </div>
-                <div class="chip-row">
-                    <edu-chip prefix="1" modality="audio" data="https://pixabay.com/sound-effects/small-dog-running-and-barking-while-playing-fetch-inside-18257/" display="in-line">Sample Audio 1</edu-chip>
-                    <edu-chip prefix="2" modality="audio" data="/assets/audio/sample2.mp3" display="in-line">Sample Audio 2</edu-chip>
-                </div>
-            </div>
+				</div>
 
-            <div class="demo-card">
-                <h3>Video Modality</h3>
-                <p>Click to open video in a modal dialog</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" modality="video" data="https://www.pexels.com/download/video/6548176/" display="in-line">Sample Video</edu-chip>
-                </div>
-            </div>
+				<div class="control-group">
+					<label for="valueInput">Value (data attribute)</label>
+					<input type="text" id="valueInput" placeholder="e.g., option-1">
+				</div>
 
-            <div class="demo-card">
-                <h3>Interactive Modalities</h3>
-                <p>Click to open rich HTML content in a dialog</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" modality="data" data="<h3>Statistical Data</h3><p>This is dynamic data content with HTML.</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>">View Data</edu-chip>
-                    <edu-chip prefix="2" modality="interactive" data="<h3>Interactive Content</h3><p>You can put any HTML here including forms, charts, etc.</p>">Open Interactive</edu-chip>
-                    <edu-chip prefix="3" modality="dynamic" data="<h3>Dynamic Content</h3><p>Content that updates in real-time</p>">Dynamic View</edu-chip>
-                </div>
-            </div>
+				<div class="control-group checkbox-group">
+					<input type="checkbox" id="selectedCheck">
+					<label for="selectedCheck">Selected</label>
+				</div>
 
-            <div class="demo-card">
-                <h3>File Upload (Anchor)</h3>
-                <p>Click to trigger file upload dialog</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" modality="anchor" data="Upload Document">Choose File</edu-chip>
-                </div>
-            </div>
-        </section>
+				<div class="control-group checkbox-group">
+					<input type="checkbox" id="disabledCheck">
+					<label for="disabledCheck">Disabled</label>
+				</div>
 
-        <!-- SECTION: Draggable -->
-        <section class="section">
-            <h2 class="section-title">5. Draggable Chips</h2>
-            <p class="section-description">
-                Chips can show a drag handle for drag-and-drop interactions.
-            </p>
+				<div class="control-group checkbox-group">
+					<input type="checkbox" id="draggableCheck">
+					<label for="draggableCheck">Draggable</label>
+				</div>
 
-            <div class="demo-card">
-                <h3>Drag Handle Examples</h3>
-                <p>Notice the drag icon (☰) on the right side</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" draggable>Draggable Text</edu-chip>
-                    <edu-chip prefix="2" modality="image" data="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=80&auto=format&fit=crop" draggable></edu-chip>
-                    <edu-chip prefix="3" variant="playful" draggable>Draggable Playful</edu-chip>
-                    <edu-chip prefix="4" modality="audio" data="/assets/audio/sample1.mp3" draggable>Draggable Audio</edu-chip>
-                </div>
-            </div>
-        </section>
+				<!-- Code Preview -->
+				<div class="code-preview">
+					<h3>Generated HTML</h3>
+					<div class="code-block" id="codePreview"></div>
+					<button class="copy-button" id="copyButton">Copy Code</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-        <!-- SECTION: Complex Combinations -->
-        <section class="section">
-            <h2 class="section-title">6. Advanced Combinations</h2>
-            <p class="section-description">
-                Combining multiple features for powerful, flexible components.
-            </p>
+	<script type="module">
+		import { EduChip } from './app.js';
 
-            <div class="demo-card">
-                <h3>All Features Combined</h3>
-                <div class="chip-row">
-                    <edu-chip
-                        prefix="1"
-                        variant="playful"
-                        color="#e91e63"
-                        state="correct"
-                        draggable>
-                        Correct + Draggable
-                    </edu-chip>
+		const chip = document.getElementById('liveChip');
+		const codePreview = document.getElementById('codePreview');
+		const copyButton = document.getElementById('copyButton');
 
-                    <edu-chip
-                        prefix="2"
-                        variant="outline"
-                        modality="image"
-                        data="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=100&auto=format&fit=crop"
-                        selected
-                        draggable>
-                    </edu-chip>
+		// Control elements
+		const variantSelect = document.getElementById('variantSelect');
+		const prefixInput = document.getElementById('prefixInput');
+		const contentInput = document.getElementById('contentInput');
+		const modalitySelect = document.getElementById('modalitySelect');
+		const dataInput = document.getElementById('dataInput');
+		const displaySelect = document.getElementById('displaySelect');
+		const stateSelect = document.getElementById('stateSelect');
+		const colorInput = document.getElementById('colorInput');
+		const valueInput = document.getElementById('valueInput');
+		const selectedCheck = document.getElementById('selectedCheck');
+		const disabledCheck = document.getElementById('disabledCheck');
+		const draggableCheck = document.getElementById('draggableCheck');
+		const coloredCheck = document.getElementById('coloredCheck');
 
-                    <edu-chip
-                        prefix="3"
-                        variant="elegant"
-                        color="#4caf50"
-                        state="wrong">
-                        Custom Color + Wrong
-                    </edu-chip>
+		function updateChip() {
+			// Update variant
+			chip.variant = variantSelect.value;
 
-                    <edu-chip
-                        prefix="4"
-                        variant="glass"
-                        modality="data"
-                        data="<h2>Advanced Content</h2><p>This chip combines glass variant with interactive data modality</p>"
-                        color="#ff5722">
-                        Glass + Data + Color
-                    </edu-chip>
-                </div>
-            </div>
-        </section>
+			// Update prefix
+			if (prefixInput.value.trim()) {
+				chip.prefix = prefixInput.value.trim();
+			} else {
+				chip.prefix = null;
+			}
 
-        <!-- SECTION: Real-World Examples -->
-        <section class="section">
-            <h2 class="section-title">7. Real-World Use Cases</h2>
-            <p class="section-description">
-                Practical examples showing how chips work in actual educational scenarios.
-            </p>
+			// Update content
+			chip.innerHTML = contentInput.value;
 
-            <div class="demo-card">
-                <h3>Multiple Choice Quiz</h3>
-                <p>Click to select an answer</p>
-                <div class="chip-grid">
-                    <edu-chip prefix="A" variant="outline">Paris</edu-chip>
-                    <edu-chip prefix="B" variant="outline">London</edu-chip>
-                    <edu-chip prefix="C" variant="outline">Berlin</edu-chip>
-                    <edu-chip prefix="D" variant="outline">Madrid</edu-chip>
-                </div>
-            </div>
+			// Update modality
+			chip.modality = modalitySelect.value;
 
-            <div class="demo-card">
-                <h3>Classification Exercise (Draggable)</h3>
-                <p>Drag items to categories</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" variant="playful" color="#4caf50" draggable>Apple</edu-chip>
-                    <edu-chip prefix="2" variant="playful" color="#4caf50" draggable>Banana</edu-chip>
-                    <edu-chip prefix="3" variant="playful" color="#ff5722" draggable>Carrot</edu-chip>
-                    <edu-chip prefix="4" variant="playful" color="#ff5722" draggable>Broccoli</edu-chip>
-                </div>
-            </div>
+			// Update data
+			if (dataInput.value.trim()) {
+				chip.data = dataInput.value.trim();
+			} else {
+				chip.removeAttribute('data');
+			}
 
-            <div class="demo-card">
-                <h3>Audio Listening Exercise</h3>
-                <p>Listen to pronunciations</p>
-                <div class="chip-row">
-                    <edu-chip prefix="1" modality="audio" data="/assets/audio/sample1.mp3" variant="minimal">Listen: Hello</edu-chip>
-                    <edu-chip prefix="2" modality="audio" data="/assets/audio/sample2.mp3" variant="minimal">Listen: Goodbye</edu-chip>
-                    <edu-chip prefix="3" modality="audio" data="/assets/audio/sample1.mp3" variant="minimal">Listen: Thank you</edu-chip>
-                </div>
-            </div>
+			// Update display mode
+			chip.displayMode = displaySelect.value;
 
-            <div class="demo-card">
-                <h3>Graded Quiz Results</h3>
-                <p>Visual feedback after submission</p>
-                <div class="chip-grid">
-                    <edu-chip prefix="1" state="correct">2 + 2 = 4</edu-chip>
-                    <edu-chip prefix="2" state="wrong">3 + 3 = 7</edu-chip>
-                    <edu-chip prefix="3" state="correct">5 × 5 = 25</edu-chip>
-                    <edu-chip prefix="4" state="missed">10 ÷ 2 = 5</edu-chip>
-                </div>
-            </div>
-        </section>
+			// Update state
+			if (stateSelect.value) {
+				chip.chipState = stateSelect.value;
+			} else {
+				chip.chipState = null;
+			}
 
-        <!-- SECTION: API Reference -->
-        <section class="section">
-            <h2 class="section-title">8. Attributes Reference</h2>
+			// Update color
+			chip.color = colorInput.value;
+			chip.colored = coloredCheck.checked;
 
-            <div class="demo-card">
-                <h3>Available Attributes</h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr style="border-bottom: 2px solid rgb(var(--edu-border));">
-                        <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Attribute</th>
-                        <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Values</th>
-                        <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Description</th>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>variant</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">elegant, playful, outline, letter, minimal, glass, card, sign, empty</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Visual style variant</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>prefix</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">any string</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Left-side identifier (number/letter)</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>modality</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">text, image, audio, video, tts, anchor, interactive, data, dynamic, composite</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Content type</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>data</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">string/URL/HTML</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Content data for modality</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>display</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">in-line, dialog</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">How to display modality content</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>state</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">correct, wrong, missed</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Grading feedback state</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>color</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">hex color (#rrggbb)</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Custom accent color</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>selected</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">boolean</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Selected state</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgb(var(--edu-border));">
-                        <td style="padding: 0.75rem;"><code>disabled</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">boolean</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Disabled state</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0.75rem;"><code>draggable</code></td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">boolean</td>
-                        <td style="padding: 0.75rem; color: rgb(var(--edu-second-ink));">Show drag handle</td>
-                    </tr>
-                </table>
-            </div>
-        </section>
-    </div>
+			// Update value
+			if (valueInput.value.trim()) {
+				chip.value = valueInput.value.trim();
+			} else {
+				chip.removeAttribute('value');
+			}
 
-    <script type="module">
-        import { EduChip, EduDialog } from './app.js';
+			// Update boolean attributes
+			chip.selected = selectedCheck.checked;
+			chip.disabled = disabledCheck.checked;
+			chip.draggable = draggableCheck.checked;
 
-        // Add click handlers to make chips selectable
-        document.querySelectorAll('edu-chip').forEach(chip => {
-            chip.addEventListener('click', (e) => {
-                // Don't toggle if it has a modality action button
-                if (e.target.classList.contains('modality-action')) return;
+			updateCodePreview();
+		}
 
-                chip.toggle();
-            });
+		function updateCodePreview() {
+			const attrs = [];
 
-            // Listen for file uploads
-            chip.addEventListener('file-upload', (e) => {
-                console.log('File uploaded:', e.detail.file);
-                alert(`File selected: ${e.detail.file.name}`);
-            });
-        });
+			attrs.push(`variant="${chip.variant}"`);
 
-        console.log('✨ EduChip showcase loaded! Click chips to interact.');
-    </script>
+			if (chip.hasAttribute('prefix')) {
+				attrs.push(`prefix="${chip.prefix}"`);
+			}
+
+			if (chip.modality !== 'text') {
+				attrs.push(`modality="${chip.modality}"`);
+			}
+
+			if (chip.hasAttribute('data')) {
+				attrs.push(`data="${chip.data}"`);
+			}
+
+			if (chip.displayMode !== 'in-line') {
+				attrs.push(`display="${chip.displayMode}"`);
+			}
+
+			if (chip.chipState) {
+				attrs.push(`state="${chip.chipState}"`);
+			}
+
+			attrs.push(`color="${chip.color}"`);
+
+			if (chip.hasAttribute('value')) {
+				attrs.push(`value="${chip.value}"`);
+			}
+
+			if (chip.selected) attrs.push('selected');
+			if (chip.disabled) attrs.push('disabled');
+			if (chip.draggable) attrs.push('draggable');
+			if (chip.colored) attrs.push('colored');
+
+			const content = chip.textContent || 'Option Text';
+			const code = `<edu-chip ${attrs.join(' ')}>\n  ${content}\n</edu-chip>`;
+
+			codePreview.textContent = code;
+		}
+
+		// Event listeners
+		variantSelect.addEventListener('change', updateChip);
+		prefixInput.addEventListener('input', updateChip);
+		contentInput.addEventListener('input', updateChip);
+		modalitySelect.addEventListener('change', updateChip);
+		dataInput.addEventListener('input', updateChip);
+		displaySelect.addEventListener('change', updateChip);
+		stateSelect.addEventListener('change', updateChip);
+		colorInput.addEventListener('input', updateChip);
+		valueInput.addEventListener('input', updateChip);
+		selectedCheck.addEventListener('change', updateChip);
+		disabledCheck.addEventListener('change', updateChip);
+		draggableCheck.addEventListener('change', updateChip);
+		coloredCheck.addEventListener('change', updateChip);
+
+		// Copy button
+		copyButton.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(codePreview.textContent);
+				copyButton.textContent = 'Copied!';
+				setTimeout(() => {
+					copyButton.textContent = 'Copy Code';
+				}, 2000);
+			} catch (err) {
+				console.error('Failed to copy:', err);
+			}
+		});
+
+		// Initial update
+		updateChip();
+	</script>
 </body>
 </html>

@@ -1,4 +1,5 @@
-import { IInteraction, AssociationData } from "../../shared";
+import { IInteraction } from "../../shared";
+import { AssociationData } from "../../types/Data";
 
 const simultaneousAssociation: IInteraction = {
 	id: 'SASS-001',

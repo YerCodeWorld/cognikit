@@ -1,11 +1,13 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig } from "../../../shared";
-import { ClassificationData } from "../../../shared";
+import { InteractionConfig, InteractionMechanic } from "../../../shared";
+import { ClassificationData } from "../../../types/Data";
 import { EduChip, EduBlock } from "../../../ui";
 import { shuffle } from "../../../shared";
 import { classificationGrader } from "../utilities";
 
 export class OpenClassification extends BaseInteraction<ClassificationData> {
+	
+	interactionMechanic: InteractionMechanic = "static";
 
 	private categories: string[] = ["none"];
 	private allItems: string[] = [];
@@ -178,30 +180,6 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					border-radius: 6px;
 					border: 2px solid rgba(0, 0, 0, 0.1);
 				}
-
-				edu-chip::part(button) {
-					height: 100%;
-				}
-
-				/* Chip colorization */
-				edu-chip.colorized {
-					position: relative;
-				}
-
-				edu-chip.colorized::before {
-					content: '';
-					position: absolute;
-					top: -2px;
-					left: -2px;
-					right: -8px;
-					bottom: -8px;
-					border-radius: 10px;
-					border: 3px solid var(--current-color);
-					background: var(--current-color);
-					opacity: 0.2;
-					pointer-events: none;
-				}
-
 			</style>
 
 			<div class="container">
@@ -237,6 +215,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		this.allItems.forEach((item, i) => {
 			const chip = document.createElement("edu-chip") as EduChip;
 			chip.variant = this.config.variant;
+			chip.prefix = `${i+1}:`;
 			chip.textContent = item;
 			chip.dataset.label = item;
 
@@ -244,25 +223,21 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				const chip = e.currentTarget as EduChip;
 				const label = chip.dataset.label!;
 
-				// Toggle if clicking same category
 				if (this.categorized.get(label) === this.currentCategory) {
 					this.categorized.delete(label);
-					chip.classList.remove('colorized');
-					chip.style.setProperty('--current-color', '');
+					chip.colored = false;
 					this.decrementProgress();
 					this.emitStateChange();
 					return;
 				}
 
-				// Track progress only for new items
 				if (!this.categorized.has(label)) {
 					this.incrementProgress();
 				}
 
-				// Set the category
 				this.categorized.set(label, this.currentCategory);
-				chip.classList.add('colorized');
-				chip.style.setProperty('--current-color', this.currentColor);
+				chip.color = this.currentColor;
+				chip.colored = true;
 				this.emitStateChange();
 			});
 
@@ -366,9 +341,8 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 	public submit(): void {
 		super.submit();
-
-		const result = classificationGrader(this.data.categories, this.categorized);
-
+		const result = classificationGrader(this.data.categories, this.categorized, this);
+		
 		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
@@ -376,6 +350,8 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 			bubbles: true,
 			composed: true
 		}));
+
+		this.setAttribute("inert", "");
 	}
 
 	// ==================== RESET ====================

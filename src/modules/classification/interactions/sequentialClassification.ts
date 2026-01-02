@@ -6,7 +6,8 @@
  */
 
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { ClassificationData, InteractionConfig, Variant } from "../../../shared";
+import { InteractionConfig, InteractionMechanic, Variant } from "../../../shared";
+import { ClassificationData } from "../../../types/Data";
 import { EduChip, EduBlock } from "../../../ui";
 import { shuffle, randomHexColorsList } from "../../../shared";
 import { classificationGrader } from "../utilities";
@@ -14,6 +15,8 @@ import { classificationGrader } from "../utilities";
 import { AnimationsManager } from "../../../shared/managers";
 
 export class SequentialClassification extends BaseInteraction<ClassificationData> {
+
+	interactionMechanic: InteractionMechanic = "automatic-sequencing";
 
 	private categories: string[] = [];
 	private allItems: string[] = [];
@@ -208,6 +211,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 		chip.variant = this.variant;
 		chip.textContent = nextItem;
 		chip.prefix = (this.allItems.indexOf(nextItem) + 1).toString();
+		chip.draggable = true;
 		chip.dataset.label = nextItem;
 
 		chip.addEventListener("pointerdown", (e) => this.handlePointerDown(e, chip));
@@ -356,7 +360,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 	public submit(): void {
 		super.submit();
-		const result = classificationGrader(this.data.categories, this.categorized);
+		const result = classificationGrader(this.data.categories, this.categorized, this);
 		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		this.dispatchEvent(new CustomEvent('interaction:graded', {

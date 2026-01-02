@@ -1,5 +1,6 @@
 import { extractDistractors } from "../../../shared/utils";
-import { ItemData, ClassificationData, ParsingResult } from "../../../shared";
+import { ParsingResult } from "../../../shared";
+import { InteractionData, ClassificationData } from "../../../types/Data";
 
 /**
  * Example
@@ -37,7 +38,7 @@ export function classificationParser(code: string): ParsingResult {
 			});
 		}
 
-		const result: ItemData = {
+		const result: InteractionData = {
 			type: 'classification',
 			categories,
 			distractors

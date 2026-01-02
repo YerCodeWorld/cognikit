@@ -1,7 +1,7 @@
-import { ClassificationData } from "../../../shared";
+import { ClassificationData } from "../../../types/Data";
 import { GradingResult } from "../../../types/Grading";
 
-export function classificationGrader(correctData: ClassificationData["categories"], userData: Map<string, string>): GradingResult {
+export function classificationGrader(correctData: ClassificationData["categories"], userData: Map<string, string>, els): GradingResult {
 	let correctCount = 0;
 	let totalCount = 0;
 
@@ -9,9 +9,11 @@ export function classificationGrader(correctData: ClassificationData["categories
 		category.items.forEach(correctItem => {
 			totalCount++;
 			const userCategory = userData.get(correctItem);
+			const el = els.querySelector(`[data-label="${correctItem}"]`);
 			if (userCategory === category.label) {
 				correctCount++;
-			}
+				el.chipState = "correct";
+			} else el.chipState = "wrong"; 
 		});
 	});
 	

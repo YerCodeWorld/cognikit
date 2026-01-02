@@ -1,495 +1,721 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="mobile-web-app-capable" content="yes">
-	<title>Live Chip Editor - CogniKit</title>
-	<link rel="stylesheet" href="./styles/global.css">
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-        :root {
-            --edu-bg:            247 249 252;
-            --edu-card:          255 255 255;
-            --edu-ink:           31 41 55;
-            --edu-second-ink:    71 85 105;
-            --edu-third-ink:     100 116 139;
-            --edu-inverted-ink:  248 250 252;
-            --edu-success:       22 163 74;
-            --edu-error:         220 38 38;
-            --edu-warning:       255 222 33;
-            --edu-neutral:       14 165 233;
-            --edu-first-accent:  173 198 255;
-            --edu-second-accent: 245 158 11;
-            --edu-third-accent:  236 72 153;
-            --edu-border:        229 231 235;
-            --edu-muted:         243 244 246;
-            --edu-radius:        0.375rem;
-            --edu-shadow-color:  0 0 0;
-            --edu-pad:           1rem;
-            --edu-mar:           0;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f7f9fc">
+    <title>CogniKit - Sequential Classification Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-		body {
-			font-family: system-ui, -apple-system, sans-serif;
-			background: rgb(var(--edu-background));
-			color: rgb(var(--edu-ink));
-			min-height: 100dvh;
-			padding: 2rem;
-			padding-bottom: max(2rem, env(safe-area-inset-bottom));
-		}
+	:root {
+		--edu-bg:            247 249 252;
+		--edu-card:          255 255 255;
 
-		.container {
-			max-width: 1200px;
-			margin: 0 auto;
-		}
+		--edu-ink:           31 41 55;
+		--edu-second-ink:    71 85 105;
+		--edu-third-ink:     100 116 139;
 
-		h1 {
-			font-size: 2rem;
-			margin-bottom: 0.5rem;
-			color: rgb(var(--edu-first-accent));
-		}
+		--edu-inverted-ink:  248 250 252;
 
-		.subtitle {
-			color: rgb(var(--edu-second-ink));
-			margin-bottom: 3rem;
-			font-size: 1rem;
-		}
+		--edu-success:       22 163 74;
+		--edu-error:         220 38 38;
+		--edu-warning:       255 222 33;
+		--edu-neutral:       14 165 233;
 
-		.editor-layout {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 2rem;
-			align-items: start;
-		}
+		--edu-first-accent:  173 198 255;
 
-		.preview-section {
-			background: rgb(var(--edu-card));
-			border: 1px solid rgb(var(--edu-border));
-			border-radius: var(--edu-radius);
-			padding: 3rem;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			min-height: 400px;
-			position: sticky;
-			top: 2rem;
-		}
+		--edu-second-accent: 245 158 11;
+		--edu-third-accent:  236 72 153;
 
-		.preview-label {
-			font-size: 0.85rem;
-			color: rgb(var(--edu-second-ink));
-			margin-bottom: 2rem;
-			text-transform: uppercase;
-			letter-spacing: 1px;
-			font-weight: 600;
-		}
+		--edu-border:        229 231 235;
+		--edu-muted:         243 244 246;
 
-		.controls-section {
-			background: rgb(var(--edu-card));
-			border: 1px solid rgb(var(--edu-border));
-			border-radius: var(--edu-radius);
-			padding: 2rem;
-		}
+		--edu-radius:        0.375rem;
+		--edu-shadow-color:  0 0 0;
 
-		.control-group {
-			margin-bottom: 1.5rem;
-		}
+		--edu-pad:	1rem;
+		--edu-mar:	0;
+	}
 
-		.control-group label {
-			display: block;
-			font-size: 0.9rem;
-			font-weight: 600;
-			margin-bottom: 0.5rem;
-			color: rgb(var(--edu-ink));
-		}
+	/* Dark Theme */
+	[data-theme="dark"] {
+		--edu-bg:            17 24 39;
+		--edu-card:          31 41 55;
 
-		.control-group input[type="text"],
-		.control-group input[type="color"],
-		.control-group select,
-		.control-group textarea {
-			width: 100%;
-			padding: 0.75rem;
-			border: 1px solid rgb(var(--edu-border));
-			border-radius: 6px;
-			background: rgb(var(--edu-background));
-			color: rgb(var(--edu-ink));
-			font-size: 0.95rem;
-			font-family: inherit;
-			min-height: 44px;
-		}
+		--edu-ink:           248 250 252;
+		--edu-second-ink:    209 213 219;
+		--edu-third-ink:     156 163 175;
 
-		.control-group textarea {
-			resize: vertical;
-			min-height: 80px;
-			font-family: 'Courier New', monospace;
-		}
+		--edu-inverted-ink:  31 41 55;
 
-		.control-group input[type="color"] {
-			height: 50px;
-			cursor: pointer;
-		}
+		--edu-border:        55 65 81;
+		--edu-muted:         45 55 72;
 
-		.checkbox-group {
-			display: flex;
-			align-items: center;
-			gap: 0.75rem;
-			padding: 0.5rem 0;
-		}
+		--edu-shadow-color:  0 0 0;
+	}
 
-		.checkbox-group input[type="checkbox"] {
-			width: 24px;
-			height: 24px;
-			cursor: pointer;
-		}
+	/* Dark Blue Theme */
+	[data-theme="dark-blue"] {
+		--edu-bg:            15 23 42;
+		--edu-card:          30 41 59;
 
-		.checkbox-group label {
-			margin: 0;
-			cursor: pointer;
-		}
+		--edu-ink:           241 245 249;
+		--edu-second-ink:    203 213 225;
+		--edu-third-ink:     148 163 184;
 
-		.code-preview {
-			margin-top: 2rem;
-			padding-top: 2rem;
-			border-top: 1px solid rgb(var(--edu-border));
-		}
+		--edu-inverted-ink:  15 23 42;
 
-		.code-preview h3 {
-			font-size: 1rem;
-			margin-bottom: 1rem;
-			color: rgb(var(--edu-first-accent));
-		}
+		--edu-first-accent:  96 165 250;
 
-		.code-block {
-			background: rgb(var(--edu-background));
-			border: 1px solid rgb(var(--edu-border));
-			border-radius: 6px;
-			padding: 1rem;
-			font-family: 'Courier New', monospace;
-			font-size: 0.85rem;
-			overflow-x: auto;
-			white-space: pre-wrap;
-			word-break: break-all;
-			color: rgb(var(--edu-second-ink));
-		}
+		--edu-border:        51 65 85;
+		--edu-muted:         40 52 73;
 
-		.copy-button {
-			margin-top: 0.5rem;
-			padding: 0.5rem 1rem;
-			background: rgb(var(--edu-first-accent));
-			color: white;
-			border: none;
-			border-radius: 6px;
-			cursor: pointer;
-			font-size: 0.9rem;
-			min-height: 44px;
-			transition: all 0.2s;
-		}
+		--edu-shadow-color:  0 0 0;
+	}
 
-		.copy-button:hover {
-			opacity: 0.9;
-			transform: translateY(-1px);
-		}
 
-		.copy-button:active {
-			transform: translateY(0);
-		}
+	body {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+		background: rgb(var(--edu-bg));
+		min-height: 100vh;
+		min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+		padding: 2rem;
+		padding-bottom: max(100px, env(safe-area-inset-bottom));
+		padding-left: max(2rem, env(safe-area-inset-left));
+		padding-right: max(2rem, env(safe-area-inset-right));
+		transition: background 0.3s ease;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		overflow-x: hidden;
+	}
 
-		/* Mobile responsive */
-		@media (max-width: 768px) {
-			body {
-				padding: 1rem;
-			}
+        .container {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		margin: 0 auto;
+		max-width: 1400px;
+		padding: 2rem 1rem;
+        }
 
-			.editor-layout {
-				grid-template-columns: 1fr;
-			}
+        /* Bottom Control Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgb(var(--edu-card));
+            border-top: 2px solid rgb(var(--edu-border));
+            padding: 1rem 2rem;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            padding-left: max(2rem, env(safe-area-inset-left));
+            padding-right: max(2rem, env(safe-area-inset-right));
+            box-shadow: 0 -4px 20px rgba(var(--edu-shadow-color), 0.1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
 
-			.preview-section {
-				position: static;
-				padding: 2rem 1rem;
-				min-height: 300px;
-			}
+        .bottom-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
 
-			h1 {
-				font-size: 1.5rem;
-			}
-		}
-	</style>
+        .control-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: rgb(var(--edu-ink));
+            font-size: 0.9rem;
+        }
+
+        .control-group select,
+        .control-group input[type="color"] {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid rgb(var(--edu-border));
+            background: rgb(var(--edu-bg));
+            color: rgb(var(--edu-ink));
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px; /* Apple HIG minimum touch target */
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+
+        .control-group select:hover,
+        .control-group input[type="color"]:hover {
+            border-color: rgb(var(--edu-first-accent));
+        }
+
+        .control-group select:active,
+        .control-group input[type="color"]:active {
+            transform: scale(0.98);
+        }
+
+        .control-group input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 0.25rem;
+        }
+
+        .demo-section {
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .demo-section h2 {
+            color: rgb(var(--edu-ink));
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 5px rgba(var(--edu-shadow-color), 0.2);
+        }
+
+        .demo-card {
+            background: rgb(var(--edu-card));
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(var(--edu-shadow-color), 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .demo-card h3 {
+            margin-bottom: 1rem;
+            color: rgb(var(--edu-ink));
+            font-size: 1.3rem;
+        }
+
+        .demo-card p {
+            color: rgb(var(--edu-second-ink));
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .interaction-wrapper {
+            min-height: 400px;
+            width: 100%;
+        }
+
+        /* Shell styling is handled by the component itself */
+        edu-window {
+            display: block;
+            width: 100%;
+        }
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                padding-bottom: 140px;
+            }
+
+            .container {
+                padding: 1rem 0.5rem;
+            }
+
+            .demo-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .demo-card {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .demo-card h3 {
+                font-size: 1.2rem;
+            }
+
+            .demo-card p {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+
+            .interaction-wrapper {
+                min-height: 350px;
+            }
+
+            .bottom-bar {
+                padding: 0.75rem 1rem;
+            }
+
+            .bottom-bar-content {
+                gap: 1rem;
+            }
+
+            .control-group {
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+
+            .control-group label {
+                font-size: 0.85rem;
+            }
+
+            .control-group select {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.75rem;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+                padding-bottom: 180px;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .demo-section {
+                margin-bottom: 1.5rem;
+            }
+
+            .demo-section h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .demo-card {
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.15);
+            }
+
+            .demo-card h3 {
+                font-size: 1.1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .demo-card p {
+                font-size: 0.85rem;
+                line-height: 1.5;
+                margin-bottom: 1rem;
+            }
+
+            .interaction-wrapper {
+                min-height: 300px;
+            }
+
+            /* Bottom bar - stack vertically on mobile */
+            .bottom-bar {
+                padding: 0.75rem;
+            }
+
+            .bottom-bar-content {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .control-group label {
+                font-size: 0.9rem;
+                flex-shrink: 0;
+            }
+
+            .control-group select,
+            .control-group input[type="color"] {
+                flex: 1;
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+
+            .control-group input[type="color"] {
+                width: 80px;
+            }
+        }
+
+        /* Very small mobile */
+        @media (max-width: 360px) {
+            body {
+                padding: 0.25rem;
+                padding-bottom: 200px;
+            }
+
+            .demo-section h2 {
+                font-size: 1.2rem;
+            }
+
+            .demo-card {
+                padding: 0.75rem;
+            }
+
+            .demo-card h3 {
+                font-size: 1rem;
+            }
+
+            .demo-card p {
+                font-size: 0.8rem;
+            }
+
+            .interaction-wrapper {
+                min-height: 250px;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding-bottom: 80px;
+            }
+
+            .bottom-bar-content {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .control-group {
+                flex: 0 1 auto;
+                min-width: 140px;
+            }
+
+            .interaction-wrapper {
+                min-height: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
-	<div class="container">
-		<h1>Live Chip Editor</h1>
-		<p class="subtitle">Customize and preview your chip component in real-time</p>
+    <div class="container">
 
-		<div class="editor-layout">
-			<!-- Preview Section -->
-			<div class="preview-section">
-				<div class="preview-label">Live Preview</div>
-				<edu-chip id="liveChip" variant="outline" prefix="A">Option Text</edu-chip>
-			</div>
+        <div class="demo-section">
+            <h2>With InteractionsBaseShell</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="shell-demo"></edu-window>
+                </div>
+            </div>
+        </div>
 
-			<!-- Controls Section -->
-			<div class="controls-section">
-				<h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Controls</h2>
+	<div class="demo-section">
+            <h2>Simultaneous Association</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="association-shell"></edu-window>
+                </div>
+            </div>
+        </div>
 
-				<div class="control-group">
-					<label for="variantSelect">Variant</label>
-					<select id="variantSelect">
-						<option value="outline" selected>Outline</option>
-						<option value="elegant">Elegant</option>
-						<option value="playful">Playful</option>
-						<option value="empty">Empty</option>
-						<option value="letter">Letter</option>
-						<option value="minimal">Minimal</option>
-						<option value="glass">Glass</option>
-						<option value="card">Card</option>
-						<option value="sign">Sign</option>
-					</select>
-				</div>
+	<div class="demo-section">
+            <h2>Matrix</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="matrix-shell"></edu-window>
+                </div>
+            </div>
+        </div>
 
-				<div class="control-group">
-					<label for="prefixInput">Prefix (optional)</label>
-					<input type="text" id="prefixInput" placeholder="e.g., A, 1, i" value="A">
-				</div>
+	<div class="demo-section">
+            <h2>Matrix</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="open-shell"></edu-window>
+                </div>
+            </div>
+        </div>
 
-				<div class="control-group">
-					<label for="contentInput">Content (slot content)</label>
-					<textarea id="contentInput" placeholder="Enter chip content">Option Text</textarea>
-				</div>
+	<div class="demo-section">
+            <h2>Matrix</h2>
+            <div class="demo-card">
+                <h3>Classify Animals by Habitat</h3>
+                <p>
+                    This demo shows the SequentialClassification interaction wrapped in the InteractionsBaseShell.
+                    The shell provides progress tracking, timer, hint button, and submit functionality.
+                    Drag each animal chip to the correct habitat zone.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="nary-shell"></edu-window>
+                </div>
+            </div>
+        </div>
 
-				<div class="control-group">
-					<label for="modalitySelect">Modality</label>
-					<select id="modalitySelect">
-						<option value="text" selected>Text</option>
-						<option value="image">Image</option>
-						<option value="audio">Audio</option>
-						<option value="video">Video</option>
-						<option value="tts">Text-to-Speech</option>
-						<option value="anchor">Anchor (File Upload)</option>
-						<!-- All the others require to set the inner HTML of the chip -->
-						<option value="complex">Complex</option>
-					</select>
-				</div>
+    </div>
 
-				<div class="control-group">
-					<label for="dataInput">Data (for modality)</label>
-					<textarea id="dataInput" placeholder="e.g., URL, text, etc."></textarea>
-				</div>
+    <!-- Bottom Control Bar -->
+    <div class="bottom-bar">
+        <div class="bottom-bar-content">
+            <div class="control-group">
+                <label for="theme-select">Theme:</label>
+                <select id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="dark-blue">Dark Blue</option>
+                </select>
+            </div>
 
-				<div class="control-group">
-					<label for="displaySelect">Display Mode</label>
-					<select id="displaySelect">
-						<option value="in-line" selected>In-line</option>
-						<option value="dialog">Dialog</option>
-					</select>
-				</div>
+            <div class="control-group">
+                <label for="variant-select">Variant:</label>
+                <select id="variant-select">
+                    <option value="elegant">Elegant</option>
+                    <option value="playful">Playful</option>
+                    <option value="outline" selected>Outline</option>
+                    <option value="letter">Letter</option>
+                    <option value="sign">Sign</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="glass">Glass</option>
+                    <option value="empty">Empty</option>
+                </select>
+            </div>
 
-				<div class="control-group">
-					<label for="stateSelect">State (feedback)</label>
-					<select id="stateSelect">
-						<option value="" selected>None</option>
-						<option value="correct">Correct</option>
-						<option value="wrong">Wrong</option>
-						<option value="missed">Missed</option>
-					</select>
-				</div>
+            <div class="control-group">
+                <label for="accent-color">Accent Color:</label>
+                <input type="color" id="accent-color" value="#adc6ff">
+            </div>
+        </div>
+    </div>
 
-				<div class="control-group">
-					<label for="colorInput">Custom Color</label>
-					<input type="color" id="colorInput" value="#6366f1">
-					<div class="control-group checkbox-group">
-						<input type="checkbox" id="coloredCheck">
-						<label for="coloredCheck">colored</label>
-					</div>
+    <script type="module">
+        import { 
+		ClassificationMatrix, 
+		NaryChoiceTable,
+		OpenClassification,
+		SequentialClassification,
+		SimultaneousAssociation,
+		InteractionsBaseShell 
+	} from './app.js';
 
-				</div>
-
-				<div class="control-group">
-					<label for="valueInput">Value (data attribute)</label>
-					<input type="text" id="valueInput" placeholder="e.g., option-1">
-				</div>
-
-				<div class="control-group checkbox-group">
-					<input type="checkbox" id="selectedCheck">
-					<label for="selectedCheck">Selected</label>
-				</div>
-
-				<div class="control-group checkbox-group">
-					<input type="checkbox" id="disabledCheck">
-					<label for="disabledCheck">Disabled</label>
-				</div>
-
-				<div class="control-group checkbox-group">
-					<input type="checkbox" id="draggableCheck">
-					<label for="draggableCheck">Draggable</label>
-				</div>
-
-				<!-- Code Preview -->
-				<div class="code-preview">
-					<h3>Generated HTML</h3>
-					<div class="code-block" id="codePreview"></div>
-					<button class="copy-button" id="copyButton">Copy Code</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<script type="module">
-		import { EduChip } from './app.js';
-
-		const chip = document.getElementById('liveChip');
-		const codePreview = document.getElementById('codePreview');
-		const copyButton = document.getElementById('copyButton');
-
-		// Control elements
-		const variantSelect = document.getElementById('variantSelect');
-		const prefixInput = document.getElementById('prefixInput');
-		const contentInput = document.getElementById('contentInput');
-		const modalitySelect = document.getElementById('modalitySelect');
-		const dataInput = document.getElementById('dataInput');
-		const displaySelect = document.getElementById('displaySelect');
-		const stateSelect = document.getElementById('stateSelect');
-		const colorInput = document.getElementById('colorInput');
-		const valueInput = document.getElementById('valueInput');
-		const selectedCheck = document.getElementById('selectedCheck');
-		const disabledCheck = document.getElementById('disabledCheck');
-		const draggableCheck = document.getElementById('draggableCheck');
-		const coloredCheck = document.getElementById('coloredCheck');
-
-		function updateChip() {
-			// Update variant
-			chip.variant = variantSelect.value;
-
-			// Update prefix
-			if (prefixInput.value.trim()) {
-				chip.prefix = prefixInput.value.trim();
-			} else {
-				chip.prefix = null;
-			}
-
-			// Update content
-			chip.innerHTML = contentInput.value;
-
-			// Update modality
-			chip.modality = modalitySelect.value;
-
-			// Update data
-			if (dataInput.value.trim()) {
-				chip.data = dataInput.value.trim();
-			} else {
-				chip.removeAttribute('data');
-			}
-
-			// Update display mode
-			chip.displayMode = displaySelect.value;
-
-			// Update state
-			if (stateSelect.value) {
-				chip.chipState = stateSelect.value;
-			} else {
-				chip.chipState = null;
-			}
-
-			// Update color
-			chip.color = colorInput.value;
-			chip.colored = coloredCheck.checked;
-
-			// Update value
-			if (valueInput.value.trim()) {
-				chip.value = valueInput.value.trim();
-			} else {
-				chip.removeAttribute('value');
-			}
-
-			// Update boolean attributes
-			chip.selected = selectedCheck.checked;
-			chip.disabled = disabledCheck.checked;
-			chip.draggable = draggableCheck.checked;
-
-			updateCodePreview();
+        // ==================== DATA ====================
+	/**
+	 * Hard-cooding the data like won't be a problem when we use the parsers I am creating.
+	 * We would create data strings with the mini-DSLs, and the create a helper function that
+	 * parses the string -> uses validator -> renders if valid using the corresponding interaction class
+	 **/
+	const animalsData = {
+		type: 'classification',
+		categories: [
+		{
+		    label: 'Ocean',
+		    items: ['Dolphin', 'Shark', 'Octopus', 'Whale']
+		},
+		{
+		    label: 'Land',
+		    items: ['Lion', 'Elephant', 'Tiger', 'Bear']
+		},
+		{
+		    label: 'Air',
+		    items: ['Eagle', 'Parrot', 'Hawk', 'Owl']
 		}
+	]
+	};
 
-		function updateCodePreview() {
-			const attrs = [];
+	const naryData = {
+		rows: ['2 + 2 = 4', '3 + 3 = 7', 'Paris is in France', 'Tokyo is in China', 'Water boils at 100?C'],
+		cols: ['True', 'False'],
+		answerKey: new Map([
+			['True', ['2 + 2 = 4', 'Paris is in France', 'Water boils at 100?C']],
+			['False', ['3 + 3 = 7', 'Tokyo is in China']]
+		])
+	};
 
-			attrs.push(`variant="${chip.variant}"`);
+	const associationData = {
+		type: 'association',
+		pairs: [
+			{ left: 'Dog', right: 'Barks' },
+			{ left: 'Cat', right: 'Meows' },
+			{ left: 'Bird', right: 'Chirps' },
+			{ left: 'Cow', right: 'Moos' },
+			{ left: 'Lion', right: 'Roars' }
+		],
+		distractors: ['Hisses', 'Croaks']
+	};
 
-			if (chip.hasAttribute('prefix')) {
-				attrs.push(`prefix="${chip.prefix}"`);
-			}
+	const matrixData = {
+		rows: ['Apple', 'Carrot', 'Chicken', 'Banana', 'Lettuce', 'Pork'],
+		cols: ['Fruit', 'Vegetable', 'Protein'],
+		answerKey: new Map([
+			['Fruit', ['Apple', 'Banana']],
+			['Vegetable', ['Carrot', 'Lettuce']],
+			['Protein', ['Chicken', 'Pork']]
+		])
+	};
+		
+	const openData = {
+		type: 'classification',
+		categories: [
+			{ label: 'Mammals', items: ['Dog', 'Cat', 'Elephant', 'Whale'] },
+			{ label: 'Birds', items: ['Eagle', 'Penguin', 'Sparrow'] },
+			{ label: 'Reptiles', items: ['Snake', 'Lizard', 'Crocodile'] }
+		],
+		distractors: ['Rock', 'Cloud']
+	};
 
-			if (chip.modality !== 'text') {
-				attrs.push(`modality="${chip.modality}"`);
-			}
+	// ==================== CONFIG ====================
 
-			if (chip.hasAttribute('data')) {
-				attrs.push(`data="${chip.data}"`);
-			}
+	let currentVariant = 'outline';
 
-			if (chip.displayMode !== 'in-line') {
-				attrs.push(`display="${chip.displayMode}"`);
-			}
+	const baseConfig = {
+	    variant: currentVariant,
+	    shuffle: true,
+		animationsEnabled: true
+	};
 
-			if (chip.chipState) {
-				attrs.push(`state="${chip.chipState}"`);
-			}
+        // ==================== SHELL DEMO ====================
 
-			attrs.push(`color="${chip.color}"`);
+        const shellDemo = document.getElementById('shell-demo');
+        const shellInteraction = new SequentialClassification(animalsData, baseConfig);
 
-			if (chip.hasAttribute('value')) {
-				attrs.push(`value="${chip.value}"`);
-			}
+        shellDemo.setInteraction(shellInteraction);
+	shellDemo.setAttribute("heading", "Classify all animals");
+	shellDemo.setAttribute("timer", 120);
+        shellDemo.addEventListener('shell:interaction-complete', (e) => {
+            console.log('[Shell Demo] Completed!', e.detail);
+        });
 
-			if (chip.selected) attrs.push('selected');
-			if (chip.disabled) attrs.push('disabled');
-			if (chip.draggable) attrs.push('draggable');
-			if (chip.colored) attrs.push('colored');
+	// ==================== ASSOCIATION ==================
+	const associationShell = document.getElementById("association-shell");
+	associationShell.setAttribute('heading', 'Animal Sounds');
+	associationShell.setAttribute('timer', '120');
+	associationShell.setAttribute('variant', 'outline');
+	associationShell.setAttribute('show-hint-button', 'true');
 
-			const content = chip.textContent || 'Option Text';
-			const code = `<edu-chip ${attrs.join(' ')}>\n  ${content}\n</edu-chip>`;
+	const associationWithShell = new SimultaneousAssociation(associationData, baseConfig);
+	associationShell.setInteraction(associationWithShell);
 
-			codePreview.textContent = code;
+	associationShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('association-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+
+	// ================== MATRIX =================
+	const matrixShell = document.getElementById('matrix-shell');
+	matrixShell.setAttribute('heading', 'Food Classification');
+	matrixShell.setAttribute('timer', '120');
+	matrixShell.setAttribute('variant', 'outline');
+	matrixShell.setAttribute('show-hint-button', 'true');
+
+	const matrixWithShell = new ClassificationMatrix(matrixData, baseConfig);
+	matrixShell.setInteraction(matrixWithShell);
+
+	matrixShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+	
+	// ================= OPEN CLASSIFICATION ====================
+	const openShell = document.getElementById('open-shell');
+	openShell.setAttribute('heading', 'Food Classification');
+	openShell.setAttribute('timer', '120');
+	openShell.setAttribute('variant', 'outline');
+	openShell.setAttribute('show-hint-button', 'true');
+
+	const openWithShell = new OpenClassification(openData, baseConfig);
+	openShell.setInteraction(openWithShell);
+
+	openShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+
+	// ================== N-ARY CHOICE TABLE =================
+	const naryShell = document.getElementById('nary-shell');
+	naryShell.setAttribute('heading', 'Food Classification');
+	naryShell.setAttribute('timer', '120');
+	naryShell.setAttribute('variant', 'outline');
+	naryShell.setAttribute('show-hint-button', 'true');
+
+	const naryInteraction = new NaryChoiceTable(naryData, baseConfig);
+	naryShell.setInteraction(naryInteraction);
+
+	naryShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
+	});
+
+	// ==================== GLOBAL CONTROLS ====================
+
+	const themeSelect = document.getElementById('theme-select');
+	const variantSelect = document.getElementById('variant-select');
+	const accentColorPicker = document.getElementById('accent-color');
+
+	// Theme switcher
+	themeSelect.addEventListener('change', (e) => {
+		const theme = e.target.value;
+		if (theme === 'light') {
+			document.documentElement.removeAttribute('data-theme');
+		} else {
+			document.documentElement.setAttribute('data-theme', theme);
 		}
+	});
 
-		// Event listeners
-		variantSelect.addEventListener('change', updateChip);
-		prefixInput.addEventListener('input', updateChip);
-		contentInput.addEventListener('input', updateChip);
-		modalitySelect.addEventListener('change', updateChip);
-		dataInput.addEventListener('input', updateChip);
-		displaySelect.addEventListener('change', updateChip);
-		stateSelect.addEventListener('change', updateChip);
-		colorInput.addEventListener('input', updateChip);
-		valueInput.addEventListener('input', updateChip);
-		selectedCheck.addEventListener('change', updateChip);
-		disabledCheck.addEventListener('change', updateChip);
-		draggableCheck.addEventListener('change', updateChip);
-		coloredCheck.addEventListener('change', updateChip);
+	// Variant switcher
+	variantSelect.addEventListener('change', (e) => {
+		currentVariant = e.target.value;
+		shellDemo.setAttribute('variant', currentVariant);
+		associationShell.setAttribute('variant', currentVariant);
+		matrixShell.setAttribute('variant', currentVariant);
+		openShell.setAttribute('variant', currentVariant);
+		naryShell.setAttribute('variant', currentVariant);
+	});
 
-		// Copy button
-		copyButton.addEventListener('click', async () => {
-			try {
-				await navigator.clipboard.writeText(codePreview.textContent);
-				copyButton.textContent = 'Copied!';
-				setTimeout(() => {
-					copyButton.textContent = 'Copy Code';
-				}, 2000);
-			} catch (err) {
-				console.error('Failed to copy:', err);
-			}
-		});
+	// Accent color picker
+	accentColorPicker.addEventListener('input', (e) => {
+		const color = e.target.value;
+		// Convert hex to RGB
+		const r = parseInt(color.substr(1, 2), 16);
+		const g = parseInt(color.substr(3, 2), 16);
+		const b = parseInt(color.substr(5, 2), 16);
+		document.documentElement.style.setProperty('--edu-first-accent', `${r} ${g} ${b}`);
+	});
 
-		// Initial update
-		updateChip();
-	</script>
+    </script>
 </body>
 </html>
+

@@ -1,6 +1,7 @@
 import HTML from './index.html';
 import { BaseInteraction } from "../../core/BaseInteraction";
-import { ItemData, Variant } from "../../shared";
+import {  Variant } from "../../shared";
+import { InteractionData } from "../../types/Data";
 
 // update the shell do that it receives a config: IBaseShellConfig object
 /** type IBaseShellConfig {
@@ -143,7 +144,7 @@ export class InteractionsBaseShell extends HTMLElement {
 	 * Set the interaction for this shell
 	 * Connects event listeners and renders interaction
 	 */
-	public setInteraction<T extends ItemData>(interaction: BaseInteraction<T>): void {
+	public setInteraction<T extends InteractionData>(interaction: BaseInteraction<T>): void {
 		// Remove previous interaction if exists
 		if (this.interaction) {
 			this.removeInteractionListeners();

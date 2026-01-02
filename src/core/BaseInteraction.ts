@@ -1,5 +1,6 @@
 import { ProgressTracker } from "./utilities/ProgressTracker";
-import { ItemData, InteractionConfig, Variant, InteractionMechanic } from "../shared";
+import { InteractionConfig, Variant, InteractionMechanic } from "../shared";
+import { InteractionData } from "../types/Data";
 import { AnimationsManager, SoundManager } from "../shared/managers";
 
 export type InteractionEventMap = {
@@ -11,12 +12,12 @@ export type InteractionEventMap = {
 	'interaction:error': CustomEvent<{ error: Error; message: string }>;
 };
 
-export abstract class BaseInteraction<T extends ItemData> extends HTMLElement {
+export abstract class BaseInteraction<T extends InteractionData> extends HTMLElement {
 	
 	// ==================== PROPERTIES ====================
 
 	public readonly id: string;
-	public readonly interactionMechanic: InteractionMechanic;
+	abstract readonly interactionMechanic: InteractionMechanic;
 
 	protected data: T;
 	protected config: InteractionConfig;

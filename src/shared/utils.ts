@@ -1,14 +1,14 @@
 export const randomHexColorsList: string[] = [
-	'#6366f1', // Indigo 
 	'#10b981', // Emerald
+	'#f59e0b', // Amber
 	'#06b6d4', // Cyan
 	'#ec4899', // Pink
 	'#8b5cf6', // Violet
 	'#3b82f6', // Blue
-	'#f59e0b', // Amber
 	'#f43f5e', // Rose
 	'#84cc16', // Lime
-	'#a855f7'  // Purple
+	'#a855f7', // Purple
+	'#6366f1' // Indigo 
 ];
 
 export function shuffle<T>(array: T[]): T[] {

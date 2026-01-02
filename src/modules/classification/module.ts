@@ -1,4 +1,6 @@
-import { Module, IInteraction, ClassificationData } from "../../shared";
+import { Module, IInteraction } from "../../shared";
+import { ClassificationData } from "../../types/Data";
+
 import { 
 	classificationParser, 
 	classificationValidator, 

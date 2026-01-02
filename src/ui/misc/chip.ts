@@ -106,6 +106,7 @@ export class EduChip extends HTMLElement {
 		}
 	}
 	
+	get color() { return this.getAttribute("color"); }
 	set color(v: string) {
 		if (v === null || v === undefined || v === "") this.removeAttribute("color");		
 		else { 
@@ -116,7 +117,6 @@ export class EduChip extends HTMLElement {
 	
 	get colored() { return this.hasAttribute("colored"); }
 	set colored(v) {
-		console.log(this.getAttribute('color'));
 		if (v) { this.setAttribute("colored", "true"); }
 		else { this.removeAttribute("colored"); }
 	}

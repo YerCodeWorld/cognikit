@@ -1,5 +1,5 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, Variant } from "../../../shared";
+import { InteractionConfig, InteractionMechanic, Variant } from "../../../shared";
 import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
 import { EduTable, classificationTableGrader } from "../../../engines/tables";
 
@@ -15,6 +15,8 @@ import { EduTable, classificationTableGrader } from "../../../engines/tables";
  * 
  */
 export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
+
+	interactionMechanic: InteractionMechanic = "static";
 
 	private _tableConfig: TableConfiguration;
 	private _$table!: EduTable;

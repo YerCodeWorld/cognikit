@@ -1,6 +1,23 @@
+import { BaseTableData } from "./Tables";
+
 export type InteractionData = 
-	FreeRecallData |
+	ClassificationData |
+	AssociationData    |
+	BaseTableData	   |
+	FreeRecallData 	   |
 	SeriationData;
+
+export type ClassificationData = {
+	type: 'classification'; 
+	categories: { label: string; items: string[] }[];
+	distractors?: string[];
+}
+
+export type AssociationData = {
+	type: 'association';
+	pairs: { left: string; right: string }[];
+	distractors?: string[];
+}
 
 export type FreeRecallData = {
 	type: 'freerecall';

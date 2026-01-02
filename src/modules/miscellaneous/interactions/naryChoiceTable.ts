@@ -1,9 +1,11 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, Variant } from "../../../shared";
+import { InteractionConfig, InteractionMechanic, Variant } from "../../../shared";
 import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
 import { EduTable, naryTableGrader } from "../../../engines/tables";
 
 export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
+
+	interactionMechanic: InteractionMechanic = "static";
 
 	private _tableConfig: TableConfiguration;
 	private _$table!: EduTable;

@@ -1,9 +1,12 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
-import { InteractionConfig, AssociationData, Variant } from "../../../shared/types";
+import { InteractionConfig, Variant, InteractionMechanic } from "../../../shared/types";
+import { AssociationData } from "../../../types/Data";
 import { randomHexColorsList, shuffle } from "../../../shared/utils";
 import { EduChip } from "../../../ui/misc/chip";
 
 export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
+
+	interactionMechanic: InteractionMechanic = "static";
 
 	private leftItems: string[] = [];
 	private rightItems: string[] = [];
@@ -73,42 +76,6 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				edu-chip:hover {
 					transform: translateY(-2px);
 				}
-
-				edu-chip.selected {
-					position: relative;
-				}
-
-				edu-chip.selected::before {
-					content: '';
-					position: absolute;
-					top: -2px;
-					left: -2px;
-					right: -10px;
-					bottom: -2px;
-					border-radius: 10px;
-					border: 3px solid #3b82f6;
-					background: rgb(var(--edu-second-accent));
-					opacity: 0.4;
-					pointer-events: none;
-				}
-
-				edu-chip.colorized {
-					position: relative;
-				}
-
-				edu-chip.colorized::before {
-					content: '';
-					position: absolute;
-					top: -2px;
-					left: -2px;
-					right: -10px;
-					bottom: -2px;
-					border-radius: 10px;
-					border: 3px solid var(--current-color);
-					background: var(--current-color);
-					opacity: 0.2;
-					pointer-events: none;
-				}
 			</style>
 
 			<div class="container" id="columns-container">
@@ -123,18 +90,19 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	}
 
 	private renderItems() {
-		this.leftItems.forEach(item => {
+		this.leftItems.forEach((item, i) => {
 			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.config.variant;
 			chip.textContent = item;
 			chip.dataset.val = item;
+			chip.prefix = `${i+1})`;
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;
 				const val = chip.dataset.val;
 
 				if (this.currentSelected === val) {
-					chip.classList.remove('selected');
+					chip.selected = false;
 					this.currentSelected = '';
 					this.currentEl = null;
 					return;
@@ -143,33 +111,37 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				if (this.matched.get(val)) {
 					const rightElVal = this.matched.get(val);
 					const rightChip = this.querySelector(`[data-val="${rightElVal}"]`) as EduChip;
+					
+					chip.color = "";
+					chip.colored = false;
 
-					chip.classList.remove('colorized');
-					chip.style.setProperty('--current-color', '');
-					rightChip.classList.remove('colorized');
-					rightChip.style.setProperty('--current-color', '');
+					rightChip.colored = false;
+					rightChip.color = "";
 
 					this.matched.delete(val);
 					this.matchColors.delete(val);
 					this.decrementProgress();
 					this.emitStateChange();
+
 					return;
 				}
-
-				if (this.currentSelected) this.currentEl.classList.remove('selected');
+				
+				if (this.currentSelected) this.currentEl.selected = false; 
 				this.currentSelected = val;
 				this.currentEl = chip;
-				chip.classList.add('selected');
+				chip.selected = true;
 			});
 
 			this.$leftCol.append(chip);
 		});
 
-		this.rightItems.forEach(item => {
+		this.rightItems.forEach((item, i) => {
 			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.config.variant;
 			chip.textContent = item;
 			chip.dataset.val = item;
+			chip.dataset.index = `${i+1}`;
+			chip.prefix = `${i+1})`;  
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;
@@ -178,7 +150,7 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				if (this.currentSelected === val) {
 					this.currentSelected = '';
 					this.currentEl = null;
-					chip.classList.remove('selected');
+					chip.selected = false;
 					return;
 				}
 
@@ -187,17 +159,21 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 
 				if (this.currentSelected) {
 					if (this.leftItems.includes(this.currentSelected) && this.rightItems.includes(val)) {
-						const colorIndex = this.matched.size % randomHexColorsList.length;
+						const colorIndex = Number(chip.dataset.index) % randomHexColorsList.length;
 						const matchColor = randomHexColorsList[colorIndex];
 
 						this.matched.set(this.currentSelected, val);
 						this.matchColors.set(this.currentSelected, matchColor);
 
-						chip.classList.add('colorized');
-						chip.style.setProperty('--current-color', matchColor);
-						this.currentEl.classList.remove('selected');
-						this.currentEl.classList.add('colorized');
-						this.currentEl.style.setProperty('--current-color', matchColor);
+						chip.selected = false;
+						this.currentEl.selected = false;
+
+						chip.color = matchColor;
+						chip.colored = true;
+
+						this.currentEl.color = matchColor;
+						this.currentEl.colored = true;
+
 						this.incrementProgress();
 						this.emitStateChange();
 
@@ -205,13 +181,13 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 						this.currentEl = null;
 						return;
 					} else {
-						this.currentEl.classList.remove('selected');
+						this.currentEl.selected = false;
 					}
 				}
 
 				this.currentSelected = val;
 				this.currentEl = chip;
-				chip.classList.add('selected');
+				chip.selected = true;
 			});
 
 			this.$rightCol.append(chip);
@@ -250,10 +226,12 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 		// Grade the associations
 		let correct = 0;
 		for (const [left, right] of this.matched.entries()) {
+			const el = this.querySelector(`[data-val="${left}"]`) as EduChip;
 			const correctPair = this.data.pairs.find(p => p.left === left);
 			if (correctPair && correctPair.right === right) {
+				el.chipState = "correct";
 				correct++;
-			}
+			} else el.chipState = "wrong";
 		}
 
 		const total = this.data.pairs.length;

@@ -1,4 +1,4 @@
-import { BaseTableData } from "../types/Tables";
+import { InteractionData } from "../types/Data";
 
 export type Variant = 'elegant' | 'playful' | 'outline' | 'letter' | 'sign' | 'minimal' | 'glass' | 'empty'; 
 
@@ -34,10 +34,13 @@ export type InteractionPresentationMode =
 	'classrooms' |
 	'study';
 
-export type InteractionMechanic = 
-	'single-slide' | 
-	'sequential' | 
-	'automatic-sequencing' | 
+export type InteractionMechanic =
+	'static' 		      |
+	'sequential' 		      | 
+	'automatic-sequencing' 	      | 
+	'prefers-horizontal-overflow' |
+	'prefers-vertical-overflow'   |
+	'implements-open-canvas'      |
 	'game';
 
 export type CognitiveOp = 
@@ -92,23 +95,12 @@ export type InteractionConfig = {
 	timer: number | null;
 }
 
-// ================== DATA STRUCTURES ===================
-//
-export type ItemData = 
-	ClassificationData | 
-	AssociationData	   |
-	BaseTableData;
-
-export type ClassificationData = {
-	type: 'classification'; 
-	categories: { label: string; items: string[] }[];
-	distractors?: string[];
-}
-
-export type AssociationData = {
-	type: 'association';
-	pairs: { left: string; right: string }[];
-	distractors?: string[];
+export interface IInteraction {
+	id: string;
+	name: string;
+	data?: InteractionData;
+	css: string;
+	examples: Record<string, string>; 
 }
 
 export interface Module {
@@ -118,25 +110,18 @@ export interface Module {
 
 	implementation: {
 		parser(code: string): ParsingResult;  
-		validator(data: ItemData): ValidationResult;
+		validator(data: InteractionData): ValidationResult;
 		interactions: Record<string, any>;  // any: change for someClass later
 	}
 
 	help: string;
 }
 
-export interface IInteraction {
-	id: string;
-	name: string;
-	data?: ItemData;
-	css: string;
-	examples: Record<string, string>; 
-}
 
 // -------------- get rid of this
 export type ParsingResult = {
 	ok: boolean;
-	data?: ItemData | null; 
+	data?: InteractionData | null; 
 	errors?: Record<string, string> | null;
 }
 
