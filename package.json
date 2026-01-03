@@ -1,38 +1,49 @@
 {
-  "name": "cognikit",
-  "version": "0.1.0",
-  "author": "Yahir Adolfo de los Santos Beras",
-  "license": "MIT",
-  "repository": "https://github.com/YerCodeWorld/cognikit.git",
-  "keywords": ["psychometrics", "quizzes", "education", "practice", "tests", "learning", "psycology", "cognitive"],
-  "homepage": "https://github.com/YerCodeWorld/cognikit.git#readme",
-  "bugs": "https://github.com/YerCodeWorld/cognikit.git/issues",
-  "type": "module",
-  "private": false,
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "scripts": {
-    "clean": "rimraf dist public-dist",
-    "types": "tsc -p tsconfig.json",
-    "build:lib": "esbuild src/index.ts --bundle --format=esm --platform=browser --outdir=dist --sourcemap --minify --external:react --external:react-dom --loader:.html=text --loader:.css=text",
-    "build:demo": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --loader:.html=text --loader:.css=text",
-    "build": "pnpm clean && pnpm build:lib && pnpm types && pnpm build:demo",
-    "dev": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text",
-    "dev:watch": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text & while inotifywait -r -e modify,create,delete,move src; do pnpm build:lib; done",
-    "serve": "serve public -l 3008 -s"
-  },
-  "devDependencies": {
-    "esbuild": "^0.23.0",
-    "rimraf": "^6.0.0",
-    "serve": "^14.2.3",
-    "typescript": "^5.6.3"
-  },
-  "dependencies": {}
+	"name": "cognikit",
+	"version": "0.1.0",
+	"author": "Yahir Adolfo de los Santos Beras",
+	"license": "MIT",
+	"repository": "https://github.com/YerCodeWorld/cognikit.git",
+	"keywords": [
+		"psychometrics",
+		"quizzes",
+		"education",
+		"practice",
+		"tests",
+		"learning",
+		"psycology",
+		"cognitive"
+	],
+	"homepage": "https://github.com/YerCodeWorld/cognikit.git#readme",
+	"bugs": "https://github.com/YerCodeWorld/cognikit.git/issues",
+	"type": "module",
+	"private": false,
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"clean": "rimraf dist public-dist",
+		"types": "tsc -p tsconfig.json",
+		"build:lib": "esbuild src/index.ts --bundle --format=esm --platform=browser --outdir=dist --sourcemap --minify --external:react --external:react-dom --loader:.html=text --loader:.css=text",
+		"build:demo": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --loader:.html=text --loader:.css=text",
+		"build": "pnpm clean && pnpm build:lib && pnpm types && pnpm build:demo",
+		"dev": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text",
+		"dev:watch": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text & while inotifywait -r -e modify,create,delete,move src; do pnpm build:lib; done",
+		"serve": "serve public -l 3008 -s"
+	},
+	"devDependencies": {
+		"esbuild": "^0.23.0",
+		"rimraf": "^6.0.0",
+		"serve": "^14.2.3",
+		"typescript": "^5.6.3"
+	},
+	"dependencies": {
+		"js-yaml": "^4.1.1"
+	}
 }

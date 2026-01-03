@@ -15,8 +15,8 @@ export type StimulusModality =
 	'composite';
 
 export type ResponseObjectModality = 
-	Extract<StimulusModality, 'image' | 'text' | 'audio' | 'video' | 'tts' | 'anchor'> | 
-	'complex'; 
+	Extract<StimulusModality, 'image' | 'text' | 'audio' | 'video' | 'tts'> | 
+	'html'; 
 
 export type ResponseModality = 
 	'select' | 

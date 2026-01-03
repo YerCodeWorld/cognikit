@@ -91,16 +91,9 @@
 	body {
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 		background: rgb(var(--edu-bg));
-		min-height: 100vh;
-		min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
-		padding: 2rem;
-		padding-bottom: max(100px, env(safe-area-inset-bottom));
-		padding-left: max(2rem, env(safe-area-inset-left));
-		padding-right: max(2rem, env(safe-area-inset-right));
 		transition: background 0.3s ease;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-		overflow-x: hidden;
 	}
 
         .container {
@@ -491,6 +484,21 @@
             </div>
         </div>
 
+	<div class="demo-section">
+            <h2>Temporal Sequencing</h2>
+            <div class="demo-card">
+                <h3>Order of Events</h3>
+                <p>
+                    This demo shows the TemporalSequencing interaction for ordering items in the correct sequence.
+                    Drag items from the pool to the timeline slots in the correct chronological order.
+                    Perfect for historical events, procedural steps, or any sequential content.
+                </p>
+                <div class="interaction-wrapper">
+                    <edu-window id="temporal-shell"></edu-window>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Bottom Control Bar -->
@@ -527,13 +535,16 @@
     </div>
 
     <script type="module">
-        import { 
-		ClassificationMatrix, 
+        import {
+		ClassificationMatrix,
 		NaryChoiceTable,
 		OpenClassification,
 		SequentialClassification,
 		SimultaneousAssociation,
-		InteractionsBaseShell 
+		TemporalSequencing,
+		InteractionsBaseShell,
+		parseYamlAssets,
+		validateAndNormalizeAssets
 	} from './app.js';
 
         // ==================== DATA ====================
@@ -545,20 +556,33 @@
 	const animalsData = {
 		type: 'classification',
 		categories: [
-		{
-		    label: 'Ocean',
-		    items: ['Dolphin', 'Shark', 'Octopus', 'Whale']
-		},
-		{
-		    label: 'Land',
-		    items: ['Lion', 'Elephant', 'Tiger', 'Bear']
-		},
-		{
-		    label: 'Air',
-		    items: ['Eagle', 'Parrot', 'Hawk', 'Owl']
-		}
-	]
+			{
+			    label: 'Ocean',
+			    items: ['@:dolphin', 'Shark', 'Octopus', 'Whale']
+			},
+			{
+			    label: 'Land',
+			    items: ['Lion', 'Elephant', '@:tiger', 'Bear']
+			},
+			{
+			    label: 'Air',
+			    items: ['Eagle', 'Parrot', 'Hawk', 'Owl']
+			}
+		]
 	};
+
+	const animalsAssetsYaml = `
+dolphin:
+ type: image
+ url: https://images.unsplash.com/photo-1570481662006-a3a1374699e8?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+
+tiger:
+ type: image
+ url: https://images.unsplash.com/photo-1561731216-c3a4d99437d5?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+	`; 
+
+	const animalsAssetsToJson = parseYamlAssets(animalsAssetsYaml);
+	const animalsAssets = validateAndNormalizeAssets(animalsAssetsToJson); 
 
 	const naryData = {
 		rows: ['2 + 2 = 4', '3 + 3 = 7', 'Paris is in France', 'Tokyo is in China', 'Water boils at 100?C'],
@@ -573,13 +597,33 @@
 		type: 'association',
 		pairs: [
 			{ left: 'Dog', right: 'Barks' },
-			{ left: 'Cat', right: 'Meows' },
+			{ left: '@:cat', right: 'Meows' },
 			{ left: 'Bird', right: 'Chirps' },
-			{ left: 'Cow', right: 'Moos' },
+			{ left: '@:cow', right: 'Moos' },
 			{ left: 'Lion', right: 'Roars' }
 		],
-		distractors: ['Hisses', 'Croaks']
+		distractors: ['@:birdRight', '@:lionRight']
 	};
+
+	const associationAssetsYaml = `
+cat:
+ type: image
+ url: https://images.unsplash.com/photo-1519052537078-e6302a4968d4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+
+cow: 
+ type: image
+ url: https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+
+lionRight:
+ type: html
+ content: <details><summary>Click for Magic</summary><p>Surprise! Semantic HTML handles this natively.</p></details>
+
+birdRight:
+ type: html
+ content: <div style="backdrop-filter:blur(10px);background:rgba(255,255,255,0.3); padding:20px;">Glassy Content</div>
+`;
+	const associationAssetsToJson = parseYamlAssets(associationAssetsYaml);
+	const associationAssets = validateAndNormalizeAssets(associationAssetsToJson);
 
 	const matrixData = {
 		rows: ['Apple', 'Carrot', 'Chicken', 'Banana', 'Lettuce', 'Pork'],
@@ -594,12 +638,22 @@
 	const openData = {
 		type: 'classification',
 		categories: [
-			{ label: 'Mammals', items: ['Dog', 'Cat', 'Elephant', 'Whale'] },
-			{ label: 'Birds', items: ['Eagle', 'Penguin', 'Sparrow'] },
+			{ label: 'Mammals', items: ['Dog', 'Cat', '@:elephant', 'Whale'] },
+			{ label: 'Birds', items: ['Eagle', '@:penguin', 'Sparrow'] },
 			{ label: 'Reptiles', items: ['Snake', 'Lizard', 'Crocodile'] }
 		],
 		distractors: ['Rock', 'Cloud']
 	};
+
+	const openAssetsYaml = `
+elephant:
+ type: image
+ url: https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+penguin:
+ type: image
+ url: https://images.unsplash.com/photo-1598439210625-5067c578f3f6?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`;
+	const openAssetsToJson = parseYamlAssets(openAssetsYaml);
+	const openAssets = validateAndNormalizeAssets(openAssetsToJson);
 
 	// ==================== CONFIG ====================
 
@@ -614,7 +668,7 @@
         // ==================== SHELL DEMO ====================
 
         const shellDemo = document.getElementById('shell-demo');
-        const shellInteraction = new SequentialClassification(animalsData, baseConfig);
+        const shellInteraction = new SequentialClassification(animalsData, baseConfig, animalsAssets);
 
         shellDemo.setInteraction(shellInteraction);
 	shellDemo.setAttribute("heading", "Classify all animals");
@@ -630,7 +684,7 @@
 	associationShell.setAttribute('variant', 'outline');
 	associationShell.setAttribute('show-hint-button', 'true');
 
-	const associationWithShell = new SimultaneousAssociation(associationData, baseConfig);
+	const associationWithShell = new SimultaneousAssociation(associationData, baseConfig, associationAssets);
 	associationShell.setInteraction(associationWithShell);
 
 	associationShell.addEventListener('shell:interaction-complete', (e) => {
@@ -658,7 +712,7 @@
 	openShell.setAttribute('variant', 'outline');
 	openShell.setAttribute('show-hint-button', 'true');
 
-	const openWithShell = new OpenClassification(openData, baseConfig);
+	const openWithShell = new OpenClassification(openData, baseConfig, openAssets);
 	openShell.setInteraction(openWithShell);
 
 	openShell.addEventListener('shell:interaction-complete', (e) => {
@@ -679,6 +733,34 @@
 		console.log(document.getElementById('matrix-shell-log'), 'shell:complete', { state: 'submitted' });
 	});
 
+	// ================== TEMPORAL SEQUENCING =================
+	const temporalData = {
+		type: 'seriation',
+		items: ['Egg', 'Caterpillar', 'Chrysalis', 'Butterfly', '@:butterfly']
+	};
+
+	const tdy = `
+butterfly:
+ type: image
+ url: https://images.unsplash.com/photo-1533048324814-79b0a31982f1?q=80&w=768&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+`; 
+
+	const tdyToJ = parseYamlAssets(tdy); 
+	const ta = validateAndNormalizeAssets(tdyToJ);
+
+	const temporalShell = document.getElementById('temporal-shell');
+	temporalShell.setAttribute('heading', 'Butterfly Life Cycle');
+	temporalShell.setAttribute('timer', '120');
+	temporalShell.setAttribute('variant', 'outline');
+	temporalShell.setAttribute('show-hint-button', 'true');
+
+	const temporalInteraction = new TemporalSequencing(temporalData, baseConfig, ta);
+	temporalShell.setInteraction(temporalInteraction);
+
+	temporalShell.addEventListener('shell:interaction-complete', (e) => {
+		console.log('temporal-sequencing', 'shell:complete', { state: 'submitted' });
+	});
+	
 	// ==================== GLOBAL CONTROLS ====================
 
 	const themeSelect = document.getElementById('theme-select');
@@ -703,6 +785,7 @@
 		matrixShell.setAttribute('variant', currentVariant);
 		openShell.setAttribute('variant', currentVariant);
 		naryShell.setAttribute('variant', currentVariant);
+		temporalShell.setAttribute('variant', currentVariant);
 	});
 
 	// Accent color picker

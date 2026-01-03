@@ -1,9 +1,14 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
+
+import { NormalizedAssets } from "../../../shared/assets";
 import { AssociationData } from "../../../types/Data";
+
+import { associationDataGrader } from "../utilities/grader";
 import { randomHexColorsList, shuffle } from "../../../shared/utils";
-import { EduChip } from "../../../ui/misc/chip";
+
+import { EduChip, setUpChipData } from "../../../ui/misc/chip";
 
 export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 
@@ -22,8 +27,10 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	private $leftCol: HTMLDivElement;
 	private $rightCol: HTMLDivElement;
 
-	constructor(data: AssociationData, config: InteractionConfig) {
-		super(data, config);
+	constructor(
+		data: AssociationData, config: InteractionConfig, assets: NormalizedAssets | null
+	) {
+		super(data, config, assets);
 
 		this.data.pairs.forEach(({ left, right }) => {
 			this.leftItems.push(left);
@@ -94,7 +101,8 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 		this.leftItems.forEach((item, i) => {
 			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.config.variant;
-			chip.textContent = item;
+			
+			setUpChipData(item, chip, this.assets?.assetsById);
 			chip.dataset.val = item;
 			chip.prefix = `${i+1})`;
 
@@ -139,9 +147,10 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 		this.rightItems.forEach((item, i) => {
 			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.config.variant;
-			chip.textContent = item;
+
+			setUpChipData(item, chip, this.assets?.assetsById);
 			chip.dataset.val = item;
-			chip.dataset.index = `${i+1}`;
+			chip.dataset.colorIndex = `${i+1}`; 
 			chip.prefix = `${i+1})`;  
 
 			chip.addEventListener("click", (e) => {
@@ -160,7 +169,7 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 
 				if (this.currentSelected) {
 					if (this.leftItems.includes(this.currentSelected) && this.rightItems.includes(val)) {
-						const colorIndex = Number(chip.dataset.index) % randomHexColorsList.length;
+						const colorIndex = Number(chip.dataset.colorIndex) % randomHexColorsList.length;
 						const matchColor = randomHexColorsList[colorIndex];
 
 						this.matched.set(this.currentSelected, val);
@@ -223,25 +232,8 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 
 	public submit(): void {
 		super.submit();
-
-		// Grade the associations
-		let correct = 0;
-		for (const [left, right] of this.matched.entries()) {
-			const el = this.querySelector(`[data-val="${left}"]`) as EduChip;
-			const correctPair = this.data.pairs.find(p => p.left === left);
-			if (correctPair && correctPair.right === right) {
-				el.chipState = "correct";
-				correct++;
-			} else el.chipState = "wrong";
-		}
-
-		const total = this.data.pairs.length;
-		const score = total > 0 ? (correct / total) * 100 : 0;
-
-		console.log(`Association Score: ${score.toFixed(1)}% (${correct}/${total} correct)`);
-
-		const result = { score, correct, total };
-
+		
+		const result = associationDataGrader(this.data.pairs, this.matched, this);
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
 			detail: { result },
 			bubbles: true,

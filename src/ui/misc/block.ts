@@ -24,6 +24,8 @@ const HTML = `
 		transition: all 0.2s ease;
 		user-select: none;
 		touch-action: none;
+		text-align: center;
+		width: 100%;
 	}
 
 	.block:hover {
@@ -168,7 +170,7 @@ export class EduBlock extends HTMLElement {
 		this.shadowRoot!.innerHTML = HTML;
 		this.$blockEl = this.shadowRoot!.querySelector('.block') as HTMLDivElement;
 
-		AnimationsManager.injectKeyframes(this.shadowRoot!);
+		 AnimationsManager.injectKeyframes(this.shadowRoot!);
 	}
 
 	connectedCallback() {

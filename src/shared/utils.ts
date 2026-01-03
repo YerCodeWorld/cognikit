@@ -1,3 +1,5 @@
+import YAML from "js-yaml";
+
 export const randomHexColorsList: string[] = [
 	'#10b981', // Emerald
 	'#f59e0b', // Amber
@@ -47,5 +49,15 @@ export function extractDistractors(s: string): { ok: boolean; data?: any; errors
 	const distractors: string[] = [];
 	const cleanedcode: string = '';
 	return { ok: true, data: { content: distractors, remain: cleanedcode }}
+}
+
+export function parseYamlAssets(yamlText: string): unknown {
+	try {
+		return YAML.load(yamlText);
+	} catch (err) {
+		throw new Error(
+			`Invalid YAML assets:\n${err instanceof Error ? err.message : String(err)}`
+		);
+	}
 }
 

@@ -7,9 +7,14 @@
 
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
+
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
+import { NormalizedAssets } from "../../../shared/assets";
 import { ClassificationData } from "../../../types/Data";
-import { EduChip, EduBlock } from "../../../ui";
+
+import { EduChip, setUpChipData } from "../../../ui/misc/chip";
+import { EduBlock } from "../../../ui/misc/block";
+
 import { shuffle, randomHexColorsList } from "../../../shared";
 import { classificationGrader } from "../utilities";
 
@@ -24,7 +29,6 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 	
 	private categorized: Map<string, string | null> = new Map();
 
-	// ------------
 	private container: HTMLDivElement;
 	private centerZone: HTMLDivElement;
 	private zones: EduBlock[] = [];
@@ -43,8 +47,10 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 	
 	private variant: Variant;
 
-	constructor(data: ClassificationData, config: InteractionConfig) {
-		super(data, config);
+	constructor(
+		data: ClassificationData, config: InteractionConfig, assets: NormalizedAssets | null
+	) {
+		super(data, config, assets);
 
 		this.data.categories.forEach(({label, items}) => {
 			this.categories.push(label);
@@ -93,6 +99,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					display: block;
 					width: 100%;
 					height: 100%;
+					background: black;
 				}
 
 				#container {
@@ -144,7 +151,6 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 				edu-chip {
 					position: absolute;
-					cursor: grab;
 					user-select: none;
 					touch-action: none;
 					transition: transform 0.2s ease;
@@ -155,9 +161,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 				}
 
 				edu-chip.dragging {
-					cursor: grabbing;
 					z-index: 1000;
-					transform: scale(1.1);
 				}
 
 				@media (max-width: 1024px) {
@@ -210,7 +214,8 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 		const chip = document.createElement("edu-chip") as EduChip;
 		chip.variant = this.variant;
-		chip.textContent = nextItem;
+
+		setUpChipData(nextItem, chip, this.assets?.assetsById);
 		chip.prefix = (this.allItems.indexOf(nextItem) + 1).toString();
 		chip.draggable = true;
 		chip.dataset.label = nextItem;

@@ -1,15 +1,57 @@
 import HTML from "./chip/index.html";
 import CSS from "./chip/styles.css";
 
-import { Variant, ResponseObjectModality } from "../../shared/";
+import { Variant, ResponseObjectModality } from "../../shared";
+import { NormalizedAssets } from "../../shared/assets";
 import { GradingState } from "../../types/Grading";
-import { EduDialog } from "./dialog";
+
 import { AnimationsManager } from "../../shared/managers";
+import { EduDialog } from "./dialog";
 
 type ChipDisplayMode = 'in-line' | 'dialog';
 
+/**
+ * The key is expected to be something like "@:name", where string[2:] is expected to be a reference to 
+ * a key in assets.
+ */
+export function setUpChipData(key: string, chip: EduChip, assets?: NormalizedAssets["assetsById"]): void {
+	// lazy work, if the set up is messed up set exactly that as the content
+	if (!assets || !key.startsWith("@:") || key.length < 3) {
+		chip.textContent = key;
+		return;
+	};
+
+	const ref = key.slice(2, key.length);
+	if (!assets[ref]) { 
+		chip.textContent = ref;
+		return;
+	};
+
+	const asset = assets[ref];
+	const modality = asset.type;
+
+	chip.modality = modality;
+
+	switch (modality) {
+		case "image":
+			chip.data = asset.url;
+			break;
+		
+		case "video":
+			break;
+		case "audio":
+			break;
+
+		case "html":
+			chip.data = asset.content;
+			break;
+	}
+
+}
+
 export class EduChip extends HTMLElement {
-	// not implemented accent yet 
+	
+	// accent not implemtended yet 
 	static get observedAttributes() {
 		return ["accent", "variant", "selected", "prefix", "disabled", "modality", "state", "display", "color", "colored"];
 	}
@@ -33,7 +75,7 @@ export class EduChip extends HTMLElement {
 		this.$dragHandler = this.shadowRoot!.querySelector(".drag-handle");
 
 		this.$dialog = new EduDialog();
-		
+
 		AnimationsManager.injectKeyframes(this.shadowRoot!);
 	}
 
@@ -66,7 +108,7 @@ export class EduChip extends HTMLElement {
 
 		switch (modality) {
 			case "image":
-				this.innerHTML = `<img src="${data}" alt="no image" class="chip-image"/>`;
+				this.innerHTML = `<img src="${data}" alt="no image" class="chip-image" width="64" height="64"/>`;
 				break;
 
 			case "audio":
@@ -75,9 +117,8 @@ export class EduChip extends HTMLElement {
 			case "video":
 				break;
 
-			// text & complex
-			default:
-				break;
+			case "html":
+				this.innerHTML = data;
 		}
 	}
 
@@ -132,6 +173,7 @@ export class EduChip extends HTMLElement {
 	set modality(v: ResponseObjectModality) {
 		if (v === null || v === undefined) this.removeAttribute("modality");		
 		else {
+			console.log(1);
 			this.setAttribute("modality", String(v));
 			this.updateContent();
 		}

@@ -2,6 +2,7 @@ import { ProgressTracker } from "./utilities/ProgressTracker";
 import { Variant } from "../shared";
 import { InteractionConfig, InteractionMechanic } from "../types/Interactions";
 import { InteractionData } from "../types/Data";
+import { NormalizedAssets } from "../shared/assets";
 import { AnimationsManager, SoundManager } from "../shared/managers";
 
 export type InteractionEventMap = {
@@ -22,6 +23,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 
 	protected data: T;
 	protected config: InteractionConfig;
+	protected assets: NormalizedAssets | null;
 
 	protected progressTracker: ProgressTracker;
 	protected animationsManager: AnimationsManager;
@@ -31,12 +33,13 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 
 	// ==================== CONSTRUCTOR ====================
 
-	constructor(data: T, config: InteractionConfig) {
+	constructor(data: T, config: InteractionConfig, assets?: NormalizedAssets | null) {
 		super();
 
 		this.id = crypto.randomUUID();
 		this.data = data;
 		this.config = config;
+		this.assets = assets;
 
 		this.progressTracker = new ProgressTracker();
 		

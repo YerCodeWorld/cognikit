@@ -1,8 +1,19 @@
+/**
+ * Open Classification 
+ *
+ * No idea if there's something like out there, but it's something I just came with
+ */
+
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
+
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
+import { NormalizedAssets } from "../../../shared/assets";
 import { ClassificationData } from "../../../types/Data";
-import { EduChip, EduBlock } from "../../../ui";
+
+import { EduChip, setUpChipData } from "../../../ui/misc/chip";
+import { EduBlock } from "../../../ui/misc/block";
+
 import { shuffle } from "../../../shared";
 import { classificationGrader } from "../utilities";
 
@@ -36,8 +47,10 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	private $swatchLabel!: HTMLElement;
 	private $swatchColor!: HTMLSpanElement;
 
-	constructor(data: ClassificationData, config: InteractionConfig) {
-		super(data, config);
+	constructor(
+		data: ClassificationData, config: InteractionConfig, assets: NormalizedAssets | null
+	) {
+		super(data, config, assets);
 
 		this.data.categories.forEach(({label, items}) => {
 			this.categories.push(label);
@@ -217,8 +230,9 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 			const chip = document.createElement("edu-chip") as EduChip;
 			chip.variant = this.config.variant;
 			chip.prefix = `${i+1}:`;
-			chip.textContent = item;
 			chip.dataset.label = item;
+
+			setUpChipData(item, chip, this.assets?.assetsById);
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;

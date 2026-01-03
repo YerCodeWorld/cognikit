@@ -23,6 +23,7 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 	private _$table!: EduTable;
 
 	constructor(data: BaseTableData, config: InteractionConfig) {
+
 		super(data, config);
 
 		this._tableConfig = {

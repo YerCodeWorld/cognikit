@@ -2,6 +2,8 @@
 
 :host {
 	display: inline-block;
+	touch-action: none;
+	user-select: none;
 	--chip-color: rgb(var(--edu-first-accent));
 	--chip-colored-color: #d1d1d1;
 }
@@ -73,16 +75,13 @@
 	border-radius: var(--edu-radius);
 	color: rgb(var(--edu-ink));
 	box-sizing: border-box;
-	min-height: 44px;
 }
 
 .content-zone:hover:not([aria-disabled="true"]) {
-	transform: translateY(-1px);
 	box-shadow: 0 2px 8px rgb(var(--edu-shadow-color) / 0.15);
 }
 
 .content-zone:active:not([aria-disabled="true"]) {
-	transform: translateY(0);
 }
 
 .content-zone[aria-disabled="true"] {
@@ -111,7 +110,6 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%, -50%);
 	display: none;
 	align-items: center;
 	justify-content: center;
@@ -128,12 +126,10 @@
 }
 
 .modality-action:hover:not(:disabled) {
-	transform: translate(-50%, -50%) scale(1.1);
 	box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.3);
 }
 
 .modality-action:active:not(:disabled) {
-	transform: translate(-50%, -50%) scale(0.95);
 }
 
 .modality-action:disabled {
@@ -164,7 +160,6 @@
 
 .drag-handle:active {
 	cursor: grabbing;
-	transform: scale(1.1);
 	background-color: rgb(var(--edu-muted) / 0.9);
 }
 
@@ -268,12 +263,10 @@
 
 :host([variant="elegant"]) .content-zone:hover:not([aria-disabled="true"]) {
 	box-shadow: 1px 1px 0 rgb(var(--edu-border));
-	transform: translate(1px, 1px);
 }
 
 :host([variant="elegant"]) .content-zone:active:not([aria-disabled="true"]) {
 	box-shadow: 0 0 0 rgb(var(--edu-border));
-	transform: translate(2px, 2px);
 }
 
 :host([variant="elegant"]) .prefix {
@@ -304,12 +297,10 @@
 }
 
 :host([variant="playful"]) .content-zone:hover:not([aria-disabled="true"]) {
-	transform: translateY(-2px) rotate(-1deg);
 	box-shadow: 0 6px 16px rgba(var(--chip-color), 0.4);
 }
 
 :host([variant="playful"]) .content-zone:active:not([aria-disabled="true"]) {
-	transform: translateY(0) rotate(0deg);
 }
 
 :host([variant="playful"]) .prefix {
@@ -374,7 +365,6 @@
 
 :host([variant="empty"]) .content-zone:hover:not([aria-disabled="true"]) {
 	background: rgb(var(--edu-muted));
-	transform: none;
 }
 
 :host([variant="empty"]) .content-zone:active:not([aria-disabled="true"]) {
@@ -449,7 +439,6 @@
 	color: rgb(var(--edu-ink));
 	padding: 0.5rem 1.2rem;
 	font-weight: 700;
-	text-transform: uppercase;
 	letter-spacing: 1.5px;
 	font-size: 0.9rem;
 }

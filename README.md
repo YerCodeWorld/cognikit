@@ -1,31 +1,29 @@
 # COGNIKIT
 
-A TypesScript framework for creating cognitively-grounded assesseent systems, quizzes and interactive educationally-oriented exercises. 
-It is built on research in assessment design, psycometrics and cognitive science, while no stopping from getting ideas from casual 
-environments like classrooms (the author, *me*, is a teacher), and being flexible enough to be used in other contexts like games, articles, and more.
+A TypesScript framework for creating cognitively-grounded assessment systems, quizzes and interactive educationally-oriented exercises. 
+It is built on research in assessment design, psycometrics and cognitive science, while not limiting itself from implementing from casual 
+environments like classrooms (the author, *me*, is a teacher), and being flexible enough to be used in other contexts like games, articles, 
+and more.
 
 ---
 
 ## Overview
 
 'Cognikit' provides a structured approach to building educational assessments while aligning them with specific cognitive processes, a curated list
-of the later which are suitable for simple implementations anywhere and do not require "heavy machinery" like graphics, audio or usage of APIs. 
-
-While what was previously mentioned might seem like a 'limitation', it is so to keep things minimal and does not mean it cannot be easily extended
-into something bigger, since that's exactly what can be done with greater tooling and infraestructure. 
+of the later which are suitable for simple implementations anywhere and do not require "heavy machinery" to do so.
 
 Key end-use features:
 
-- **Small grammars ("DSLs") parsers for each module**
-- **'Validators' to enforce constraints over the data the parsers generate**
-- **Built-in mini component library**
+- **Simple authoring for each interaction**
+- **Validators to enforce constraints over the data passed to the interactions**
+- **Utility Components**
 - **Engines for unique tools**
 - **Styling variations supporting components**
 - **Grading utilities**
 
 Key development features:
 
-- **Zero dependencies**
+- **One dependency**
 - **Uses vanilla web technologies (and typescript)**
 - **Strongly typed system**
 - **Modular Arquitecture**
@@ -56,10 +54,11 @@ src/
 		html/
 		...
 	
-	// Custom base component that implements solutions and provides an API for tracking and showing
+	// Custom base component that listens to the events of an interactions and triggers features like
 	// progress, radio navigation, check button, prompt visualization and timer.
 	shell/
-		window.ts
+	    base/
+            script.ts
 
 	ui/
 		input/
@@ -78,9 +77,12 @@ Each 'module' follow a designed pattern:
 ```
 modules/<process>/
 	module.ts			// Central object that exports all features of the module
-	implementation.ts  		// parser, validator and grader
 	interactions/
 		<interaction>.ts	// Classes that extend the *BaseInteraction* abstract class to create a unique way to complete an item
+    utilitits/
+        parser.ts
+        grader.ts
+        validator.ts
 	doc/
 		interactions.ts  	// Use the "IInteraction" interface and works as a programmatic documentation object
 		<process>.md		// Research and justification of the 'conginitive process' 
@@ -94,10 +96,10 @@ modules/<process>/
 
 ### Common Patterns
 
-Both the *engines* and each module support a specific 'grammar', some sort of simple text-based quizz construction; those are based on the idea
-that creating quizzes should be simple and not require heavy forms and explanations. Just a simple -textentry-, pasting the 'code' that would be it.
+There are built-in parsers that read a specific pattern in a string and generate the data for the interaction, but the data
+can be generated in any other way and ultimatilely GUI forms are best for managing assets.
 
-Check this example workflow:
+Check this example workflow (doesn't utilize assets):
 
 ```ts
 // *CLASSIFICATION* module 'DSL'
@@ -125,10 +127,7 @@ if (isValid) {
  */ 
 ```
 
-The final data after parsing and validating results in an object that is easily consummable for those interactions to display their specific way to 
-complete the quizz, state management and way to communicate with the base BaseInteraction abstract class.
-
-Example data objects
+Example expected data objects
 ```ts
 interface ClassificationData {
 	type: 'classification'; 
@@ -272,7 +271,7 @@ pnpm clean
 ### Creating a Module
 
 1. Create directory: `src/modules/<process>/`
-2. Implement parser, validator, grader in `implementation.ts`
+2. Implement parser, validator, grader in `utilities/`
 3. Create interaction classes in `interactions/`
 4. Define module metadata in `module.ts`
 5. Document in `doc/`
@@ -280,13 +279,15 @@ pnpm clean
 ### Creating an Interaction
 
 ```typescript
-import { BaseInteraction } from '../../core';
-import { InteractionOptions } from '../../shared';
+import { BaseInteraction } from 'core';
+import { InteractionOptions } from "types/interactions";
+import { NormalizedAssets } from "shared/assets";
+import { MyInteractionData } from "...";
 
 export class MyInteraction extends BaseInteraction<MyDataType> {
 
-    constructor(options: InteractionOptions<MyDataType>) {
-        super(options);
+    constructor(data: MyInteractionData, config: InteractionConfig, assets?: NormalizedAssets) {
+        super(data, config, assets);
         this.initializeProgress(/* total steps */);
     }
 
