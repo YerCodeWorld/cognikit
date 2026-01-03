@@ -87,14 +87,21 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 			<style>
 				:host {
 					--current-color: #94a3b8;
-					display: block;
+					display: flex;
+					width: 100%;
+					height: 100%;
+					box-sizing: border-box;
 				}
 
 				.container {
 					display: flex;
 					flex-direction: column;
+					width: 100%;
+					height: 100%;
 					gap: 1rem;
 					padding: 1rem;
+					box-sizing: border-box;
+					overflow: hidden;
 				}
 
 				.items-container {
@@ -104,7 +111,11 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					padding: 1rem;
 					background: rgb(var(--edu-muted));
 					border-radius: 8px;
-					min-height: 200px;
+					flex: 1;
+					overflow-y: auto;
+					overflow-x: hidden;
+					align-content: flex-start;
+					min-height: 0;
 				}
 				
 				edu-chip {
@@ -114,11 +125,13 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				.divider {
 					border: none;
 					border-top: 1px solid rgb(var(--edu-border));
-					margin: 0.5rem 0;
+					margin: 0;
+					flex-shrink: 0;
 				}
 
 				#category-swatch-container {
 					padding: 0 20% 0 20%;
+					flex-shrink: 0;
 				}
 
 				.swatch-content {

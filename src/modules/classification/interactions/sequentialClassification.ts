@@ -96,33 +96,49 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 		this.innerHTML = `
 			<style>
 				:host {
-					display: block;
+					display: flex;
 					width: 100%;
 					height: 100%;
-					background: black;
+					box-sizing: border-box;
 				}
 
 				#container {
 					position: relative;
-					min-height: 400px;
-					display: grid;
-					grid-template-columns: repeat(${gridCols}, 1fr);
-					grid-template-rows: auto 1fr;
+					display: flex;
+					flex-direction: column;
+					width: 100%;
+					height: 100%;
 					gap: 1rem;
 					padding: 1.5rem;
 					background: rgb(var(--edu-bg));
 					border-radius: 12px;
+					overflow: hidden;
+					box-sizing: border-box;
+				}
+
+				.center-zone-container {
+					flex-shrink: 0;
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.center-zone-label {
+					font-size: 0.9rem;
+					font-weight: 600;
+					color: rgb(var(--edu-second-ink));
 				}
 
 				#center-zone {
-					grid-column: 1 / -1;
-					min-height: 80px;
+					min-height: 120px;
+					height: 120px;
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					background: rgba(var(--edu-muted), 0.5);
 					border-radius: 12px;
 					border: 2px dashed rgb(var(--edu-border));
+					position: relative;
 				}
 
 				#center-zone.empty::before {
@@ -132,21 +148,65 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					opacity: 0.6;
 				}
 
+				.zones-container {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+					min-height: 0;
+					overflow: hidden;
+				}
+
+				.zones-label {
+					font-size: 0.9rem;
+					font-weight: 600;
+					color: rgb(var(--edu-second-ink));
+					flex-shrink: 0;
+				}
+
+				#zones-grid {
+					flex: 1;
+					display: grid;
+					grid-template-columns: repeat(${gridCols}, 1fr);
+					grid-auto-rows: minmax(120px, 1fr);
+					gap: 1rem;
+					overflow-y: auto;
+					overflow-x: hidden;
+					align-content: start;
+					padding: 0.5rem;
+					min-height: 0;
+				}
+
 				.zone {
-					border-radius: none;
+					border-radius: 8px;
 					box-shadow: 0 4px 6px -1px rgb(var(--edu-shadow-color) / 0.1);
 					transition: all 0.3s ease;
 					font-weight: 700;
-					font-size: 1.95rem;
+					font-size: 1.5rem;
 					text-align: center;
 					border: 3px solid transparent;
 					opacity: 0.8;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					position: relative;
+					height: 100%;
 				}
-				
+
 				.zone.highlight {
 					transform: scale(1.02);
-					opacity:1;
-					font-size: 2.5rem;
+					opacity: 1;
+					box-shadow: 0 8px 16px rgba(var(--edu-first-accent), 0.3);
+				}
+
+				.zone.empty::after {
+					content: 'Drop here';
+					position: absolute;
+					bottom: 0.5rem;
+					font-size: 0.75rem;
+					font-weight: 500;
+					opacity: 0.4;
+					color: rgb(var(--edu-ink));
 				}
 
 				edu-chip {
@@ -165,23 +225,34 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 				}
 
 				@media (max-width: 1024px) {
-					#container {
+					#zones-grid {
 						grid-template-columns: repeat(${Math.min(gridCols, 2)}, 1fr);
 					}
 				}
 
 				@media (max-width: 640px) {
-					#container {
+					#zones-grid {
 						grid-template-columns: 1fr;
-						min-height: 300px;
 					}
 					#center-zone {
-						min-height: 60px;
+						min-height: 80px;
+						height: 80px;
+					}
+					.zone {
+						min-height: 80px;
+						font-size: 1.2rem;
 					}
 				}
 			</style>
 			<div id="container">
-				<div id="center-zone"></div>
+				<div class="center-zone-container">
+					<div class="center-zone-label">Current Item</div>
+					<div id="center-zone"></div>
+				</div>
+				<div class="zones-container">
+					<div class="zones-label">Categories (Drag item to classify)</div>
+					<div id="zones-grid"></div>
+				</div>
 			</div>
 		`;
 
@@ -193,14 +264,17 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 	}
 
 	private createDropZones(): void {
+		const zonesGrid = this.querySelector("#zones-grid") as HTMLDivElement;
+
 		this.categories.forEach((label, i) => {
 			const zone = document.createElement('edu-block') as EduBlock;
+			zone.variant = this.variant;
 			zone.setAccentColor(randomHexColorsList[i % randomHexColorsList.length]);
-			zone.classList.add('zone');
+			zone.classList.add('zone', 'empty');
 			zone.textContent = `${label}: 0`;
 			zone.dataset.label = label;
 
-			this.container.appendChild(zone);
+			zonesGrid.appendChild(zone);
 			this.zones.push(zone);
 		});
 	}
@@ -306,10 +380,17 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 			}
 		}
 
-		this.zones.forEach(zone => { 
+		this.zones.forEach(zone => {
 			zone.classList.remove("highlight");
-			zone.textContent = 
-				`${zone.dataset.label}: ${Array.from(this.categorized.values()).filter(v => v === zone.dataset.label).length ?? ''}`;
+			const count = Array.from(this.categorized.values()).filter(v => v === zone.dataset.label).length;
+			zone.textContent = `${zone.dataset.label}: ${count}`;
+
+			// Toggle empty class based on count
+			if (count > 0) {
+				zone.classList.remove('empty');
+			} else {
+				zone.classList.add('empty');
+			}
 		});
 
 		this.activeChip = null;

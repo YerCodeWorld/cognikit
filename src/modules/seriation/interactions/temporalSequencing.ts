@@ -88,9 +88,10 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		this.innerHTML = `
 			<style>
 				:host {
-					display: block;
+					display: flex;
 					width: 100%;
 					height: 100%;
+					box-sizing: border-box;
 				}
 
 				#container.drag-active edu-block::part(block) { transform: none !important; }
@@ -98,37 +99,47 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 				#container {
 					display: flex;
 					flex-direction: column;
-					gap: 2rem;
+					width: 100%;
+					height: 100%;
+					gap: 1.5rem;
 					padding: 1.5rem;
 					background: rgb(var(--edu-bg));
 					border-radius: 12px;
-					min-height: 400px;
+					overflow: hidden;
+					box-sizing: border-box;
 				}
 
 				#timeline-container {
+					flex: 1;
 					display: flex;
 					flex-direction: column;
 					gap: 0.5rem;
+					min-height: 0;
+					overflow: hidden;
 				}
 
 				.timeline-label {
 					font-size: 0.9rem;
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
-					margin-bottom: 0.5rem;
+					flex-shrink: 0;
 				}
 
 				#timeline {
+					flex: 1;
 					display: grid;
 					grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+					grid-auto-rows: minmax(100px, max-content);
 					gap: 0.75rem;
 					padding: 1rem;
 					background: rgba(var(--edu-muted), 0.3);
 					border-radius: 12px;
 					border: 2px solid rgb(var(--edu-border));
 					position: relative;
-					max-height: 250px;
 					overflow-y: auto;
+					overflow-x: hidden;
+					align-content: start;
+					min-height: 0;
 				}
 
 				edu-block.timeline-slot {
@@ -215,6 +226,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 				}
 
 				#items-pool-container {
+					flex-shrink: 0;
 					display: flex;
 					flex-direction: column;
 					gap: 0.5rem;
@@ -224,6 +236,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					font-size: 0.9rem;
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
+					flex-shrink: 0;
 				}
 
 				#items-pool {
@@ -233,11 +246,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					background: rgba(var(--edu-muted), 0.5);
 					border-radius: 12px;
 					border: 2px dashed rgb(var(--edu-border));
-					max-height: 250px;
+					min-height: 80px;
+					max-height: 150px;
 					overflow-y: hidden;
 					overflow-x: auto;
 					align-items: flex-start;
-					align-content: flex-start;
+					flex-shrink: 0;
 				}
 
 				#items-pool.empty::before {
@@ -269,11 +283,11 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 					#container {
 						padding: 1rem;
-						gap: 1.5rem;
+						gap: 1rem;
 					}
 
 					#items-pool {
-						max-height: 180px;
+						max-height: 120px;
 					}
 				}
 
@@ -303,7 +317,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					}
 
 					#items-pool {
-						max-height: 150px;
+						max-height: 100px;
 					}
 				}
 			</style>

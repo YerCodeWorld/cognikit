@@ -62,27 +62,42 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			<style>
 				:host {
 					--current-color: #3b82f6;
-					display: block;
+					display: flex;
+					width: 100%;
+					height: 100%;
+					box-sizing: border-box;
 				}
 
 				.container {
 					display: grid;
 					grid-template-columns: 1fr 1fr;
-					gap: 40px;
-					padding: 1rem 4rem 1rem 4rem;
+					gap: 2.5rem;
+					padding: 2rem;
+					width: 100%;
+					height: 100%;
+					align-content: center;
+					box-sizing: border-box;
 				}
 
 				.column {
 					display: flex;
 					flex-direction: column;
 					gap: 0.75rem;
-					justify-content: center;
+					justify-content: flex-start;
 					width: 100%;
+					max-width: 400px;
 					margin: 0 auto;
 				}
 
 				edu-chip:hover {
 					transform: translateY(-2px);
+				}
+
+				@media (max-width: 768px) {
+					.container {
+						gap: 1.5rem;
+						padding: 1.5rem;
+					}
 				}
 			</style>
 
