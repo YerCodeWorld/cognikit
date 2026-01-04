@@ -57,9 +57,40 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 			this.emitStateChange();
 		});
 
-		// Render directly to this element
-		this.innerHTML = '';
-		this.appendChild(this._$table);
+		// Render with wrapper for proper height/overflow handling
+		this.innerHTML = `
+			<style>
+				:host {
+					display: flex;
+					width: 100%;
+					height: 100%;
+					box-sizing: border-box;
+				}
+
+				.table-container {
+					display: flex;
+					flex-direction: column;
+					width: 100%;
+					height: 100%;
+					overflow: hidden;
+					box-sizing: border-box;
+				}
+
+				.table-wrapper {
+					flex: 1;
+					overflow-y: auto;
+					overflow-x: auto;
+					min-height: 0;
+					padding: 1rem;
+				}
+			</style>
+			<div class="table-container">
+				<div class="table-wrapper"></div>
+			</div>
+		`;
+
+		const wrapper = this.querySelector('.table-wrapper') as HTMLDivElement;
+		wrapper.appendChild(this._$table);
 	}
 
 	// ==================== INTERACTION LOGIC ====================

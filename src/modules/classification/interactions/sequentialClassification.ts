@@ -325,6 +325,10 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 		this.offsetX = e.clientX - chipRect.left;
 		this.offsetY = e.clientY - chipRect.top;
+
+		this.chips.forEach(c => {
+			if (c !== chip) c.style.opacity = "0.3"
+		});
 		
 		// THIS DOES NOT GET TRIGGERED IF THE CHIP IS *ONLY* CLICKED!
 		this.handlePointerMove(e);
@@ -351,8 +355,9 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 	private handlePointerUp(e: PointerEvent): void {
 		if (!this.isDragging || !this.activeChip) return;
-
+		
 		this.isDragging = false;
+		this.chips.forEach(c => c.style.opacity = "1");
 		this.activeChip.classList.remove("dragging");
 
 		const itemLabel = this.activeChip.dataset.label!;

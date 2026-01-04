@@ -104,6 +104,22 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					overflow: hidden;
 				}
 
+				.items-section {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+					min-height: 0;
+					overflow: hidden;
+				}
+
+				.items-label {
+					font-size: 0.9rem;
+					font-weight: 600;
+					color: rgb(var(--edu-second-ink));
+					flex-shrink: 0;
+				}
+
 				.items-container {
 					display: flex;
 					flex-wrap: wrap;
@@ -126,6 +142,20 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					border: none;
 					border-top: 1px solid rgb(var(--edu-border));
 					margin: 0;
+					flex-shrink: 0;
+				}
+
+				.swatch-section {
+					flex-shrink: 0;
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.swatch-label {
+					font-size: 0.9rem;
+					font-weight: 600;
+					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
 				}
 
@@ -210,10 +240,17 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 			</style>
 
 			<div class="container">
-				<div class="items-container"></div>
+				<div class="items-section">
+					<div class="items-label">Items (Click to classify with selected category)</div>
+					<div class="items-container"></div>
+				</div>
 
 				<hr class="divider">
-				<div id="category-swatch-container"></div>
+
+				<div class="swatch-section">
+					<div class="swatch-label">Current Category</div>
+					<div id="category-swatch-container"></div>
+				</div>
 			</div>
 
 			<dialog id="dlg">

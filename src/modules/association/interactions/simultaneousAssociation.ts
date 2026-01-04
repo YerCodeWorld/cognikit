@@ -1,6 +1,6 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
-import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
+import { InteractionConfig, InteractionMechanic, IInteractionSpec } from "../../../types/Interactions";
 
 import { NormalizedAssets } from "../../../shared/assets";
 import { AssociationData } from "../../../types/Data";
@@ -9,6 +9,13 @@ import { associationDataGrader } from "../utilities/grader";
 import { randomHexColorsList, shuffle } from "../../../shared/utils";
 
 import { EduChip, setUpChipData } from "../../../ui/misc/chip";
+
+// could expand something like: mechanic: 'click' | 'drawLine'; 
+type SimultaneousAssociationSpec = {
+	rightColumnLabel: string;
+	leftColumnLabel: string;
+	layoutDirection: 'vertical' | 'horizontal';
+}
 
 export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 
@@ -28,7 +35,10 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	private $rightCol: HTMLDivElement;
 
 	constructor(
-		data: AssociationData, config: InteractionConfig, assets: NormalizedAssets | null
+		data: AssociationData, 
+		config: InteractionConfig, 
+		assets: NormalizedAssets | null,
+		spec: SimultaneousAssociationSpec | null
 	) {
 		super(data, config, assets);
 
@@ -57,6 +67,8 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 		});
 	}
 
+	// ------------ Interaction Specific Logic ---------------
+
 	render(): void {
 		this.innerHTML = `
 			<style>
@@ -82,16 +94,32 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				.column {
 					display: flex;
 					flex-direction: column;
-					gap: 0.75rem;
+					gap: 0.5rem;
 					justify-content: flex-start;
 					width: 100%;
 					max-width: 400px;
 					margin: 0 auto;
 				}
 
+				.column-label {
+					font-size: 0.9rem;
+					font-weight: 600;
+					color: rgb(var(--edu-second-ink));
+					margin-bottom: 0.25rem;
+					flex-shrink: 0;
+				}
+
+				.items-list {
+					display: flex;
+					flex-direction: column;
+					gap: 0.75rem;
+				}
+
 				edu-chip:hover {
 					transform: translateY(-2px);
 				}
+
+				edu-chip::part(content-zone) { width: 80%; }
 
 				@media (max-width: 768px) {
 					.container {
@@ -102,13 +130,19 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			</style>
 
 			<div class="container" id="columns-container">
-				<div class="column" id="left-col"></div>
-				<div class="column" id="right-col"></div>
+				<div class="column">
+					<div class="column-label">Left Items (Select to match)</div>
+					<div class="items-list" id="left-col"></div>
+				</div>
+				<div class="column">
+					<div class="column-label">Right Items (Select to match)</div>
+					<div class="items-list" id="right-col"></div>
+				</div>
 			</div>
 		`;
 
-		this.$leftCol = this.querySelector("#left-col");
-		this.$rightCol = this.querySelector("#right-col");
+		this.$leftCol = this.querySelector("#left-col") as HTMLDivElement;
+		this.$rightCol = this.querySelector("#right-col") as HTMLDivElement;
 		this.renderItems();
 	}
 
@@ -218,6 +252,8 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			this.$rightCol.append(chip);
 		});
 	}
+
+	// ------------ Abstract Methods ---------------
 
 	getCurrentState(): any {
 		return {

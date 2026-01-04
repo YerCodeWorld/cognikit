@@ -10,7 +10,7 @@ import { EduChip, setUpChipData } from "../../../ui/misc/chip";
 import { EduBlock } from "../../../ui/misc/block";
 
 import { shuffle, randomHexColorsList} from "../../../shared";
-import { seriationGrader } from "../utilities";
+import { seriationGrader, seriationValidator } from "../utilities";
 
 export class TemporalSequencing extends BaseInteraction<SeriationData> {
 	interactionMechanic: InteractionMechanic = "static";
@@ -45,6 +45,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		config: InteractionConfig,
 		assets?: NormalizedAssets | null
 	) {
+		
+		// this should be some sort of work in the base interactions, with us passing the validator.
+		// other than just returning we should return some error component from the UI folder
+		const isValid: boolean = seriationValidator(data);
+		if (!isValid) alert(1);
+
 		super(data, config, assets);
 
 		this.correctOrder = [...this.data.items];
