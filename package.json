@@ -35,7 +35,7 @@
 		"build": "pnpm clean && pnpm build:lib && pnpm types && pnpm build:demo",
 		"dev": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text",
 		"dev:watch": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text & while inotifywait -r -e modify,create,delete,move src; do pnpm build:lib; done",
-		"serve": "serve public -l 3008 -s"
+		"serve": "serve public -l 3008"
 	},
 	"devDependencies": {
 		"esbuild": "^0.23.0",
