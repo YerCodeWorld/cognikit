@@ -1,12 +1,12 @@
-import HTML from "./chip/index.html";
-import CSS from "./chip/styles.css";
+import HTML from "./index.html";
+import CSS from "./styles.css";
 
-import { Variant, ResponseObjectModality } from "../../shared";
-import { NormalizedAssets } from "../../shared/assets";
-import { GradingState } from "../../types/Grading";
+import { Variant, ResponseObjectModality } from "../../../shared";
+import { NormalizedAssets } from "../../../shared/assets";
+import { GradingState } from "../../../types/Grading";
 
-import { AnimationsManager } from "../../shared/managers";
-import { EduDialog } from "./dialog";
+import { AnimationsManager } from "../../../shared/managers";
+import { EduDialog } from "../dialog";
 
 type ChipDisplayMode = 'in-line' | 'dialog';
 
