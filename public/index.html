@@ -430,6 +430,7 @@
                         <option value="OpenClassification">Open Classification</option>
                         <option value="NaryChoiceTable">N-ary Choice Table</option>
                         <option value="TemporalSequencing" selected>Temporal Sequencing</option>
+                        <option value="MCQ">MCQ/MRQ</option>
                     </select>
                 </div>
 
@@ -475,6 +476,7 @@
             SequentialClassification,
             SimultaneousAssociation,
             TemporalSequencing,
+            MCQ,
             InteractionsBaseShell,
             parseYamlAssets,
             validateAndNormalizeAssets
@@ -502,6 +504,7 @@
 
         // Form Elements
         const variantSelect = document.getElementById('variant-select');
+	const accentColor = document.getElementById('accent-color');
         const interactionType = document.getElementById('interaction-type');
         const interactionHeading = document.getElementById('interaction-heading');
         const interactionTimer = document.getElementById('interaction-timer');
@@ -516,6 +519,15 @@
         function closeModal(modal) {
             modal.classList.remove('active');
         }
+	
+	accentColor.addEventListener('change', (e) => {
+		const color = e.target.value;
+		// Convert hex to RGB
+		const r = parseInt(color.substr(1, 2), 16);
+		const g = parseInt(color.substr(3, 2), 16);
+		const b = parseInt(color.substr(5, 2), 16);
+		document.documentElement.style.setProperty('--edu-first-accent', `${r} ${g} ${b}`);
+	});
 
         // Event Listeners - Modal Toggles
         settingsBtn.addEventListener('click', () => openModal(settingsModal));
@@ -617,6 +629,29 @@
                     items: ['Egg', 'Caterpillar', 'Chrysalis', 'Butterfly', '@:butterfly']
                 },
                 assets: 'butterfly:\n  type: image\n  url: https://images.unsplash.com/photo-1533048324814-79b0a31982f1?q=80&w=768'
+            },
+            MCQ: {
+                data: {
+                    type: 'recognition',
+                    data: [
+                        {
+                            question: 'What is the capital of France?',
+                            correctOptions: ['Paris'],
+                            options: ['Paris', 'London', 'Berlin', 'Madrid']
+                        },
+                        {
+                            question: 'Which of these are programming languages?',
+                            correctOptions: ['Python', 'JavaScript', 'Java'],
+                            options: ['Python', 'JavaScript', 'Java', 'HTML', 'CSS']
+                        },
+                        {
+                            question: 'What is 2 + 2?',
+                            correctOptions: ['4'],
+                            options: ['3', '4', '5', '6']
+                        }
+                    ]
+                },
+                assets: ''
             }
         };
 
@@ -686,6 +721,9 @@
                     case 'TemporalSequencing':
                         interaction = new TemporalSequencing(data, config, assets);
                         break;
+                    case 'MCQ':
+                        interaction = new MCQ(data, config, assets);
+                        break;
                     default:
                         throw new Error('Unknown interaction type');
                 }
@@ -696,6 +734,13 @@
                 viewport.setAttribute('timer', interactionTimer.value);
                 viewport.setAttribute('variant', currentVariant);
                 viewport.setAttribute('show-hint-button', 'true');
+
+                // Set footer mode based on interaction type
+                if (type === 'MCQ') {
+                    viewport.setAttribute('footer-mode', 'sequential');
+                } else {
+                    viewport.setAttribute('footer-mode', 'static');
+                }
 
                 currentInteraction = interaction;
                 closeModal(configModal);
