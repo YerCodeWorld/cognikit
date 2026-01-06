@@ -1,5 +1,5 @@
 import { ProgressTracker } from "./utilities/ProgressTracker";
-import { Variant } from "../shared";
+import { Variant, ValidationResult } from "../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../types/Interactions";
 import { InteractionData } from "../types/Data";
 import { NormalizedAssets } from "../shared/assets";
@@ -16,30 +16,40 @@ export type InteractionEventMap = {
 
 export abstract class BaseInteraction<T extends InteractionData> extends HTMLElement {
 	
-	// ==================== PROPERTIES ====================
-
 	public readonly id: string;
+	public implementsProgress = true;
+	public isValid = true;
+
 	abstract readonly interactionMechanic: InteractionMechanic;
 
 	protected data: T;
-	protected config: InteractionConfig;
+	public config: InteractionConfig;
 	protected assets: NormalizedAssets | null;
 
-	protected progressTracker: ProgressTracker;
+	public progressTracker: ProgressTracker;
 	protected animationsManager: AnimationsManager;
 	protected soundManager: SoundManager;
 
 	private _initialized = false;
+	public errors: string = '';
 
-	// ==================== CONSTRUCTOR ====================
-
-	constructor(data: T, config: InteractionConfig, assets?: NormalizedAssets | null) {
+	constructor(data: T, config: InteractionConfig, assets?: NormalizedAssets | null, validator?) {
 		super();
 
 		this.id = crypto.randomUUID();
 		this.data = data;
 		this.config = config;
 		this.assets = assets;
+
+		if (validator) {
+			const validationResult: ValidationResult = validator(this.data);
+			if (!validationResult.ok) {
+				this.isValid = false;
+				Object.entries(validationResult.errors).forEach(([k, v]) => {
+					this.errors = `${this.errors}\n ${k}: ${v}`;
+				});
+			} 
+		}
 
 		this.progressTracker = new ProgressTracker();
 		
@@ -49,9 +59,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 		this.animationsManager = new AnimationsManager();
 		this.animationsManager.isEnabled = this.config.animationsEnabled;
 
-		if (config.variant) {
-			this.setAttribute('variant', config.variant);
-		}
+		this.setAttribute('variant', config.variant ?? 'elegant');
 
 	}
 
@@ -60,6 +68,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	connectedCallback() {
 		if (!this._initialized) {
 			this._initialized = true;
+			if (!this.isValid) return;
 			this.initialize();
 			requestAnimationFrame(() => {
 				this.render();
@@ -77,6 +86,8 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	abstract getCurrentState(): any;
 	abstract isInteractionComplete(): boolean;
 	abstract onHint(): void;
+	// for immediate feedback
+	// abstact correctSingle(): void {}
 
 	// ==================== OPTIONAL LIFECYCLE HOOKS ====================
 
@@ -84,7 +95,6 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	protected cleanup(): void {}
 
 	// ==================== PROGRESS TRACKING ====================
-
 	protected initializeProgress(total: number): void {
 		this.progressTracker.initialize(total);
 		this.emitProgress();
@@ -114,7 +124,6 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	}
 
 	// ==================== EVENT EMISSION  ====================
-
 	private emitReady(): void {
 		this.dispatchEvent(new CustomEvent('interaction:ready', {
 			detail: { id: this.id },
@@ -174,16 +183,11 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	}
 
 	// ==================== PUBLIC API ====================
-	
 	public onVariantChange(newVariant: Variant): void {}
 	public setSteps(steps: number): void {}
-
+	
 	public submit(): void {
-		if (!this.isInteractionComplete()) {
-			const error = new Error('Cannot submit incomplete interaction');
-			this.emitError(error, 'Please complete all required fields before submitting');
-			throw error;
-		}
+		this.setAttribute('inert', '');
 		this.emitComplete();
 	}
 	
@@ -194,6 +198,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	public reset(): void {
 		this.progressTracker.reset();
 		this.emitProgress();
+		this.removeAttribute('inert');
 		this.render();
 	}
 
