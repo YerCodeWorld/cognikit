@@ -18,8 +18,6 @@ import { EduBlock } from "../../../ui/misc/block";
 import { shuffle, randomHexColorsList } from "../../../shared";
 import { classificationGrader } from "../utilities";
 
-import { AnimationsManager } from "../../../shared/managers";
-
 export class SequentialClassification extends BaseInteraction<ClassificationData> {
 
 	interactionMechanic: InteractionMechanic = "automatic-sequencing";
