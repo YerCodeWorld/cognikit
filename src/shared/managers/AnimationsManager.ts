@@ -19,7 +19,9 @@ export type AnimationName =
 	| 'pop'
 	| 'fade-slide'
 	| 'swing'
-	| 'flash';
+	| 'orbit'
+	| 'flash'
+	| 'spin-pulse';
 
 export interface AnimationOptions {
 	duration?: string;
@@ -71,11 +73,11 @@ const KEYFRAMES = `
 }
 
 @keyframes heartbeat {
-	0% { transform: scale(1); }
-	14% { transform: scale(1.1); }
-	28% { transform: scale(1); }
-	42% { transform: scale(1.1); }
-	70% { transform: scale(1); }
+	0% { transform: translateY(-50%) scale(1); }
+	14% { transform: translateY(-50%) scale(1.1); }
+	28% { transform: translateY(-50%)  scale(1); }
+	42% { transform: translateY(-50%) scale(1.1); }
+	70% { transform: translateY(-50%) scale(1); }
 }
 
 @keyframes shimmer {
@@ -107,9 +109,21 @@ const KEYFRAMES = `
 	100% { transform: rotate(0deg); }
 }
 
+@keyframes spin-pulse {
+    0% { transform: translateY(-50%) scale(1) rotate(0deg); }
+    50% { transform: translateY(-50%) scale(1.8) rotate(180deg); color: #fbbc05; }
+    100% { transform: translateY(-50%) scale(1) rotate(360deg); }
+}
+
 @keyframes flash {
 	0%, 50%, 100% { opacity: 1; }
 	25%, 75% { opacity: 0; }
+}
+
+@keyframes orbit {
+	0% { transform: rotate(0deg) translateX(0) rotate(0deg); }
+	50% { transform: rotate(180deg) translateX(50px) rotate(-180deg) scale(1.5); }
+	100% { transform: rotate(360deg) translateX(0) rotate(-360deg); }
 }
 `;
 
@@ -129,7 +143,9 @@ const DEFAULT_CONFIG: Record<AnimationName, string> = {
 	'pop': '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
 	'fade-slide': '0.5s ease-out',
 	'swing': '2s infinite',
-	'flash': '0.5s'
+	'flash': '0.5s',
+	'orbit': '1s ease-in-out',
+	'spin-pulse': '3s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite'
 };
 
 export class AnimationsManager {
@@ -165,6 +181,7 @@ export class AnimationsManager {
 		animationName: AnimationName,
 		options?: AnimationOptions
 	): void {
+
 		
 		if (!this.isEnabled) return;
 
