@@ -35,7 +35,7 @@
             --edu-error:         220 38 38;
             --edu-warning:       255 222 33;
             --edu-neutral:       14 165 233;
-            --edu-first-accent:  173 198 255;
+            --edu-first-accent:  255 212 71;
             --edu-second-accent: 245 158 11;
             --edu-third-accent:  236 72 153;
             --edu-border:        229 231 235;
@@ -378,9 +378,9 @@
                 <div class="form-group">
                     <label for="variant-select">Variant Style</label>
                     <select id="variant-select">
-                        <option value="elegant">Elegant</option>
+                        <option value="elegant" selected>Elegant</option>
                         <option value="playful">Playful</option>
-                        <option value="outline" selected>Outline</option>
+                        <option value="outline">Outline</option>
                         <option value="letter">Letter</option>
                         <option value="sign">Sign</option>
                         <option value="minimal">Minimal</option>
@@ -402,7 +402,7 @@
 
                 <div class="form-group">
                     <label for="accent-color">Accent Color</label>
-                    <input type="color" id="accent-color" value="#adc6ff">
+                    <input type="color" id="accent-color" value="#67CB90">
                     <div class="form-help">Color customization not yet implemented</div>
                 </div>
             </div>
@@ -430,6 +430,7 @@
                         <option value="OpenClassification">Open Classification</option>
                         <option value="NaryChoiceTable">N-ary Choice Table</option>
                         <option value="TemporalSequencing" selected>Temporal Sequencing</option>
+                        <option value="RankOrder">Rank Order</option>
                         <option value="MCQ">MCQ/MRQ</option>
                     </select>
                 </div>
@@ -476,6 +477,7 @@
             SequentialClassification,
             SimultaneousAssociation,
             TemporalSequencing,
+            RankOrder,
             MCQ,
             InteractionsBaseShell,
             parseYamlAssets,
@@ -483,7 +485,7 @@
         } from './app.js';
 
         // State
-        let currentVariant = 'outline';
+        let currentVariant = 'elegant';
         let currentInteraction = null;
 
         // DOM Elements
@@ -551,6 +553,7 @@
         settingsApply.addEventListener('click', () => {
             currentVariant = variantSelect.value;
             if (viewport) {
+		currentInteraction.onVariantChange(currentVariant);
                 viewport.setAttribute('variant', currentVariant);
             }
             closeModal(settingsModal);
@@ -605,7 +608,7 @@
                 data: {
                     type: 'classification',
                     categories: [
-                        { label: 'Mammals', items: ['Dog', 'Cat', 'Elephant'] },
+                        { label: 'Mammals', items: ['Dog', 'Cat', 'Elephant', 'wolf'] },
                         { label: 'Birds', items: ['Eagle', 'Sparrow'] }
                     ],
                     distractors: ['Rock', 'Cloud']
@@ -626,16 +629,23 @@
             TemporalSequencing: {
                 data: {
                     type: 'seriation',
-                    items: ['Egg', 'Caterpillar', 'Chrysalis', 'Butterfly', '@:butterfly']
+                    items: ['@:butterfly']
                 },
                 assets: 'butterfly:\n  type: image\n  url: https://images.unsplash.com/photo-1533048324814-79b0a31982f1?q=80&w=768'
+            },
+            RankOrder: {
+                data: {
+                    type: 'seriation',
+                    items: ['Bronze Age', 'Iron Age', 'Middle Ages', 'Renaissance', 'Industrial Revolution', 'Information Age']
+                },
+                assets: ''
             },
             MCQ: {
                 data: {
                     type: 'recognition',
                     data: [
                         {
-                            question: 'What is the capital of France?',
+                            question: '@:paris',
                             correctOptions: ['Paris'],
                             options: ['Paris', 'London', 'Berlin', 'Madrid']
                         },
@@ -645,13 +655,34 @@
                             options: ['Python', 'JavaScript', 'Java', 'HTML', 'CSS']
                         },
                         {
-                            question: 'What is 2 + 2?',
+                            question: '@:exampleHtml',
                             correctOptions: ['4'],
                             options: ['3', '4', '5', '6']
-                        }
+                        },
+			{
+				question: '@:ocean',
+				correctOptions: ['Ocean'],
+				options: ['Volcano', 'Desert', 'Forest', 'Ocean']
+			},
+			{
+				question: '@:laugh',
+				correctOptions: ["laughing"],
+				options: ['Crying', 'Shouting', 'Laughing']
+			}
                     ]
                 },
-                assets: ''
+                assets: 
+`
+paris:\n type: image\n url: https://plus.unsplash.com/premium_photo-1718035557075-5111d9d906d2?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D\n dialog: true 
+exampleHtml:
+ type: html
+ content: <div style="padding:1rem;"><h3>Rich HTML Question</h3><p>What is <strong>2 + 2</strong>?</p><ul><li>Addition</li><li>Basic math</li></ul></div>
+ dialog: true
+
+ocean:\n type: video\n url: https://www.pexels.com/download/video/6548176\n dialog: false
+
+laugh:\n type: audio\n url: https://www.soundjay.com/human/sounds/man-laughing-01.mp3\n dialog: true
+`
             }
         };
 
@@ -675,15 +706,12 @@
         // Render Interaction
         configApply.addEventListener('click', () => {
             try {
-                // Parse data
                 let data = JSON.parse(dataJson.value);
 
-                // Convert answerKey back to Map if it exists
                 if (data.answerKey && typeof data.answerKey === 'object') {
                     data.answerKey = new Map(Object.entries(data.answerKey));
                 }
 
-                // Parse assets
                 let assets = null;
                 const yamlContent = assetsYaml.value.trim();
                 if (yamlContent) {
@@ -691,14 +719,17 @@
                     assets = validateAndNormalizeAssets(parsedAssets);
                 }
 
-                // Create config
                 const config = {
-                    variant: currentVariant,
-                    shuffle: true,
-                    animationsEnabled: true
+			variant: currentVariant,
+			shuffle: true,
+			animationsEnabled: true,
+			prompt: "Complete the quizz",
+			promptData: "https://plus.unsplash.com/premium_photo-1718035557075-5111d9d906d2?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+			promptModality: 'image',
+			timer: 60,
+			attemptLimit: 2 
                 };
 
-                // Create interaction based on type
                 const type = interactionType.value;
                 let interaction;
 
@@ -721,6 +752,9 @@
                     case 'TemporalSequencing':
                         interaction = new TemporalSequencing(data, config, assets);
                         break;
+                    case 'RankOrder':
+                        interaction = new RankOrder(data, config, assets);
+                        break;
                     case 'MCQ':
                         interaction = new MCQ(data, config, assets);
                         break;
@@ -728,19 +762,9 @@
                         throw new Error('Unknown interaction type');
                 }
 
-                // Set up viewport
+                // Clear any previous state and set up new interaction
+                // The shell now reads everything from interaction.config
                 viewport.setInteraction(interaction);
-                viewport.setAttribute('heading', interactionHeading.value);
-                viewport.setAttribute('timer', interactionTimer.value);
-                viewport.setAttribute('variant', currentVariant);
-                viewport.setAttribute('show-hint-button', 'true');
-
-                // Set footer mode based on interaction type
-                if (type === 'MCQ') {
-                    viewport.setAttribute('footer-mode', 'sequential');
-                } else {
-                    viewport.setAttribute('footer-mode', 'static');
-                }
 
                 currentInteraction = interaction;
                 closeModal(configModal);
