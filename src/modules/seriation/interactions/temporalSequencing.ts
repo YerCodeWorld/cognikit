@@ -45,13 +45,8 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		config: InteractionConfig,
 		assets?: NormalizedAssets | null
 	) {
-		
-		// this should be some sort of work in the base interactions, with us passing the validator.
-		// other than just returning we should return some error component from the UI folder
-		const isValid: boolean = seriationValidator(data);
-		if (!isValid) alert(1);
 
-		super(data, config, assets);
+		super(data, config, assets, seriationValidator);
 
 		this.correctOrder = [...this.data.items];
 		this.unplacedItems = this.config.shuffle
