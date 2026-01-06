@@ -9,7 +9,7 @@
  * - Error handling and fallbacks
  */
 
-export type SoundName = 'success' | 'failure' | 'pop' | 'low-time' | 'start';
+export type SoundName = 'success' | 'failure' | 'pop' | 'low-time' | 'start' | 'flip';
 
 export interface PlaySoundOptions {
 	volume?: number;        // 0.0 to 1.0 (default: 1.0)
@@ -33,7 +33,8 @@ export class SoundManager {
 		'failure': 'failure.mp3',
 		'pop': 'pop.mp3',
 		'low-time': 'low-time.mp3',
-		'start': 'start.mp3'
+		'start': 'start.mp3',
+		'flip': 'flip.mp3'
 	};
 
 	constructor() {
