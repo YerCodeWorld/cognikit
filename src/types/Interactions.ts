@@ -1,4 +1,4 @@
-import { StimulusModality, Variant, ResponseModality } from "../shared/types";
+import { StimulusModality, Variant, ResponseModality, ResponseObjectModality } from "../shared/types";
 import { InteractionData } from "./Data";
 
 export type InteractionPresentationMode = 
@@ -16,17 +16,22 @@ export type InteractionMechanic =
 	'implements-open-canvas'      |
 	'game';
 
-export type IInteractionSpec = any;
+export type IInteractionSpec = unknown;
+export type PromptDataModality = ResponseObjectModality;
 
 // refactor to InteractionBaseSpec
 export type InteractionConfig = {
-	construct: string;
-	data: string;
+	prompt: string;
+	promptModality?: PromptDataModality; 
+	promptData?: string;
+	promptDataSpec?: string;
 
 	variant: Variant;  
 	shuffle: boolean;
 
 	stimulus?: StimulusModality;
+	construct?: string; // specify what we are measuring (could be used as a label in the display)
+
 	responseModality?: ResponseModality;
 	presentationMode?: InteractionPresentationMode;
 
@@ -35,7 +40,7 @@ export type InteractionConfig = {
 	soundEnabled?: boolean;
 
 	inLineFeedback?: boolean;
-	immediateCheck?: boolean;
+	immediateFeedback?: boolean;
 
 	attemptLimit: number | null;
 	timer: number | null;
