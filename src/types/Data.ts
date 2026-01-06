@@ -5,6 +5,7 @@ export type InteractionData =
 	AssociationData    |
 	BaseTableData	   |
 	FreeRecallData 	   |
+	RecognitionData	   |
 	SeriationData;
 
 export type ClassificationData = {
