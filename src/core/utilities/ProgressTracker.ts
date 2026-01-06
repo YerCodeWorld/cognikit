@@ -15,7 +15,7 @@
 export class ProgressTracker {
 
 	private _current = 0;
-	private _total = 0;
+	public _total = 0;
 
 	/**
 	 * Initialize tracker with total number of items
