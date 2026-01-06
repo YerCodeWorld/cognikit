@@ -1,0 +1,1 @@
+export { EduInput } from "./input";
