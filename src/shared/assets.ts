@@ -4,6 +4,7 @@ export type AssetRegistryInput = Record<string, unknown>;
 export interface BaseAsset {
 	id: string;
 	type: AssetType;
+	dialog?: boolean; // If true, render in dialog only; if false/undefined, render inline with expand button
 }
 
 export interface ImageAsset extends BaseAsset {
@@ -83,6 +84,7 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 
 		const obj = value as Record<string, unknown>;
 		const type = obj.type;
+		const dialog = Boolean(obj.dialog);
 
 		if (!isString(type)) {
 			issues.push(`Asset "${id}" missing string field "type"`);
@@ -111,6 +113,7 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 					assetsById[id] = {
 						id,
 						type,
+						dialog,
 						url,
 						...(isString(size) ? { size } : {}),
 					};
@@ -152,6 +155,7 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 					assetsById[id] = {
 						id,
 						type,
+						dialog,
 						url,
 						...(normalizedSpan ? { span: normalizedSpan } : {}),
 					};
@@ -181,6 +185,7 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 					assetsById[id] = {
 						id,
 						type,
+						dialog,
 						url,
 						...(isNumber(volume) ? { volume } : {}),
 					};
@@ -195,7 +200,7 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 					issues.push(`Asset "${id}" (html) missing string field "content"`);
 					break;
 				}
-				assetsById[id] = { id, type, content };
+				assetsById[id] = { id, type, dialog, content };
 					break;
 			}
 
@@ -206,7 +211,7 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 					break;
 				}
 
-				assetsById[id] = { id, type, content };
+				assetsById[id] = { id, type, dialog, content };
 					break;
 			}
 		}
