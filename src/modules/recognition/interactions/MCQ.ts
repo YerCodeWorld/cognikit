@@ -6,6 +6,7 @@ import { RecognitionData } from "../../../types/Data";
 
 import { EduChip, setUpChipData } from "../../../ui/misc/chip";
 import { EduBlock } from "../../../ui/misc/block";
+import { setUpQuestionData } from "../../../ui/misc/media";
 
 import { shuffle } from "../../../shared";
 import { recognitionGrader, RecognitionAnswers } from "../utilities/grader";
@@ -23,6 +24,8 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 	private $questionText!: HTMLElement;
 	private $optionsContainer!: HTMLDivElement;
 	private $modeLabel!: HTMLElement;
+
+	private variant: Variant;
 
 	// Expose question count for shell
 	public get slidesCount(): number {
@@ -48,6 +51,8 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 			}
 		});
 
+		this.variant = this.config.variant;
+
 		// Initialize progress tracking (one per question)
 		this.initializeProgress(this.data.data.length);
 	}
@@ -61,6 +66,7 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 				el.variant = newVariant;
 			}
 		});
+		this.variant = newVariant;
 	}
 
 	// ==================== SEQUENTIAL NAVIGATION ====================
@@ -236,8 +242,8 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 		const isMCQ = question.correctOptions.length === 1;
 		this.$modeLabel.textContent = isMCQ ? 'Multiple Choice' : 'Multiple Response';
 
-		// TODO: Remmeber this will be updated to use a container that accepts different modalities
-		this.$questionText.textContent = question.question;
+		// Render question with asset support
+		setUpQuestionData(question.question, this.$questionText, this.assets?.assetsById);
 
 		const options = this.shuffledOptions.get(question.question) || question.options;
 		
