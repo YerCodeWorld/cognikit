@@ -106,7 +106,6 @@ export class InteractionsBaseShell extends HTMLElement {
 
 		this.updateVisibility();
 
-		this.$checkBtn.dataset.hidden = 'true';
 		this.animationsManager.animate(this.$progressIcon, 'heartbeat');
 		this.animationsManager.animate(this.$promptBtn, 'float');
 	}
@@ -138,19 +137,20 @@ export class InteractionsBaseShell extends HTMLElement {
 			this.removeInteractionListeners();
 			this.$interactionScreen.innerHTML = '';
 		}
-
+		
 		this.interaction = interaction;
 		this.interactionComplete = false;
+		const cfg = this.interaction.config;
+
+		this.reset();
 		this.switchScreen('interaction');
+		
+		const variant = cfg.variant ?? 'elegant';
+		this.setAttribute('variant', variant);
+		this.interaction.onVariantChange(variant);
 
-		const config = this.interaction.config;
-		if (config.variant) {
-			this.setAttribute('variant', config.variant);
-			this.interaction.onVariantChange(config.variant);
-		}
-
-		this.$titleEl.textContent = config.prompt || '';
-		if (config.promptData && config.promptModality) {
+		this.$titleEl.textContent = cfg.prompt || '';
+		if (cfg.promptData && cfg.promptModality) {
 			this.$titleEl.style.cursor = 'pointer';
 			this.$titleEl.style.textDecoration = 'underline';
 			this.$titleEl.title = 'Click to view prompt details';
@@ -162,15 +162,16 @@ export class InteractionsBaseShell extends HTMLElement {
 			this.$titleEl.style.textDecoration = '';
 			this.$titleEl.title = '';
 		}
-
-		if (config.timer !== null && config.timer > 0) {
-			this.remainingSeconds = config.timer;
+		
+		// render error screen if time too low?
+		if (cfg.timer !== null && cfg.timer > 30) {
+			this.remainingSeconds = cfg.timer;
 			this.$timerEl.dataset.hidden = 'false';
 			this.updateTimerDisplay();
 			this.startTimer();
 		} else this.$timerEl.dataset.hidden = 'true';
 
-		this.attemptLimit = config.attemptLimit;
+		this.attemptLimit = cfg.attemptLimit;
 		this.attemptCount = 0;
 
 		if (this.interaction.interactionMechanic === 'sequential') {
@@ -179,8 +180,11 @@ export class InteractionsBaseShell extends HTMLElement {
 			this.renderRadioNav();
 		} else this.$radioNav.dataset.active = 'false';
 
-		if (!this.interaction.implementsProgress) this.$progressContainer.style.display = "none";
-		else {
+		if (!this.interaction.implementsProgress) {
+			this.$progressContainer.style.display = "none";
+			this.$checkBtn.dataset.hidden = "false";
+		} else {
+			this.$checkBtn.dataset.hidden = "true";
 			this.$progressContainer.style.display = "inline-flex";
 			this.$progressCounter.textContent = `0/${this.interaction.progressTracker.total}`;
 		}
@@ -351,24 +355,26 @@ export class InteractionsBaseShell extends HTMLElement {
 		this.$progressBar.classList.add(scoreClass);
 	}
 
-	private handleRetry(): void {
-		this.soundManager.playSound('pop');
-
-		this.attemptCount++;
+	private reset() {
 		this.resetTimer();
 
 		this.$seeAnswersBtn.dataset.hidden = 'true';
 		this.$retryBtn.dataset.hidden = 'true';
 		this.$scoresBtn.dataset.hidden = 'true';
 
-		this.$progressIcon.style.filter = '';
 		this.$progressIcon.classList.remove('score-fail', 'score-low', 'score-mid', 'score-high');
 		this.$progressBar.classList.remove('score-fail', 'score-low', 'score-mid', 'score-high');
 
 		this.animationsManager.stop(this.$progressIcon);
 
 		this.$progressBar.value = 0;
-		this.$progressCounter.textContent = '0/0';
+		this.updateProgress(0, this.interaction.progressTracker.total);
+	}
+
+	private handleRetry(): void {
+		this.soundManager.playSound('pop');
+		this.attemptCount++;
+		
 
 		if (this.attemptLimit && this.attemptLimit > 0) {
 			const remaining = this.attemptLimit - this.attemptCount + 1;
@@ -378,8 +384,10 @@ export class InteractionsBaseShell extends HTMLElement {
 
 			setTimeout(() => {
 				this.switchScreen('interaction');
+				this.reset();
+				this.resumeTimer();
 				this.interaction?.reset();
-				this.soundManager.playSound('pop');
+				this.soundManager.playSound('flip');
 			}, 2000);
 		} else {
 			this.switchScreen('interaction');
@@ -490,6 +498,7 @@ export class InteractionsBaseShell extends HTMLElement {
 	}
 
 	public resetTimer(): void {
+		this.stopTimer();
 		this.remainingSeconds = this.interaction.config.timer;
 		this.updateTimerDisplay();
 	}
