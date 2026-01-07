@@ -372,9 +372,11 @@ export class InteractionsBaseShell extends HTMLElement {
 	}
 
 	private handleRetry(): void {
+
+		this.$retryBtn.dataset.hidden = 'true';
+
 		this.soundManager.playSound('pop');
 		this.attemptCount++;
-		
 
 		if (this.attemptLimit && this.attemptLimit > 0) {
 			const remaining = this.attemptLimit - this.attemptCount + 1;
