@@ -99,9 +99,15 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					width: 100%;
 					height: 100%;
 					gap: 1rem;
-					padding: 1rem;
+					padding: 1.5rem;
 					box-sizing: border-box;
 					overflow: hidden;
+				}
+
+				@media (max-width: 768px) {
+					.container {
+						padding: 1rem;
+					}
 				}
 
 				.items-section {
@@ -121,18 +127,70 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				}
 
 				.items-container {
-					display: flex;
-					flex-wrap: wrap;
-					gap: 0.9rem;
+					display: grid;
+					grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+					gap: 1rem;
+					padding: 1.5rem;
 					background: rgb(var(--edu-muted));
 					border-radius: 8px;
 					flex: 1;
 					overflow-y: auto;
 					overflow-x: hidden;
-					align-content: flex-start;
+					align-content: start;
 					min-height: 0;
 				}
-			
+
+				.items-container edu-chip {
+					width: 100%;
+					min-height: 80px;
+					cursor: pointer;
+					transition: transform 0.2s ease, box-shadow 0.2s ease;
+				}
+
+				.items-container edu-chip:hover {
+					transform: translateY(-3px);
+					box-shadow: 0 6px 16px rgba(var(--edu-shadow-color), 0.15);
+				}
+
+				.items-container edu-chip::part(block) {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				@media (max-width: 1024px) {
+					.items-container {
+						grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+						gap: 0.875rem;
+					}
+				}
+
+				@media (max-width: 768px) {
+					.items-container {
+						grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+						padding: 1rem;
+						gap: 0.75rem;
+					}
+
+					.items-container edu-chip {
+						min-height: 70px;
+					}
+				}
+
+				@media (max-width: 640px) {
+					.items-container {
+						grid-template-columns: 1fr;
+						padding: 1rem;
+						gap: 0.75rem;
+					}
+
+					.items-container edu-chip {
+						min-height: 60px;
+					}
+				}
+
 				.divider {
 					border: none;
 					border-top: 1px solid rgb(var(--edu-border));
