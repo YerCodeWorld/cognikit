@@ -211,7 +211,7 @@ export function naryTableGrader(
 		}
 	}
 
-	const score = totalCount > 0 ? (correctCount / totalCount) * 100 : 0;
+	const score = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 
 	return { score, correct: correctCount, total: totalCount };
 }
@@ -246,7 +246,7 @@ export function classificationTableGrader(
 	}
 
 	const score = totalPossibleSelections > 0
-		? (totalCorrectSelections / totalPossibleSelections) * 100
+		? Math.round((totalCorrectSelections / totalPossibleSelections) * 100)
 		: 0;
 
 	return {

@@ -17,6 +17,6 @@ export function classificationGrader(correctData: ClassificationData["categories
 		});
 	});
 	
-	const score = totalCount > 0 ? (correctCount / totalCount) * 100 : 0;
+	const score = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 	return { score: score, correct: correctCount, total: totalCount }; 	
 }
