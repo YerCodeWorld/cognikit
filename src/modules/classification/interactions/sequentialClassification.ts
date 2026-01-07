@@ -29,6 +29,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 	private container: HTMLDivElement;
 	private centerZone: HTMLDivElement;
+	private zonesGrid!: HTMLDivElement;
 	private zones: EduBlock[] = [];
 	private chips: EduChip[] = [];
 	private activeChip: EduChip | null = null;
@@ -163,6 +164,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 				}
 
 				#zones-grid {
+					position: relative;
 					flex: 1;
 					display: grid;
 					grid-template-columns: repeat(${gridCols}, 1fr);
@@ -219,7 +221,6 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 				}
 
 				edu-chip.dragging {
-					z-index: 1000;
 				}
 
 				@media (max-width: 1024px) {
@@ -256,6 +257,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 		this.container = this.querySelector("#container") as HTMLDivElement;
 		this.centerZone = this.querySelector("#center-zone") as HTMLDivElement;
+		this.zonesGrid = this.querySelector("#zones-grid") as HTMLDivElement;
 
 		this.createDropZones();
 		this.showNextChip();
@@ -311,9 +313,29 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 		});
 	}
 
+	private reparentChip(chip: EduChip, newParent: HTMLElement): void {
+		if (chip.parentElement === newParent) return;
+
+		const chipRect = chip.getBoundingClientRect();
+		const parentRect = newParent.getBoundingClientRect();
+
+		let left = chipRect.left - parentRect.left;
+		let top = chipRect.top - parentRect.top;
+
+		if (newParent === this.zonesGrid) {
+			left += this.zonesGrid.scrollLeft;
+			top += this.zonesGrid.scrollTop;
+		}
+
+		chip.style.left = `${left}px`;
+		chip.style.top = `${top}px`;
+		newParent.appendChild(chip);
+	}
+
 	private handlePointerDown(e: PointerEvent, chip: EduChip): void {
 		e.preventDefault();
 
+		this.reparentChip(chip, this.container);
 		this.activeChip = chip;
 		this.isDragging = true;
 		chip.classList.add("dragging");
@@ -376,11 +398,13 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 				
 				if (previousCategory === null) this.incrementProgress();
 			}
+			this.reparentChip(this.activeChip, this.zonesGrid);
 		} else {
 			if (this.categorized.get(itemLabel)) {
 				this.categorized.set(itemLabel, null);
 				this.decrementProgress();
 			}
+			this.reparentChip(this.activeChip, this.container);
 		}
 
 		this.zones.forEach(zone => {
@@ -474,6 +498,8 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 		this.activeChip = null;
 		this.currentZone = null;
 		this.isDragging = false;
+
+		if (this.zonesGrid) this.zonesGrid.scrollTop = 0;
 
 		this.showNextChip();
 	}

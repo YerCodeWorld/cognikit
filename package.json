@@ -33,12 +33,16 @@
 		"build:lib": "esbuild src/index.ts --bundle --format=esm --platform=browser --outdir=dist --sourcemap --minify --external:react --external:react-dom --loader:.html=text --loader:.css=text",
 		"build:demo": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --loader:.html=text --loader:.css=text",
 		"build": "pnpm clean && pnpm build:lib && pnpm types && pnpm build:demo",
-		"dev": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text",
+		"dev:build": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text",
+		"dev:serve": "browser-sync start --server public --port 3008 --files 'public/**/*' --no-open --no-notify",
+		"dev": "npm-run-all --parallel dev:build dev:serve",
 		"dev:watch": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text & while inotifywait -r -e modify,create,delete,move src; do pnpm build:lib; done",
 		"serve": "serve public -l 3008"
 	},
 	"devDependencies": {
+		"browser-sync": "^3.0.4",
 		"esbuild": "^0.23.0",
+		"npm-run-all": "^4.1.5",
 		"rimraf": "^6.0.0",
 		"serve": "^14.2.3",
 		"typescript": "^5.6.3"

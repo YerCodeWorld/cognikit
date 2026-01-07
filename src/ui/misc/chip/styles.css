@@ -4,8 +4,6 @@
 
 :host {
 	display: inline-block;
-	touch-action: none;
-	user-select: none;
 	--chip-color: rgb(var(--edu-first-accent));
 	--chip-colored-color: #d1d1d1;
 }

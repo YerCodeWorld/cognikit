@@ -25,18 +25,8 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 	private chips: Map<string, EduChip> = new Map();
 	private timelineSlots: EduBlock[] = [];
-	private currentSlot: EduBlock | null = null;
 
-	private isDragging: boolean = false;
-	private draggedChip: EduChip | null = null;
-	private draggedFrom: 'timeline' | 'pool' | null = null;
-	private dragStartIndex: number = -1;
-
-	private offsetX: number = 0;
-	private offsetY: number = 0;
-
-	private boundPointerMove: (e: PointerEvent) => void;
-	private boundPointerUp: (e: PointerEvent) => void;
+	private selectedChip: EduChip | null = null;
 
 	private variant: Variant;
 
@@ -55,21 +45,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 		this.initializeProgress(this.data.items.length);
 
-		this.boundPointerMove = this.handlePointerMove.bind(this);
-		this.boundPointerUp = this.handlePointerUp.bind(this);
-
 		this.variant = this.config.variant || 'outline';
 	}
 
-	protected initialize(): void {
-		window.addEventListener("pointermove", this.boundPointerMove);
-		window.addEventListener("pointerup", this.boundPointerUp);
-	}
+	protected initialize(): void {}
 
-	protected cleanup(): void {
-		window.removeEventListener("pointermove", this.boundPointerMove);
-		window.removeEventListener("pointerup", this.boundPointerUp);
-	}
+	protected cleanup(): void {}
 
 	onVariantChange(newVariant: Variant): void {
 		this.querySelectorAll('edu-chip').forEach((chip: EduChip) => {
@@ -103,7 +84,6 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					width: 100%;
 					height: 100%;
 					gap: 1.5rem;
-					padding: 1.5rem;
 					background: rgb(var(--edu-bg));
 					border-radius: 12px;
 					overflow: hidden;
@@ -130,9 +110,8 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					flex: 1;
 					display: grid;
 					grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-					grid-auto-rows: minmax(100px, max-content);
+					grid-auto-rows: minmax(100%, max-content);
 					gap: 0.75rem;
-					padding: 1rem;
 					background: rgba(var(--edu-muted), 0.3);
 					border-radius: 12px;
 					border: 2px solid rgb(var(--edu-border));
@@ -140,12 +119,13 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					overflow-y: auto;
 					overflow-x: hidden;
 					align-content: start;
+					padding: 15px;
 					min-height: 0;
 				}
 
 				edu-block.timeline-slot {
 					position: relative;
-					min-height: 80px;
+					min-height: 100%;
 					display: flex;
 					flex-direction: column;
 					align-items: center;
@@ -153,6 +133,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					transition: all 0.3s ease;
 					z-index: 1;
 					box-sizing: border-box;
+					cursor: pointer;
+				}
+
+				edu-block.timeline-slot:hover {
+					transform: scale(1.02);
+					box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.15);
 				}
 
 				edu-block.timeline-slot edu-chip {
@@ -243,7 +229,6 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 				#items-pool {
 					display: flex;
 					gap: 0.75rem;
-					padding: 1rem;
 					background: rgba(var(--edu-muted), 0.5);
 					border-radius: 12px;
 					border: 2px dashed rgb(var(--edu-border));
@@ -253,6 +238,14 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					overflow-x: auto;
 					align-items: flex-start;
 					flex-shrink: 0;
+					padding: 1rem;
+					cursor: pointer;
+					transition: all 0.2s ease;
+				}
+
+				#items-pool:hover {
+					background: rgba(var(--edu-muted), 0.7);
+					border-color: rgb(var(--edu-first-accent));
 				}
 
 				#items-pool.empty::before {
@@ -265,17 +258,27 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					margin-top: 1rem;
 				}
 
+				edu-chip {
+					user-select: none;
+					cursor: pointer;
+					transition: transform 0.2s ease, box-shadow 0.2s ease;
+				}
+
+				edu-chip:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 4px 8px rgba(var(--edu-shadow-color), 0.15);
+				}
+
 				edu-chip.dragging {
 					position: fixed !important;
 					z-index: 2;
-					pointer-events: none;
 				}
 
 				@media (max-width: 768px) {
 					#timeline {
 						grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+						grid-auto-rows: minmax(100px, max-content);
 						gap: 0.5rem;
-						padding: 0.75rem;
 					}
 
 					edu-block.timeline-slot {
@@ -283,7 +286,6 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					}
 
 					#container {
-						padding: 1rem;
 						gap: 1rem;
 					}
 
@@ -324,7 +326,6 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 			</style>
 			<div id="container">
 				<div id="timeline-container">
-					<div class="timeline-label">Timeline (Drag items to arrange in order)</div>
 					<div id="timeline"></div>
 				</div>
 				<div id="items-pool-container">
@@ -338,6 +339,14 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		this.timelineContainer = this.querySelector("#timeline") as HTMLDivElement;
 		this.itemsPool = this.querySelector("#items-pool") as HTMLDivElement;
 
+		// Click on pool to return selected chip
+		this.itemsPool.addEventListener('click', (e) => {
+			// Only handle clicks on the pool itself, not on chips
+			if (e.target === this.itemsPool) {
+				this.handlePoolClick();
+			}
+		});
+
 		this.createTimelineSlots(totalSlots);
 		this.createItemChips();
 	}
@@ -350,6 +359,9 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 			slot.style.setProperty("--accent-color", randomHexColorsList[i % randomHexColorsList.length]);
 			slot.dataset.position = (i + 1).toString();
 			slot.dataset.index = i.toString();
+
+			// Click to assign selected chip to this slot
+			slot.addEventListener('click', () => this.handleSlotClick(slot, i));
 
 			this.timelineContainer.appendChild(slot);
 			this.timelineSlots.push(slot);
@@ -365,142 +377,124 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 	private createChip(item: string): EduChip {
 		const chip = document.createElement('edu-chip') as EduChip;
-		chip.draggable = true;
 		chip.variant = this.variant;
 		chip.dataset.item = item;
 
 		setUpChipData(item, chip, this.assets?.assetsById);
 		this.chips.set(item, chip);
 
-		chip.addEventListener('pointerdown', (e) => this.handlePointerDown(e, chip));
+		// Click to select chip - stop propagation to prevent slot click
+		chip.addEventListener('click', (e) => {
+			e.stopPropagation();
+			this.handleChipClick(chip);
+		});
 		return chip;
 	}
 
-	// ==================== DRAG & DROP ====================
+	// ==================== CLICK & ASSIGN ====================
 
-	private handlePointerDown(e: PointerEvent, chip: EduChip): void {
-		e.preventDefault();
-		e.stopPropagation();
-
-		chip.setPointerCapture(e.pointerId);
-		const chipRect = chip.getBoundingClientRect();
-		
-		this.offsetX = e.clientX - chipRect.left;
-		this.offsetY = e.clientY - chipRect.top;
-
-		const timelineIndex = this.currentOrder.indexOf(chip.dataset.item!);
-		if (timelineIndex !== -1) {
-			this.draggedFrom = 'timeline';
-			this.dragStartIndex = timelineIndex;
-			this.classList.add("drag-active");
-
-		} else {
-			this.draggedFrom = 'pool';
-			this.dragStartIndex = -1;
+	private handleChipClick(chip: EduChip): void {
+		// If this chip is already selected, deselect it
+		if (this.selectedChip === chip) {
+			this.selectedChip.selected = false;
+			this.selectedChip = null;
+			return;
 		}
 
-		this.isDragging = true;
-		this.container.classList.add('drag-active');
-		this.draggedChip = chip;
-		
-		// oh heavens! gimme a break! 
-		this.currentSlot = chip.parentNode as EduBlock;
-		this.currentSlot.dataset.z = this.currentSlot.style.zIndex;
-		this.currentSlot.style.zIndex = '10';
+		// If another chip is selected, swap them (if both are in timeline)
+		if (this.selectedChip) {
+			const selectedItem = this.selectedChip.dataset.item!;
+			const clickedItem = chip.dataset.item!;
+			const selectedIndex = this.currentOrder.indexOf(selectedItem);
+			const clickedIndex = this.currentOrder.indexOf(clickedItem);
 
-		chip.classList.add('dragging');
-		chip.style.width = `${chipRect.width}px`;
-		chip.style.left = `${chipRect.left}px`;
-		chip.style.top = `${chipRect.top}px`;
-	}
+			// Both chips must be in the timeline to swap
+			if (selectedIndex !== -1 && clickedIndex !== -1) {
+				// Swap positions
+				this.currentOrder[selectedIndex] = clickedItem;
+				this.currentOrder[clickedIndex] = selectedItem;
 
-	private handlePointerMove(e: PointerEvent): void {
-		if (!this.isDragging || !this.draggedChip) return;
-		let newLeft = e.clientX - this.offsetX;
-		let newTop = e.clientY - this.offsetY;
+				// Deselect
+				this.selectedChip.selected = false;
+				this.selectedChip = null;
 
-		const containerRect = this.container.getBoundingClientRect();
-		const chipWidth = this.draggedChip.offsetWidth;
-		const chipHeight = this.draggedChip.offsetHeight;
+				this.updateDisplay();
+				this.emitStateChange();
+				return;
+			}
 
-		newLeft = Math.max(containerRect.left, Math.min(newLeft, containerRect.right - chipWidth));
-		newTop = Math.max(containerRect.top, Math.min(newTop, containerRect.bottom - chipHeight));
-
-		this.draggedChip.style.left = `${newLeft}px`;
-		this.draggedChip.style.top = `${newTop}px`;
-
-	}
-
-	private handlePointerUp(e: PointerEvent): void {
-		if (!this.isDragging || !this.draggedChip) return;
-		
-		this.currentSlot.style.zIndex = this.currentSlot.dataset.z;
-		this.currentSlot = null;
-
-		const dropTarget = this.getDropTarget(e.clientX, e.clientY);
-		const item = this.draggedChip.dataset.item!;
-
-		if (this.draggedFrom === 'timeline' && this.dragStartIndex !== -1) {
-			this.currentOrder[this.dragStartIndex] = null;
+			// Otherwise, just change selection
+			this.selectedChip.selected = false;
 		}
 
-		if (dropTarget && dropTarget.type === 'timeline') {
-			const targetIndex = parseInt(dropTarget.element.dataset.index!);
+		// Select this chip
+		this.selectedChip = chip;
+		chip.selected = true;
+	}
 
-			const occupant = this.currentOrder[targetIndex];
+	private handleSlotClick(slot: EduBlock, index: number): void {
+		// If no chip is selected, do nothing
+		if (!this.selectedChip) return;
+
+		const item = this.selectedChip.dataset.item!;
+		const currentIndex = this.currentOrder.indexOf(item);
+		const occupant = this.currentOrder[index];
+
+		if (currentIndex !== -1) {
+			// Chip is currently in timeline - swap or move
 			if (occupant) {
-				this.currentOrder[targetIndex] = item;
-				if (this.draggedFrom === 'timeline') {
-					this.currentOrder[this.dragStartIndex] = occupant;
-				} else {
-					this.unplacedItems = this.unplacedItems.filter(i => i !== item);
-					this.unplacedItems.push(occupant);
-				}
+				// Swap items
+				this.currentOrder[index] = item;
+				this.currentOrder[currentIndex] = occupant;
 			} else {
-				this.currentOrder[targetIndex] = item;
-				if (this.draggedFrom === 'pool') {
-					this.unplacedItems = this.unplacedItems.filter(i => i !== item);
-					this.incrementProgress();
-				}
+				// Move to empty slot
+				this.currentOrder[currentIndex] = null;
+				this.currentOrder[index] = item;
 			}
 		} else {
-			if (this.draggedFrom === 'timeline') {
-				this.unplacedItems.push(item);
-				this.decrementProgress();
+			// Chip is from pool
+			if (occupant) {
+				// Swap with occupant (send occupant to pool)
+				this.currentOrder[index] = item;
+				this.unplacedItems = this.unplacedItems.filter(i => i !== item);
+				this.unplacedItems.push(occupant);
+			} else {
+				// Place in empty slot
+				this.currentOrder[index] = item;
+				this.unplacedItems = this.unplacedItems.filter(i => i !== item);
+				this.incrementProgress();
 			}
 		}
 
-		this.draggedChip.classList.remove('dragging');
-		this.draggedChip.style.left = '';
-		this.draggedChip.style.top = '';
-		this.draggedChip.style.width = '';
-
-		this.isDragging = false;
-		this.classList.remove('drag-active');
-		this.draggedChip = null;
-		this.draggedFrom = null;
-		this.dragStartIndex = -1;
+		// Deselect chip
+		this.selectedChip.selected = false;
+		this.selectedChip = null;
 
 		this.updateDisplay();
 		this.emitStateChange();
 	}
 
-	private getDropTarget(clientX: number, clientY: number): { type: 'timeline' | 'pool', element: HTMLElement } | null {
-		for (const slot of this.timelineSlots) {
-			const rect = slot.getBoundingClientRect();
-			if (clientX >= rect.left && clientX <= rect.right &&
-			    clientY >= rect.top && clientY <= rect.bottom) {
-				return { type: 'timeline', element: slot };
-			}
-		}
+	private handlePoolClick(): void {
+		// If no chip is selected, do nothing
+		if (!this.selectedChip) return;
 
-		const poolRect = this.itemsPool.getBoundingClientRect();
-		if (clientX >= poolRect.left && clientX <= poolRect.right &&
-		    clientY >= poolRect.top && clientY <= poolRect.bottom) {
-			return { type: 'pool', element: this.itemsPool };
-		}
+		const item = this.selectedChip.dataset.item!;
+		const currentIndex = this.currentOrder.indexOf(item);
 
-		return null;
+		// Only handle chips that are currently in timeline
+		if (currentIndex !== -1) {
+			// Remove from timeline and return to pool
+			this.currentOrder[currentIndex] = null;
+			this.unplacedItems.push(item);
+			this.decrementProgress();
+
+			// Deselect chip
+			this.selectedChip.selected = false;
+			this.selectedChip = null;
+
+			this.updateDisplay();
+			this.emitStateChange();
+		}
 	}
 
 	private updateDisplay(): void {
@@ -510,7 +504,10 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 			if (item) {
 				const chip = this.chips.get(item);
 				if (chip) {
+					// Ensure chip maintains selection state
+					const wasSelected = this.selectedChip === chip;
 					slot.appendChild(chip);
+					chip.selected = wasSelected;
 					slot.classList.remove('empty');
 					slot.classList.add('filled');
 				}
@@ -523,7 +520,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		this.itemsPool.innerHTML = '';
 		this.unplacedItems.forEach(item => {
 			const chip = this.chips.get(item);
-			if (chip) this.itemsPool.appendChild(chip);
+			if (chip) {
+				// Ensure chip maintains selection state
+				const wasSelected = this.selectedChip === chip;
+				this.itemsPool.appendChild(chip);
+				chip.selected = wasSelected;
+			}
 		});
 
 		if (this.unplacedItems.length === 0) {
@@ -592,6 +594,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		this.unplacedItems = this.config.shuffle
 			? shuffle([...this.correctOrder])
 			: [...this.correctOrder];
+
+		// Clear selection
+		if (this.selectedChip) {
+			this.selectedChip.selected = false;
+			this.selectedChip = null;
+		}
 
 		this.chips.clear();
 		this.timelineSlots = [];

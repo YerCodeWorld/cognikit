@@ -131,11 +131,11 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 
 			<div class="container" id="columns-container">
 				<div class="column">
-					<div class="column-label">Left Items (Select to match)</div>
+					<div class="column-label">Left Items</div>
 					<div class="items-list" id="left-col"></div>
 				</div>
 				<div class="column">
-					<div class="column-label">Right Items (Select to match)</div>
+					<div class="column-label">Right Items</div>
 					<div class="items-list" id="right-col"></div>
 				</div>
 			</div>

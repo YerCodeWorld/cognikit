@@ -124,7 +124,6 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					display: flex;
 					flex-wrap: wrap;
 					gap: 0.9rem;
-					padding: 1rem;
 					background: rgb(var(--edu-muted));
 					border-radius: 8px;
 					flex: 1;
@@ -133,11 +132,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					align-content: flex-start;
 					min-height: 0;
 				}
-				
-				edu-chip {
-					
-				}
-
+			
 				.divider {
 					border: none;
 					border-top: 1px solid rgb(var(--edu-border));
@@ -241,7 +236,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 			<div class="container">
 				<div class="items-section">
-					<div class="items-label">Items (Click to classify with selected category)</div>
+					<!--Sacrificing label for space-->
 					<div class="items-container"></div>
 				</div>
 

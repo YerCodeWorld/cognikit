@@ -22,8 +22,6 @@ const HTML = `
 		height: 100%;
 		box-sizing: border-box;
 		transition: all 0.2s ease;
-		user-select: none;
-		touch-action: none;
 		text-align: center;
 		width: 100%;
 	}

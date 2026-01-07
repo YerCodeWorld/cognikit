@@ -53,7 +53,7 @@ export class EduChip extends HTMLElement {
 	
 	// accent not implemtended yet 
 	static get observedAttributes() {
-		return ["accent", "variant", "selected", "prefix", "disabled", "modality", "state", "display", "color", "colored"];
+		return ["accent", "variant", "selected", "prefix", "disabled", "modality", "state", "display", "color", "colored", "draggable"];
 	}
 	
 	private $chip!: HTMLButtonElement;
@@ -93,6 +93,11 @@ export class EduChip extends HTMLElement {
 	private sync() {
 		if (this.hasAttribute("prefix")) {
 			this.$prefix.textContent = this.prefix ?? "";
+		}
+
+		if (this.hasAttribute("draggable")) {
+			this.style.userSelect = "none";
+			this.style.touchAction = "none";
 		}
 
 		const pressed = this.selected ? "true" : "false";

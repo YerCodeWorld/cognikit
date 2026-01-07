@@ -21,6 +21,12 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 	private draggedRowIndex: number | null = null;
 	private dragOverRowIndex: number | null = null;
 
+	private isDragging: boolean = false;
+	private draggedRow: HTMLElement | null = null;
+	private dragOffsetY: number = 0;
+	private boundPointerMove: (e: PointerEvent) => void;
+	private boundPointerUp: (e: PointerEvent) => void;
+
 	private variant: Variant;
 
 	constructor(
@@ -37,8 +43,17 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 		this.variant = this.config.variant;
 	}
 
-	protected initialize(): void {}
-	protected cleanup(): void {}
+	protected initialize(): void {
+		this.boundPointerMove = this.handlePointerMove.bind(this);
+		this.boundPointerUp = this.handlePointerUp.bind(this);
+		window.addEventListener("pointermove", this.boundPointerMove);
+		window.addEventListener("pointerup", this.boundPointerUp);
+	}
+
+	protected cleanup(): void {
+		window.removeEventListener("pointermove", this.boundPointerMove);
+		window.removeEventListener("pointerup", this.boundPointerUp);
+	}
 
 	onVariantChange(newVariant: Variant): void {
 		this.querySelectorAll('edu-chip').forEach((el: EduChip) => {
@@ -191,7 +206,6 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 			</style>
 
 			<div class="container">
-				<div class="label">Drag items or use buttons to rank in correct order</div>
 				<div class="rows-container"></div>
 			</div>
 		`;
@@ -208,7 +222,6 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 		this.currentOrder.forEach((item, index) => {
 			const row = document.createElement('div');
 			row.className = 'row';
-			row.draggable = true;
 			row.dataset.index = String(index);
 
 			// Chip
@@ -248,14 +261,9 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 			row.appendChild(chipWrapper);
 			row.appendChild(controls);
 
-			// Drag & Drop event listeners
+			// Pointer event listener for drag
 			if (!this.isGraded) {
-				row.addEventListener('dragstart', (e) => this.handleDragStart(e, index));
-				row.addEventListener('dragenter', (e) => this.handleDragEnter(e, index));
-				row.addEventListener('dragover', (e) => this.handleDragOver(e));
-				row.addEventListener('dragleave', (e) => this.handleDragLeave(e));
-				row.addEventListener('drop', (e) => this.handleDrop(e, index));
-				row.addEventListener('dragend', (e) => this.handleDragEnd(e));
+				row.addEventListener('pointerdown', (e) => this.handlePointerDown(e, index));
 			}
 
 			this.$rowsContainer.appendChild(row);
@@ -313,59 +321,86 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 	// ==================== DRAG & DROP ====================
 
-	private handleDragStart(e: DragEvent, index: number): void {
+	private handlePointerDown(e: PointerEvent, index: number): void {
+		// Don't drag on button clicks
+		if ((e.target as HTMLElement).closest('.btn')) return;
+
+		e.preventDefault();
+
+		this.isDragging = true;
+		this.draggedRow = e.currentTarget as HTMLElement;
 		this.draggedRowIndex = index;
-		const row = e.currentTarget as HTMLElement;
-		row.classList.add('dragging');
 
-		if (e.dataTransfer) {
-			e.dataTransfer.effectAllowed = 'move';
-			e.dataTransfer.setData('text/plain', String(index));
+		const rect = this.draggedRow.getBoundingClientRect();
+		this.dragOffsetY = e.clientY - rect.top;
+
+		try {
+			this.draggedRow.setPointerCapture(e.pointerId);
+		} catch (err) {
+			console.warn('Failed to capture pointer:', err);
+		}
+
+		this.draggedRow.classList.add('dragging');
+	}
+
+	private handlePointerMove(e: PointerEvent): void {
+		if (!this.isDragging || !this.draggedRow) return;
+
+		// Determine which row we're hovering over
+		const hoverIndex = this.getRowIndexAtY(e.clientY);
+
+		// Remove drag-over class from all rows
+		this.$rowsContainer.querySelectorAll('.row').forEach(row => {
+			row.classList.remove('drag-over');
+		});
+
+		if (hoverIndex !== -1 && hoverIndex !== this.draggedRowIndex) {
+			// Add drag-over class to the hovered row
+			const rows = Array.from(this.$rowsContainer.children) as HTMLElement[];
+			if (rows[hoverIndex]) {
+				rows[hoverIndex].classList.add('drag-over');
+			}
 		}
 	}
 
-	private handleDragEnter(e: DragEvent, index: number): void {
-		e.preventDefault();
-		if (this.draggedRowIndex === null || this.draggedRowIndex === index) return;
+	private handlePointerUp(e: PointerEvent): void {
+		if (!this.isDragging || !this.draggedRow) return;
 
-		this.dragOverRowIndex = index;
-		const row = e.currentTarget as HTMLElement;
-		row.classList.add('drag-over');
-	}
-
-	private handleDragOver(e: DragEvent): void {
-		e.preventDefault();
-		if (e.dataTransfer) {
-			e.dataTransfer.dropEffect = 'move';
+		try {
+			this.draggedRow.releasePointerCapture(e.pointerId);
+		} catch (err) {
+			// Capture may not be active - that's okay
 		}
-	}
 
-	private handleDragLeave(e: DragEvent): void {
-		const row = e.currentTarget as HTMLElement;
-		row.classList.remove('drag-over');
-	}
+		const hoverIndex = this.getRowIndexAtY(e.clientY);
 
-	private handleDrop(e: DragEvent, index: number): void {
-		e.preventDefault();
-		e.stopPropagation();
+		if (hoverIndex !== -1 && hoverIndex !== this.draggedRowIndex) {
+			// Swap items
+			this.swapItems(this.draggedRowIndex, hoverIndex);
+		}
 
-		if (this.draggedRowIndex === null || this.draggedRowIndex === index) return;
-
-		// Swap items
-		this.swapItems(this.draggedRowIndex, index);
-
-		// Clear drag state
-		this.dragOverRowIndex = null;
-	}
-
-	private handleDragEnd(e: DragEvent): void {
 		// Clean up all drag states
 		this.$rowsContainer.querySelectorAll('.row').forEach(row => {
 			row.classList.remove('dragging', 'drag-over');
 		});
 
+		this.isDragging = false;
+		this.draggedRow = null;
 		this.draggedRowIndex = null;
 		this.dragOverRowIndex = null;
+	}
+
+	private getRowIndexAtY(clientY: number): number {
+		const rows = Array.from(this.$rowsContainer.children) as HTMLElement[];
+
+		for (let i = 0; i < rows.length; i++) {
+			const rect = rows[i].getBoundingClientRect();
+			if (clientY >= rect.top && clientY <= rect.bottom) {
+				return i;
+			}
+		}
+
+		return -1;
 	}
 
 	// ==================== INTERACTION LOGIC ====================
