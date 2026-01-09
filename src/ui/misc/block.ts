@@ -10,10 +10,11 @@ const HTML = `
 	}
 
 	.block {
-		display: block;
+		display: flex;
 		flex-direction: column;
 		color: rgb(var(--edu-ink));
 		align-items: center;
+		justify-content: center;
 		gap: 0.5rem;
 		padding: 1rem;
 		background: rgb(var(--edu-bg));
@@ -24,6 +25,7 @@ const HTML = `
 		transition: all 0.2s ease;
 		text-align: center;
 		width: 100%;
+		min-height: 44px;
 	}
 
 	.block:hover {

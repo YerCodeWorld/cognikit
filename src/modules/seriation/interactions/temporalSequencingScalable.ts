@@ -6,13 +6,23 @@ import { InteractionConfig, InteractionMechanic } from "../../../types/Interacti
 import { NormalizedAssets } from "../../../shared/assets";
 import { SeriationData } from "../../../types/Data";
 
-import { EduChip, setUpChipData } from "../../../ui/misc/chip";
-import { EduBlock } from "../../../ui/misc/block";
+import { EduChipScalable, setUpChipDataScalable } from "../../../ui/misc/chip-scalable/chip";
+import { EduBlockScalable } from "../../../ui/misc/block-scalable/block";
 
 import { shuffle, randomHexColorsList} from "../../../shared";
 import { seriationGrader, seriationValidator } from "../utilities";
 
-export class TemporalSequencing extends BaseInteraction<SeriationData> {
+/**
+ * TemporalSequencingScalable - A scalable version of TemporalSequencing
+ *
+ * Features based on UI.md:
+ * - Container-driven scaling (uses container queries)
+ * - Auto-reflow grid (timeline adapts to aspect ratio)
+ * - Scalable chips and blocks
+ * - No overflow - everything fits
+ * - Aspect-ratio aware layout transitions
+ */
+export class TemporalSequencingScalable extends BaseInteraction<SeriationData> {
 	interactionMechanic: InteractionMechanic = "static";
 
 	private correctOrder: string[] = [];
@@ -23,12 +33,16 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 	private timelineContainer: HTMLDivElement;
 	private itemsPool: HTMLDivElement;
 
-	private chips: Map<string, EduChip> = new Map();
-	private timelineSlots: EduBlock[] = [];
+	private chips: Map<string, EduChipScalable> = new Map();
+	private timelineSlots: EduBlockScalable[] = [];
 
-	private selectedChip: EduChip | null = null;
+	private selectedChip: EduChipScalable | null = null;
 
 	private variant: Variant;
+
+	// Scalability constants
+	private readonly MAX_ITEMS = 10; // Cognitive Ceiling
+	private readonly MIN_SLOT_SIZE = 44; // Interaction Floor (px)
 
 	constructor(
 		data: SeriationData,
@@ -56,10 +70,10 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 	protected cleanup(): void {}
 
 	onVariantChange(newVariant: Variant): void {
-		this.querySelectorAll('edu-chip').forEach((chip: EduChip) => {
+		this.querySelectorAll('edu-chip-scalable').forEach((chip: EduChipScalable) => {
 			chip.variant = newVariant;
 		});
-		this.querySelectorAll('edu-block').forEach((block: EduBlock) => {
+		this.querySelectorAll('edu-block-scalable').forEach((block: EduBlockScalable) => {
 			block.variant = newVariant;
 		});
 		this.variant = newVariant;
@@ -72,38 +86,44 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 		this.innerHTML = `
 			<style>
-				:host {
+				temporal-sequencing-scalable {
 					display: flex;
 					width: 100%;
 					height: 100%;
 					box-sizing: border-box;
+
+					/* Enable container queries */
+					container-type: size;
+					container-name: temporal-sequencing;
 				}
 
-				#container.drag-active edu-block::part(block) { transform: none !important; }
+				#container.drag-active edu-block-scalable::part(block) { transform: none !important; }
 
 				#container {
 					display: flex;
 					flex-direction: column;
 					width: 100%;
 					height: 100%;
-					gap: 1.5rem;
+					gap: clamp(0.5rem, 2cqh, 1rem);
 					background: rgb(var(--edu-bg));
-					border-radius: 12px;
+					border-radius: clamp(8px, 2cqw, 12px);
 					overflow: hidden;
 					box-sizing: border-box;
+					padding: 0;
 				}
 
 				#timeline-container {
 					flex: 1;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, 1cqh, 0.5rem);
 					min-height: 0;
 					overflow: hidden;
+					padding: clamp(0.5rem, 2cqh, 1rem);
 				}
 
 				.timeline-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.75rem, 2cqh, 0.9rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
@@ -112,26 +132,57 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 				#timeline {
 					flex: 1;
 					display: grid;
-					grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-					grid-auto-rows: minmax(100%, max-content);
-					gap: 0.75rem;
+
+					/* Default: 2 columns for better space usage */
+					grid-template-columns: repeat(2, 1fr);
+					grid-auto-rows: minmax(${this.MIN_SLOT_SIZE}px, 1fr);
+					grid-auto-flow: dense;
+
+					gap: clamp(0.25rem, min(1cqw, 1cqh), 0.75rem);
+
 					background: rgba(var(--edu-muted), 0.3);
-					border-radius: 12px;
+					border-radius: clamp(8px, 2cqw, 12px);
 					border: 2px solid rgb(var(--edu-border));
 					position: relative;
+
 					overflow-y: auto;
 					overflow-x: hidden;
 					align-content: start;
-					padding: 15px;
+					align-items: stretch;
+
+					padding: clamp(0.5rem, min(2cqw, 2cqh), 1rem);
 					min-height: 0;
+					box-sizing: border-box;
 				}
 
-				edu-block.timeline-slot {
+				/* Very tall viewports: use single column */
+				@container temporal-sequencing (min-height: 800px) and (max-aspect-ratio: 1/1.5) {
+					#timeline {
+						grid-template-columns: 1fr;
+					}
+				}
+
+				/* Very tight height: 3 columns */
+				@container temporal-sequencing (max-height: 480px) {
+					#timeline {
+						grid-template-columns: repeat(3, 1fr);
+					}
+				}
+
+				/* Wide aspect ratio: more columns */
+				@container temporal-sequencing (min-aspect-ratio: 2/1) {
+					#timeline {
+						grid-template-columns: repeat(auto-fit, minmax(max(${this.MIN_SLOT_SIZE}px, 15cqw), 1fr));
+					}
+				}
+
+				edu-block-scalable.timeline-slot {
 					position: relative;
-					min-height: 100%;
+					min-height: ${this.MIN_SLOT_SIZE}px;
+					height: 100%;
 					display: flex;
 					flex-direction: column;
-					align-items: center;
+					align-items: stretch;
 					justify-content: center;
 					transition: all 0.3s ease;
 					z-index: 1;
@@ -139,21 +190,53 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					cursor: pointer;
 				}
 
-				edu-block.timeline-slot:hover {
-					transform: scale(1.02);
-					box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.15);
+				/* Alternating pattern: 1 full-width, 2 half-width, repeat */
+				/* Pattern: [FULL] [HALF][HALF] [FULL] [HALF][HALF] ... */
+				edu-block-scalable.timeline-slot:nth-child(3n+1) {
+					grid-column: span 2;
 				}
 
-				edu-block.timeline-slot edu-chip {
-					max-width: 100%;
+				/* On single column layouts, reset spans */
+				@container temporal-sequencing (min-height: 800px) and (max-aspect-ratio: 1/1.5) {
+					edu-block-scalable.timeline-slot:nth-child(3n+1) {
+						grid-column: span 1;
+					}
+				}
+
+				/* On 3+ column layouts, reset spans (let items flow naturally) */
+				@container temporal-sequencing (max-height: 480px) {
+					edu-block-scalable.timeline-slot:nth-child(3n+1) {
+						grid-column: span 1;
+					}
+				}
+
+				/* On very wide layouts, reset spans */
+				@container temporal-sequencing (min-aspect-ratio: 2/1) {
+					edu-block-scalable.timeline-slot:nth-child(3n+1) {
+						grid-column: span 1;
+					}
+				}
+
+				edu-block-scalable.timeline-slot:hover {
+					transform: scale(1.02);
+					box-shadow: 0 clamp(2px, 1cqh, 4px) clamp(6px, 2cqh, 12px) rgba(var(--edu-shadow-color), 0.15);
+				}
+
+				edu-block-scalable.timeline-slot edu-chip-scalable {
+					width: 100%;
+					height: 100%;
 					box-sizing: border-box;
 				}
 
-				edu-block.timeline-slot edu-chip:not(.dragging) {
+				edu-block-scalable::part(block) {
+					height: 100%;
+				}
+
+				edu-block-scalable.timeline-slot edu-chip-scalable:not(.dragging) {
 					animation: chipSettle 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 				}
 
-				#items-pool edu-chip:not(.dragging) {
+				#items-pool edu-chip-scalable:not(.dragging) {
 					animation: chipSettle 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 				}
 
@@ -184,34 +267,34 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					animation: timelinePulse 3s ease-in-out infinite;
 				}
 
-				edu-block.timeline-slot::before {
+				edu-block-scalable.timeline-slot::before {
 					content: attr(data-position);
 					position: absolute;
-					top: -0.75rem;
+					top: clamp(-10px, -2cqh, -6px);
 					left: 50%;
 					transform: translateX(-50%);
 					background: rgb(var(--edu-first-accent));
 					color: rgb(var(--edu-inverted-ink));
-					font-size: 0.75rem;
+					font-size: clamp(0.65rem, 2cqh, 0.75rem);
 					font-weight: 700;
-					width: 1.5rem;
-					height: 1.5rem;
+					width: clamp(20px, 4cqh, 24px);
+					height: clamp(20px, 4cqh, 24px);
 					border-radius: 50%;
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					box-shadow: 0 2px 4px rgba(var(--edu-shadow-color), 0.2);
-					z-index: 1;
+					z-index: 10;
 				}
 
-				edu-block.timeline-slot.empty::after {
+				edu-block-scalable.timeline-slot.empty::after {
 					content: 'Drop here';
 					color: rgb(var(--edu-third-ink));
-					font-size: 0.8rem;
+					font-size: clamp(0.7rem, 2cqh, 0.8rem);
 					opacity: 0.5;
 				}
 
-				edu-block.timeline-slot.filled::after {
+				edu-block-scalable.timeline-slot.filled::after {
 					content: none;
 				}
 
@@ -219,112 +302,79 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 					flex-shrink: 0;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, 1cqh, 0.5rem);
+					padding: 0 clamp(0.5rem, 2cqw, 1rem) clamp(0.5rem, 2cqh, 1rem);
+					max-height: clamp(120px, 30cqh, 200px);
 				}
 
 				.pool-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.75rem, 2cqh, 0.9rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
 				}
 
 				#items-pool {
-					display: flex;
-					gap: 0.75rem;
-					background: rgba(var(--edu-muted), 0.5);
-					border-radius: 12px;
-					border: 2px dashed rgb(var(--edu-border));
-					min-height: 80px;
-					max-height: 150px;
-					overflow-y: hidden;
-					overflow-x: auto;
-					align-items: flex-start;
+					display: grid;
+					/* Multiple columns to avoid vertical overflow */
+					grid-template-columns: repeat(auto-fill, minmax(clamp(100px, 20cqw, 180px), 1fr));
+					grid-auto-rows: minmax(${this.MIN_SLOT_SIZE}px, max-content);
+					gap: clamp(0.25rem, min(0.8cqw, 0.8cqh), 0.5rem);
+
+					/* No background or border - invisible container */
+					background: transparent;
+					border: none;
+
+					min-height: ${this.MIN_SLOT_SIZE}px;
+					max-height: 100%;
+					overflow-y: auto;
+					overflow-x: hidden;
+					align-content: start;
+					align-items: stretch;
 					flex-shrink: 0;
-					padding: 1rem;
-					cursor: pointer;
-					transition: all 0.2s ease;
+					padding: 0;
+					cursor: default;
+					box-sizing: border-box;
 				}
 
-				#items-pool:hover {
-					background: rgba(var(--edu-muted), 0.7);
-					border-color: rgb(var(--edu-first-accent));
+				/* Show different cursor when a chip is selected (for returning to pool) */
+				#container.has-selection #items-pool {
+					cursor: pointer;
 				}
 
 				#items-pool.empty::before {
 					content: 'All items placed!';
 					color: rgb(var(--edu-third-ink));
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 2.5cqh, 0.9rem);
 					opacity: 0.6;
 					width: 100%;
 					text-align: center;
-					margin-top: 1rem;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					grid-column: 1 / -1;
 				}
 
-				edu-chip {
+				#items-pool edu-chip-scalable {
+					width: 100%;
+					min-height: ${this.MIN_SLOT_SIZE}px;
+					height: 100%;
+				}
+
+				edu-chip-scalable {
 					user-select: none;
 					cursor: pointer;
 					transition: transform 0.2s ease, box-shadow 0.2s ease;
 				}
 
-				edu-chip:hover {
+				edu-chip-scalable:hover {
 					transform: translateY(-2px);
-					box-shadow: 0 4px 8px rgba(var(--edu-shadow-color), 0.15);
+					box-shadow: 0 clamp(2px, 1cqh, 4px) clamp(4px, 1.5cqh, 8px) rgba(var(--edu-shadow-color), 0.15);
 				}
 
-				edu-chip.dragging {
+				edu-chip-scalable.dragging {
 					position: fixed !important;
-					z-index: 2;
-				}
-
-				@media (max-width: 768px) {
-					#timeline {
-						grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-						grid-auto-rows: minmax(100px, max-content);
-						gap: 0.5rem;
-					}
-
-					edu-block.timeline-slot {
-						min-height: 70px;
-					}
-
-					#container {
-						gap: 1rem;
-					}
-
-					#items-pool {
-						max-height: 120px;
-					}
-				}
-
-				@media (max-width: 480px) {
-					#timeline {
-						grid-template-columns: 1fr 1fr;
-						gap: 0.5rem;
-					}
-
-					#timeline::before {
-						width: 3px;
-						height: calc(100% - 2rem);
-						left: 1rem;
-						right: auto;
-						top: 1rem;
-						transform: none;
-					}
-
-					edu-block.timeline-slot {
-						max-width: 125px;
-					}
-
-					edu-block.timeline-slot::before {
-						left: -0.75rem;
-						top: 50%;
-						transform: translateY(-50%);
-					}
-
-					#items-pool {
-						max-height: 100px;
-					}
+					z-index: 1000;
 				}
 			</style>
 			<div id="container">
@@ -356,8 +406,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 	private createTimelineSlots(count: number): void {
 		for (let i = 0; i < count; i++) {
-			const slot = document.createElement('edu-block') as EduBlock;
-			console.log('SLOT', slot);
+			const slot = document.createElement('edu-block-scalable') as EduBlockScalable;
 			slot.variant = this.variant;
 			slot.classList.add('timeline-slot');
 			slot.style.setProperty("--accent-color", randomHexColorsList[i % randomHexColorsList.length]);
@@ -379,12 +428,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		});
 	}
 
-	private createChip(item: string): EduChip {
-		const chip = document.createElement('edu-chip') as EduChip;
+	private createChip(item: string): EduChipScalable {
+		const chip = document.createElement('edu-chip-scalable') as EduChipScalable;
 		chip.variant = this.variant;
 		chip.dataset.item = item;
 
-		setUpChipData(item, chip, this.assets?.assetsById);
+		setUpChipDataScalable(item, chip, this.assets?.assetsById);
 		this.chips.set(item, chip);
 
 		// Click to select chip - stop propagation to prevent slot click
@@ -397,11 +446,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 
 	// ==================== CLICK & ASSIGN ====================
 
-	private handleChipClick(chip: EduChip): void {
+	private handleChipClick(chip: EduChipScalable): void {
 		// If this chip is already selected, deselect it
 		if (this.selectedChip === chip) {
 			this.selectedChip.selected = false;
 			this.selectedChip = null;
+			this.container.classList.remove('has-selection');
 			return;
 		}
 
@@ -421,6 +471,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 				// Deselect
 				this.selectedChip.selected = false;
 				this.selectedChip = null;
+				this.container.classList.remove('has-selection');
 
 				this.updateDisplay();
 				this.emitStateChange();
@@ -434,9 +485,10 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		// Select this chip
 		this.selectedChip = chip;
 		chip.selected = true;
+		this.container.classList.add('has-selection');
 	}
 
-	private handleSlotClick(slot: EduBlock, index: number): void {
+	private handleSlotClick(slot: EduBlockScalable, index: number): void {
 		// If no chip is selected, do nothing
 		if (!this.selectedChip) return;
 
@@ -473,6 +525,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		// Deselect chip
 		this.selectedChip.selected = false;
 		this.selectedChip = null;
+		this.container.classList.remove('has-selection');
 
 		this.updateDisplay();
 		this.emitStateChange();
@@ -495,6 +548,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 			// Deselect chip
 			this.selectedChip.selected = false;
 			this.selectedChip = null;
+			this.container.classList.remove('has-selection');
 
 			this.updateDisplay();
 			this.emitStateChange();
@@ -581,7 +635,7 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		const userOrder = this.currentOrder.filter(item => item !== null);
 		const result = seriationGrader(this.correctOrder, userOrder, this);
 
-		console.log(`Temporal Sequencing Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
+		console.log(`Temporal Sequencing Scalable Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
 			detail: { result },
@@ -609,9 +663,12 @@ export class TemporalSequencing extends BaseInteraction<SeriationData> {
 		this.timelineSlots = [];
 
 		this.render();
+
+		// Remove has-selection class after render
+		this.container?.classList.remove('has-selection');
 	}
 }
 
-if (!customElements.get('temporal-sequencing')) {
-	customElements.define('temporal-sequencing', TemporalSequencing);
+if (!customElements.get('temporal-sequencing-scalable')) {
+	customElements.define('temporal-sequencing-scalable', TemporalSequencingScalable);
 }

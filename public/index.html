@@ -429,8 +429,8 @@
                         <option value="ClassificationMatrix">Classification Matrix</option>
                         <option value="OpenClassification">Open Classification</option>
                         <option value="NaryChoiceTable">N-ary Choice Table</option>
-                        <option value="TemporalSequencing" selected>Temporal Sequencing</option>
-                        <option value="RankOrder">Rank Order</option>
+                        <option value="TemporalSequencingScalable" selected>Temporal Sequencing</option>
+                        <option value="RankOrderScalable">Rank Order</option>
                         <option value="MCQ">MCQ/MRQ</option>
                     </select>
                 </div>
@@ -476,8 +476,8 @@
             OpenClassification,
             SequentialClassification,
             SimultaneousAssociation,
-            TemporalSequencing,
-            RankOrder,
+            TemporalSequencingScalable,
+            RankOrderScalable,
             MCQ,
             InteractionsBaseShell,
             parseYamlAssets,
@@ -626,14 +626,14 @@
                 },
                 assets: ''
             },
-            TemporalSequencing: {
+            TemporalSequencingScalable: {
                 data: {
                     type: 'seriation',
                     items: ['egg', 'caterpillar', 'chrysalis', '@:butterfly']
                 },
                 assets: 'butterfly:\n  type: image\n  url: https://images.unsplash.com/photo-1533048324814-79b0a31982f1?q=80&w=768'
             },
-            RankOrder: {
+            RankOrderScalable: {
                 data: {
                     type: 'seriation',
                     items: ['Bronze Age', 'Iron Age', 'Middle Ages', 'Renaissance', 'Industrial Revolution', 'Information Age']
@@ -749,11 +749,11 @@ laugh:\n type: audio\n url: https://www.soundjay.com/human/sounds/man-laughing-0
                     case 'NaryChoiceTable':
                         interaction = new NaryChoiceTable(data, config, assets);
                         break;
-                    case 'TemporalSequencing':
-                        interaction = new TemporalSequencing(data, config, assets);
+                    case 'TemporalSequencingScalable':
+                        interaction = new TemporalSequencingScalable(data, config, assets);
                         break;
-                    case 'RankOrder':
-                        interaction = new RankOrder(data, config, assets);
+                    case 'RankOrderScalable':
+                        interaction = new RankOrderScalable(data, config, assets);
                         break;
                     case 'MCQ':
                         interaction = new MCQ(data, config, assets);

@@ -107,7 +107,7 @@ export class InteractionsBaseShell extends HTMLElement {
 		this.updateVisibility();
 
 		this.animationsManager.animate(this.$progressIcon, 'heartbeat');
-		this.animationsManager.animate(this.$promptBtn, 'float');
+		this.animationsManager.animate(this.$promptBtn, 'wobble');
 	}
 
 	disconnectedCallback() {

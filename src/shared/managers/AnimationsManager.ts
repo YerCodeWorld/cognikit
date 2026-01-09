@@ -139,7 +139,7 @@ const DEFAULT_CONFIG: Record<AnimationName, string> = {
 	'jello': '0.8s',
 	'heartbeat': '1.5s ease-in-out infinite',
 	'shimmer': '2s infinite',
-	'wobble': '0.5s',
+	'wobble': '4s infinite',
 	'pop': '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
 	'fade-slide': '0.5s ease-out',
 	'swing': '2s infinite',

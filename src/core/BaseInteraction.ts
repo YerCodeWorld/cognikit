@@ -36,10 +36,21 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	constructor(data: T, config: InteractionConfig, assets?: NormalizedAssets | null, validator?) {
 		super();
 
+		// Handle undefined parameters gracefully - set defaults
+		if (!data || !config) {
+			console.warn('[BaseInteraction] Constructor called without required parameters');
+			this.id = crypto.randomUUID();
+			this.data = data;
+			this.config = config || {} as InteractionConfig;
+			this.assets = assets || null;
+			this.isValid = false;
+			return;
+		}
+
 		this.id = crypto.randomUUID();
 		this.data = data;
 		this.config = config;
-		this.assets = assets;
+		this.assets = assets || null;
 
 		if (validator) {
 			const validationResult: ValidationResult = validator(this.data);
@@ -48,18 +59,19 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 				Object.entries(validationResult.errors).forEach(([k, v]) => {
 					this.errors = `${this.errors}\n ${k}: ${v}`;
 				});
-			} 
+			}
 		}
 
 		this.progressTracker = new ProgressTracker();
-		
+
 		this.soundManager = new SoundManager();
-		this.soundManager.isEnabled = this.config.soundEnabled;
-
 		this.animationsManager = new AnimationsManager();
-		this.animationsManager.isEnabled = this.config.animationsEnabled;
 
-		this.setAttribute('variant', config.variant ?? 'elegant');
+		// Safely access config properties with fallbacks
+		this.animationsManager.isEnabled = this.config?.animationsEnabled ?? true;
+		this.soundManager.isEnabled = this.config?.soundEnabled ?? true;
+
+		this.setAttribute('variant', this.config?.variant ?? 'elegant');
 
 	}
 

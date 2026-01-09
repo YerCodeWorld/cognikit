@@ -4,11 +4,23 @@ import { InteractionConfig, InteractionMechanic } from "../../../types/Interacti
 import { NormalizedAssets } from "../../../shared/assets";
 import { SeriationData } from "../../../types/Data";
 
-import { EduChip, setUpChipData } from "../../../ui/misc/chip";
+import { EduChipScalable, setUpChipDataScalable } from "../../../ui/misc/chip-scalable/chip";
 import { shuffle } from "../../../shared";
 import { seriationGrader } from "../utilities/grader";
 
-export class RankOrder extends BaseInteraction<SeriationData> {
+/**
+ * RankOrderScalable - A scalable version of RankOrder
+ *
+ * Features based on UI.md:
+ * - Container-driven scaling (uses container queries)
+ * - Auto-reflow grid (single column → multi-column based on aspect ratio)
+ * - Letterboxing for extreme Y (vertical centering)
+ * - Max-width capping for extreme X (prevents infinite stretch)
+ * - 10 item limit (Cognitive Ceiling)
+ * - 44px minimum per row (Interaction Floor)
+ * - Aspect-ratio aware layout transitions
+ */
+export class RankOrderScalable extends BaseInteraction<SeriationData> {
 
 	interactionMechanic: InteractionMechanic = "static";
 
@@ -29,6 +41,10 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 	private variant: Variant;
 
+	// Scalability constants
+	private readonly MAX_ITEMS = 10; // Cognitive Ceiling
+	private readonly MIN_ITEM_HEIGHT = 44; // Interaction Floor (px)
+
 	constructor(
 		data: SeriationData,
 		config: InteractionConfig,
@@ -38,6 +54,9 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 		// Parent class now handles undefined data gracefully
 		if (!this.isValid || !this.data || !this.config) return;
+
+		const items = this.data.items;
+		this.data.items = items;
 
 		if (this.config.shuffle) this.currentOrder = shuffle([...this.data.items]);
 		else this.currentOrder = [...this.data.items];
@@ -59,7 +78,7 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 	}
 
 	onVariantChange(newVariant: Variant): void {
-		this.querySelectorAll('edu-chip').forEach((el: EduChip) => {
+		this.querySelectorAll('edu-chip-scalable').forEach((el: EduChipScalable) => {
 			if (el.variant !== undefined) {
 				el.variant = newVariant;
 			}
@@ -72,11 +91,15 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				:host {
+				rank-order-scalable {
 					display: flex;
 					width: 100%;
 					height: 100%;
 					box-sizing: border-box;
+
+					/* Enable container queries for aspect-ratio detection */
+					container-type: size;
+					container-name: rank-order;
 				}
 
 				.container {
@@ -84,40 +107,92 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 					flex-direction: column;
 					width: 100%;
 					height: 100%;
-					gap: 1rem;
-					padding: 1.5rem;
+					padding: 0;
 					box-sizing: border-box;
 					overflow: hidden;
-				}
 
-				.label {
-					font-size: 0.9rem;
-					font-weight: 600;
-					color: rgb(var(--edu-second-ink));
-					flex-shrink: 0;
+					/* Height Guardrail - prevents Extreme Y stretch */
+					max-height: 100%;
+
+					/* Vertical centering (Letterboxing) */
+					margin: auto;
 				}
 
 				.rows-container {
 					flex: 1;
-					display: flex;
-					flex-direction: column;
-					align-items: left;
-					gap: 0.5rem;
+					display: grid;
+
+					/* The Grid Formula - auto-reflow based on container width */
+					/* Single column by default */
+					grid-template-columns: 1fr;
+
+					/* Rows can grow but never below the interaction floor */
+					grid-template-rows: repeat(${this.data.items.length}, minmax(${this.MIN_ITEM_HEIGHT}px, 1fr));
+
+					gap: clamp(2px, min(0.6cqw, 0.6cqh), 6px);
+					row-gap: clamp(2px, min(0.6cqw, 0.6cqh), 6px);
+					column-gap: clamp(4px, min(1.2cqw, 1.2cqh), 10px);
+
+					align-content: stretch;
+					align-items: stretch;
+
 					overflow-y: auto;
 					overflow-x: hidden;
 					min-height: 0;
-					padding: 0.5rem;
-					padding-right: 40%;
+					padding: clamp(6px, min(1.4cqw, 1.4cqh), 14px);
+
+					/* Prevent excessive width */
+					max-width: 100%;
+					max-height: 100dvh;
+					margin: auto;
+					width: 100%;
+
+					outline: 0 !important;
+
+					overflow-y: scroll;
+					text-size-adjust: 100%;
+					box-sizing: border-box;
+				}
+
+				/* Height-driven reflow: only split columns when height is tight */
+				@container rank-order (max-height: 520px) {
+					.rows-container {
+						grid-template-columns: repeat(2, 1fr);
+						grid-template-rows: repeat(${Math.ceil(this.data.items.length / 2)}, minmax(${this.MIN_ITEM_HEIGHT}px, 1fr));
+						column-gap: clamp(0.5rem, 2cqw, 1rem);
+					}
+				}
+
+				@container rank-order (max-height: 440px) {
+					.rows-container {
+						grid-template-columns: repeat(3, 1fr);
+						grid-template-rows: repeat(${Math.ceil(this.data.items.length / 3)}, minmax(${this.MIN_ITEM_HEIGHT}px, 1fr));
+						column-gap: clamp(0.5rem, 2cqw, 1rem);
+					}
 				}
 
 				.row {
 					display: flex;
-					align-items: center;
+					align-items: stretch;
 					background: transparent;
-					border: none;
+					border: 2px solid transparent;
+					border-radius: clamp(4px, 1cqw, 6px);
 					transition: all 0.2s ease;
 					cursor: grab;
-					gap: 0.50rem;
+					gap: clamp(0.25rem, 1cqw, 0.5rem);
+					position: relative;
+
+					min-height: ${this.MIN_ITEM_HEIGHT}px;
+					height: 100%;
+
+					/* Fill the grid cell completely */
+					width: 100%;
+					box-sizing: border-box;
+				}
+
+				.row:hover:not(.dragging) {
+					background: rgba(var(--edu-first-accent), 0.03);
+					border-color: rgba(var(--edu-first-accent), 0.2);
 				}
 
 				.row:active {
@@ -126,86 +201,108 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 				.row.drag-over {
 					border-color: rgb(var(--edu-first-accent));
-					background: rgba(var(--edu-first-accent), 0.1);
-					transform: translateY(-2px);
+					background: rgba(var(--edu-first-accent), 0.15);
+					transform: scale(1.02);
+					box-shadow: 0 0 0 3px rgba(var(--edu-first-accent), 0.2);
 				}
 
 				.row.dragging {
-					opacity: 0.5;
-					transform: scale(0.98);
+					opacity: 0.6;
+					transform: scale(0.95);
+					cursor: grabbing;
+					background: rgba(var(--edu-second-ink), 0.1);
+					border-color: rgb(var(--edu-second-ink));
+					box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.2);
 				}
 
 				.chip-wrapper {
 					flex: 1;
 					min-width: 0;
+					height: 100%;
+					display: flex;
 				}
 
-				edu-chip {
+				edu-chip-scalable {
 					width: 100%;
+					height: 100%;
+					flex: 1;
 				}
 
 				.controls {
+					position: absolute;
+					top: clamp(-14px, -2cqh, -10px);
+					right: clamp(-14px, -2cqw, -10px);
 					display: flex;
-					flex-shrink: 0;
+					align-items: center;
+					justify-content: center;
+					z-index: 10;
+					opacity: 0;
+					transition: opacity 0.2s ease;
+					pointer-events: none;
+				}
+
+				.row:hover .controls,
+				.row.dragging .controls {
+					opacity: 1;
+					pointer-events: auto;
 				}
 
 				.btn {
 					display: flex;
 					align-items: center;
 					justify-content: center;
-					background: transparent;
-					border: none;
+					background: rgb(var(--edu-card));
+					border: 2px solid rgb(var(--edu-first-accent));
 					cursor: pointer;
 					transition: all 0.2s ease;
+					box-shadow: 0 2px 6px rgba(var(--edu-shadow-color), 0.15);
+
+					/* Compact circular buttons */
+					width: clamp(28px, min(5cqw, 5cqh), 42px);
+					height: clamp(28px, min(5cqw, 5cqh), 42px);
+					min-width: 28px;
+					min-height: 28px;
+					flex-shrink: 0;
+					border-radius: 50%;
+					padding: 0;
+					margin: 0;
 				}
 
 				.btn:hover:not(:disabled) {
-					background: rgba(var(--edu-first-accent), 0.1);
-					transform: translateY(-1px);
+					background: rgb(var(--edu-first-accent));
+					border-color: rgb(var(--edu-first-accent));
+					transform: scale(1.1);
+					box-shadow: 0 4px 12px rgba(var(--edu-first-accent), 0.4);
+				}
+
+				.btn:hover:not(:disabled) img {
+					filter: brightness(0) invert(1);
 				}
 
 				.btn:active:not(:disabled) {
-					transform: scale(0.95);
+					transform: scale(0.9);
 				}
 
 				.btn:disabled {
-					opacity: 0.3;
+					opacity: 0.2;
 					cursor: not-allowed;
+					border-color: rgb(var(--edu-border));
 				}
 
-				.btn svg {
-					width: 18px;
-					height: 18px;
-					fill: rgb(var(--edu-ink));
+				.btn img {
+					width: 60%;
+					height: 60%;
+					object-fit: contain;
+					transition: filter 0.2s ease;
 				}
 
-				@media (max-width: 1024px) {
-					.rank-number: { padding: 0 }
-				}
-
+				/* Mobile optimizations - ensure tight layout */
 				@media (max-width: 640px) {
-					.container {
-						padding: 1rem;
-					}
-
-					.rows-container { padding: 0 }
-
-					.rank-number {
-						width: 28px;
-						height: 28px;
-						font-size: 0.85rem;
-					}
-
-					.btn {
-						width: 32px;
-						height: 32px;
-					}
-
-					.btn svg {
-						width: 16px;
-						height: 16px;
+					.row {
+						gap: 0.125rem;
 					}
 				}
+
 			</style>
 
 			<div class="container">
@@ -231,12 +328,12 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 			const chipWrapper = document.createElement('div');
 			chipWrapper.className = 'chip-wrapper';
 
-			const chip = document.createElement('edu-chip') as EduChip;
+			const chip = document.createElement('edu-chip-scalable') as EduChipScalable;
 			chip.variant = this.variant;
 			chip.dataset.item = item;
-			chip.prefix = String(index+1);
+			chip.prefix = String(index + 1);
 			chip.draggable = true;
-			setUpChipData(item, chip, this.assets?.assetsById);
+			setUpChipDataScalable(item, chip, this.assets?.assetsById);
 
 			// Show correctness state if graded
 			if (this.isGraded) {
@@ -250,15 +347,12 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 			chipWrapper.appendChild(chip);
 
-			// Controls
+			// Controls - Only UP button as requested
 			const controls = document.createElement('div');
 			controls.className = 'controls';
 
 			const upBtn = this.createButton('up', index);
-			const downBtn = this.createButton('down', index);
-
 			controls.appendChild(upBtn);
-			controls.appendChild(downBtn);
 
 			// Assemble row
 			row.appendChild(chipWrapper);
@@ -278,6 +372,7 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 		btn.className = 'btn';
 		btn.dataset.direction = direction;
 		btn.dataset.index = String(index);
+		btn.setAttribute('aria-label', direction === 'up' ? 'Move up' : 'Move down');
 
 		// Disable buttons at boundaries
 		if (direction === 'up' && index === 0) {
@@ -294,8 +389,8 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 		// SVG icons
 		const svg = direction === 'up'
-			? `<img src="assets/icons/up.svg" alt="^" height="24" width="24"/>`
-			: `<img src="assets/icons/down.svg" alt="^" height="24" width="24"/>`;
+			? `<img src="assets/icons/up.svg" alt="^" />`
+			: `<img src="assets/icons/down.svg" alt="v" />`;
 
 		btn.innerHTML = svg;
 
@@ -325,10 +420,11 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 	// ==================== DRAG & DROP ====================
 
 	private handlePointerDown(e: PointerEvent, index: number): void {
-		// Don't drag on button clicks
-		if ((e.target as HTMLElement).closest('.btn')) return;
+		// Don't drag on button clicks or control elements
+		if ((e.target as HTMLElement).closest('.btn, .controls')) return;
 
 		e.preventDefault();
+		e.stopPropagation();
 
 		this.isDragging = true;
 		this.draggedRow = e.currentTarget as HTMLElement;
@@ -344,6 +440,9 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 		}
 
 		this.draggedRow.classList.add('dragging');
+
+		// Add visual feedback to container
+		this.$rowsContainer.style.userSelect = 'none';
 	}
 
 	private handlePointerMove(e: PointerEvent): void {
@@ -378,7 +477,7 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 		const hoverIndex = this.getRowIndexAtY(e.clientY);
 
 		if (hoverIndex !== -1 && hoverIndex !== this.draggedRowIndex) {
-			// Swap items
+			// Swap items with animation feedback
 			this.swapItems(this.draggedRowIndex, hoverIndex);
 		}
 
@@ -386,6 +485,9 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 		this.$rowsContainer.querySelectorAll('.row').forEach(row => {
 			row.classList.remove('dragging', 'drag-over');
 		});
+
+		// Reset container style
+		this.$rowsContainer.style.userSelect = '';
 
 		this.isDragging = false;
 		this.draggedRow = null;
@@ -445,7 +547,7 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 
 		const result = seriationGrader(this.data.items, this.currentOrder, this);
 
-		console.log(`Rank Order Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
+		console.log(`Rank Order Scalable Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		// Mark as graded and re-render to show correctness states
 		this.isGraded = true;
@@ -478,6 +580,6 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 }
 
 // Register as custom element
-if (!customElements.get('rank-order')) {
-	customElements.define('rank-order', RankOrder);
+if (!customElements.get('rank-order-scalable')) {
+	customElements.define('rank-order-scalable', RankOrderScalable);
 }

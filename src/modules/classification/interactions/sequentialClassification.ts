@@ -94,11 +94,13 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 
 		this.innerHTML = `
 			<style>
-				:host {
+				sequential-classification {
 					display: flex;
 					width: 100%;
 					height: 100%;
 					box-sizing: border-box;
+					container-type: size;
+					container-name: sequential-classification;
 				}
 
 				#container {
@@ -107,10 +109,10 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					flex-direction: column;
 					width: 100%;
 					height: 100%;
-					gap: 1rem;
-					padding: 1.5rem;
+					gap: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+					padding: clamp(0.75rem, min(2cqw, 2cqh), 1.5rem);
 					background: rgb(var(--edu-bg));
-					border-radius: 12px;
+					border-radius: clamp(8px, 2cqw, 12px);
 					overflow: hidden;
 					box-sizing: border-box;
 				}
@@ -119,23 +121,23 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					flex-shrink: 0;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, min(1cqw, 1cqh), 0.5rem);
 				}
 
 				.center-zone-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 1.8cqh, 1rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 				}
 
 				#center-zone {
-					min-height: 120px;
-					height: 120px;
+					min-height: clamp(70px, 12cqh, 120px);
+					height: clamp(70px, 12cqh, 120px);
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					background: rgba(var(--edu-muted), 0.5);
-					border-radius: 12px;
+					border-radius: clamp(8px, 2cqw, 12px);
 					border: 2px dashed rgb(var(--edu-border));
 					position: relative;
 				}
@@ -151,13 +153,13 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					flex: 1;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, min(1cqw, 1cqh), 0.5rem);
 					min-height: 0;
 					overflow: hidden;
 				}
 
 				.zones-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 1.8cqh, 1rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
@@ -167,13 +169,13 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					position: relative;
 					flex: 1;
 					display: grid;
-					grid-template-columns: repeat(${gridCols}, 1fr);
-					grid-auto-rows: minmax(120px, 1fr);
-					gap: 1rem;
+					grid-template-columns: repeat(${gridCols}, minmax(0, 1fr));
+					grid-auto-rows: minmax(44px, 1fr);
+					gap: clamp(0.5rem, min(1.5cqw, 1.5cqh), 1rem);
 					overflow-y: auto;
 					overflow-x: hidden;
-					align-content: start;
-					padding: 0.5rem;
+					align-content: stretch;
+					padding: clamp(0.25rem, min(1cqw, 1cqh), 0.5rem);
 					min-height: 0;
 				}
 
@@ -182,7 +184,7 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					box-shadow: 0 4px 6px -1px rgb(var(--edu-shadow-color) / 0.1);
 					transition: all 0.3s ease;
 					font-weight: 700;
-					font-size: 1.5rem;
+					font-size: clamp(1rem, 3cqh, 1.6rem);
 					text-align: center;
 					border: 3px solid transparent;
 					opacity: 0.8;
@@ -203,10 +205,14 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 					content: 'Drop here';
 					position: absolute;
 					bottom: 0.5rem;
-					font-size: 0.75rem;
+					font-size: clamp(0.7rem, 1.8cqh, 0.9rem);
 					font-weight: 500;
 					opacity: 0.4;
 					color: rgb(var(--edu-ink));
+				}
+
+				edu-block::part(block) {
+					height: 100%;
 				}
 
 				edu-chip {
@@ -223,23 +229,15 @@ export class SequentialClassification extends BaseInteraction<ClassificationData
 				edu-chip.dragging {
 				}
 
-				@media (max-width: 1024px) {
+				@container sequential-classification (max-width: 920px) {
 					#zones-grid {
 						grid-template-columns: repeat(${Math.min(gridCols, 2)}, 1fr);
 					}
 				}
 
-				@media (max-width: 640px) {
+				@container sequential-classification (max-width: 620px) {
 					#zones-grid {
 						grid-template-columns: 1fr;
-					}
-					#center-zone {
-						min-height: 80px;
-						height: 80px;
-					}
-					.zone {
-						min-height: 80px;
-						font-size: 1.2rem;
 					}
 				}
 			</style>

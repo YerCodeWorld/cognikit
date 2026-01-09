@@ -1,0 +1,24 @@
+<div class="chip-container" part="container">
+
+	<div class="content-zone" part="content-zone" role="button" tabindex="0" aria-pressed="false">
+		<span class="prefix" part="prefix"></span>
+
+		<div class="content-inner" part="content">
+			<slot></slot>
+		</div>
+
+		<!-- Shows for: audio, video, tts, anchor, interactive, data, dynamic, composite -->
+		<button class="modality-action" part="modality-action" type="button" aria-label="Modality action">
+			<svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+				<!-- Icon will be set dynamically based on modality -->
+				<img src="assets/icons/drag-vertical-svgrepo-com.svg" alt="..." width="24" height="24"/>
+			</svg>
+		</button>
+
+		<span class="drag-handle" part="drag-handle">
+			<img src="assets/icons/drag-horizontal-svgrepo-com.svg" alt="..." width="24" height="24"/>
+		</span>
+
+	</div>
+</div>
+

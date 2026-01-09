@@ -90,11 +90,13 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				:host {
+				mcq-interaction {
 					display: flex;
 					width: 100%;
 					height: 100%;
 					box-sizing: border-box;
+					container-type: size;
+					container-name: mcq;
 				}
 
 				.container {
@@ -102,36 +104,38 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 					flex-direction: column;
 					width: 100%;
 					height: 100%;
-					gap: 1rem;
-					padding: 1.5rem;
+					gap: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+					padding: clamp(0.75rem, min(2cqw, 2cqh), 1.5rem);
 					box-sizing: border-box;
 					overflow: hidden;
 				}
 
 				.mode-label {
-					position: absolute;
-					top: 0.5rem;
-					left: 0.5rem;
+					align-self: flex-start;
 					font-size: 0.75rem;
 					font-weight: 600;
 					color: rgb(var(--edu-third-ink));
 					text-transform: uppercase;
 					letter-spacing: 0.5px;
 					opacity: 0.7;
+					margin-bottom: clamp(0.25rem, 1cqh, 0.5rem);
 				}
 
 				.question-section {
 					flex-shrink: 0;
-					position: relative;
-					min-height: 80px;
+					display: flex;
+					flex-direction: column;
+					min-height: clamp(64px, 10cqh, 120px);
+					max-height: clamp(120px, 30cqh, 260px);
+					overflow: hidden;
 				}
 
 				.question-text {
-					padding: 1.5rem;
-					font-size: 1.1rem;
+					padding: 0;
+					font-size: clamp(0.95rem, 2.4cqh, 1.2rem);
 					font-weight: 600;
 					color: rgb(var(--edu-ink));
-					line-height: 1.5;
+					line-height: 1.4;
 				}
 
 				.divider {
@@ -145,13 +149,13 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 					flex: 1;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, min(1cqw, 1cqh), 0.5rem);
 					min-height: 0;
 					overflow: hidden;
 				}
 
 				.options-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 1.8cqh, 1rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
@@ -160,15 +164,17 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 				.options-container {
 					flex: 1;
 					display: grid;
-					grid-template-columns: repeat(3, 1fr);
-					gap: 0.75rem;
-					padding: 1rem;
+					grid-template-columns: 1fr;
+					grid-auto-rows: minmax(44px, 1fr);
+					gap: clamp(0.5rem, min(1.6cqw, 1.6cqh), 0.9rem);
+					padding: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
 					background: rgb(var(--edu-muted));
-					border-radius: 8px;
+					border-radius: clamp(6px, 1.6cqw, 8px);
 					overflow-y: auto;
 					overflow-x: hidden;
 					min-height: 0;
-					align-content: start;
+					align-content: stretch;
+					align-items: stretch;
 				}
 
 				edu-chip {
@@ -176,7 +182,10 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 					transition: all 0.2s ease;
 				}
 
-				edu-chip::part(block) { width: 100%; }
+				edu-chip::part(block) {
+					width: 100%;
+					height: 100%;
+				}
 
 				edu-chip:hover {
 					transform: translateY(-2px);
@@ -186,19 +195,33 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 					transform: translateY(-2px);
 				}
 
-				@media (max-width: 640px) {
-					.container {
-						padding: 1rem;
-					}
+				#question-block edu-block::part(block) {
+					padding: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+					height: 100%;
+					max-height: clamp(120px, 30cqh, 260px);
+					overflow: auto;
+					align-items: center;
+					justify-content: flex-start;
+				}
 
-					.question-text {
-						padding: 1rem;
-						font-size: 1rem;
-					}
+				#question-block edu-block::part(block) > * {
+					width: 100%;
+				}
 
+				#question-block .question-text {
+					text-align: left;
+				}
+
+				@container mcq (min-width: 920px) {
+					.options-container {
+						grid-template-columns: repeat(2, minmax(min(100%, 220px), 1fr));
+					}
+				}
+
+				@container mcq (max-width: 620px) {
 					.options-container {
 						grid-template-columns: 1fr;
-						padding: 0.75rem;
+						padding: clamp(0.5rem, min(1.2cqw, 1.2cqh), 0.75rem);
 					}
 				}
 			</style>

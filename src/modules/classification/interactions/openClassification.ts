@@ -42,10 +42,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	private currentColor: string = this.categoryColors[0];
 
 	// DOM elements
-	private $categoriesDlg!: HTMLDialogElement;
-	private $categorySwatch!: EduBlock;
-	private $swatchLabel!: HTMLElement;
-	private $swatchColor!: HTMLSpanElement;
+	private $categoriesBar!: HTMLDivElement;
 
 	constructor(
 		data: ClassificationData, config: InteractionConfig, assets: NormalizedAssets | null
@@ -85,12 +82,14 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				:host {
+				open-classification {
 					--current-color: #94a3b8;
 					display: flex;
 					width: 100%;
 					height: 100%;
 					box-sizing: border-box;
+					container-type: size;
+					container-name: open-classification;
 				}
 
 				.container {
@@ -98,15 +97,15 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					flex-direction: column;
 					width: 100%;
 					height: 100%;
-					gap: 1rem;
-					padding: 1.5rem;
+					gap: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+					padding: clamp(0.75rem, min(2cqw, 2cqh), 1.5rem);
 					box-sizing: border-box;
 					overflow: hidden;
 				}
 
-				@media (max-width: 768px) {
+				@container open-classification (max-width: 768px) {
 					.container {
-						padding: 1rem;
+						padding: clamp(0.75rem, min(1.6cqw, 1.6cqh), 1rem);
 					}
 				}
 
@@ -114,13 +113,13 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					flex: 1;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, min(1cqw, 1cqh), 0.5rem);
 					min-height: 0;
 					overflow: hidden;
 				}
 
 				.items-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 1.8cqh, 1rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
@@ -128,21 +127,22 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 				.items-container {
 					display: grid;
-					grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-					gap: 1rem;
-					padding: 1.5rem;
+					grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+					grid-auto-rows: minmax(44px, 1fr);
+					gap: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+					padding: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1.25rem);
 					background: rgb(var(--edu-muted));
-					border-radius: 8px;
+					border-radius: clamp(6px, 1.6cqw, 8px);
 					flex: 1;
 					overflow-y: auto;
 					overflow-x: hidden;
-					align-content: start;
+					align-content: stretch;
 					min-height: 0;
 				}
 
 				.items-container edu-chip {
 					width: 100%;
-					min-height: 80px;
+					height: 100%;
 					cursor: pointer;
 					transition: transform 0.2s ease, box-shadow 0.2s ease;
 				}
@@ -160,34 +160,24 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					justify-content: center;
 				}
 
-				@media (max-width: 1024px) {
+				@container open-classification (max-width: 1024px) {
 					.items-container {
-						grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-						gap: 0.875rem;
+						grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+						gap: clamp(0.5rem, min(1.4cqw, 1.4cqh), 0.875rem);
 					}
 				}
 
-				@media (max-width: 768px) {
+				@container open-classification (max-width: 768px) {
 					.items-container {
-						grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-						padding: 1rem;
-						gap: 0.75rem;
-					}
-
-					.items-container edu-chip {
-						min-height: 70px;
+						grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+						padding: clamp(0.5rem, min(1.2cqw, 1.2cqh), 1rem);
+						gap: clamp(0.5rem, min(1.2cqw, 1.2cqh), 0.75rem);
 					}
 				}
 
-				@media (max-width: 640px) {
+				@container open-classification (max-width: 560px) {
 					.items-container {
-						grid-template-columns: 1fr;
-						padding: 1rem;
-						gap: 0.75rem;
-					}
-
-					.items-container edu-chip {
-						min-height: 60px;
+						grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr));
 					}
 				}
 
@@ -202,93 +192,33 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 					flex-shrink: 0;
 					display: flex;
 					flex-direction: column;
-					gap: 0.5rem;
+					gap: clamp(0.25rem, min(1cqw, 1cqh), 0.5rem);
 				}
 
 				.swatch-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 1.8cqh, 1rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					flex-shrink: 0;
 				}
 
-				#category-swatch-container {
-					padding: 0 20% 0 20%;
-					flex-shrink: 0;
-				}
-
-				.swatch-content {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					gap: 0.75rem;
-				}
-
-				.swatch-label {
-					font-size: 1rem;
-					font-weight: 600;
-				}
-
-				.swatch-color {
-					width: 24px;
-					height: 24px;
-					background-color: var(--current-color);
-					border-radius: 50%;
-					border: 2px solid rgb(var(--edu-inverted-ink));
-					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-				}
-
-				/* Dialog Styles */
-				dialog {
-					background: rgb(var(--edu-card));
-					border: 2px solid rgb(var(--edu-border));
-					color: rgb(var(--edu-ink));
-					border-radius: 12px;
-					padding: 1.5rem;
-					box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-					max-width: 500px;
-				}
-
-				dialog::backdrop {
-					background: rgba(0, 0, 0, 0.5);
-					backdrop-filter: blur(4px);
-				}
-
-				dialog .categories-container {
+				.categories-bar {
 					display: grid;
-					grid-template-columns: repeat(2, 1fr);
-					gap: 0.75rem;
-					margin-bottom: 1rem;
+					grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr));
+					gap: clamp(0.4rem, min(1.2cqw, 1.2cqh), 0.75rem);
 				}
 
-				dialog .category {
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-					gap: 0.5rem;
-					background: none;
-					cursor: pointer;
-					transition: all 0.2s ease;
+				#categories-bar edu-block::part(block) {
+					padding: clamp(0.35rem, min(1cqw, 1cqh), 0.6rem);
+					font-size: clamp(0.75rem, 1.6cqh, 0.95rem);
+					min-height: clamp(44px, 8cqh, 64px);
 				}
 
-				dialog .category:hover {
-					border-color: rgb(var(--edu-first-accent));
-					transform: translateY(-2px);
-					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-				}
-
-				dialog .category-label {
-					font-size: 0.9rem;
-					font-weight: 600;
-					color: rgb(var(--edu-ink));
-					text-align: center;
-				}
-
-				dialog .category-color {
-					width: 100%;
-					height: 40px;
-					border-radius: 6px;
-					border: 2px solid rgba(0, 0, 0, 0.1);
+				#categories-bar edu-block.active::part(block) {
+					background: var(--category-color);
+					border-color: var(--category-color);
+					color: rgb(var(--edu-inverted-ink));
+					box-shadow: 0 0 0 3px rgb(var(--edu-first-accent) / 0.2);
 				}
 			</style>
 
@@ -301,28 +231,19 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				<hr class="divider">
 
 				<div class="swatch-section">
-					<div class="swatch-label">Current Category</div>
-					<div id="category-swatch-container"></div>
+					<div class="swatch-label">Categories</div>
 				</div>
-			</div>
 
-			<dialog id="dlg">
-				<div class="categories-container">
+				<div class="categories-bar" id="categories-bar">
 					<!-- Categories populated dynamically -->
 				</div>
-				<footer>
-					<label>Select a category to classify items</label>
-				</footer>
-			</dialog>
+			</div>
 		`;
 
 		this.style.setProperty('--current-color', this.currentColor);
 
-		this.$categoriesDlg = this.querySelector("#dlg") as HTMLDialogElement;
-		this.setCategories(this.$categoriesDlg);
-
-		const swatchContainer = this.querySelector("#category-swatch-container") as HTMLDivElement;
-		this.setSwatch(swatchContainer);
+		this.$categoriesBar = this.querySelector("#categories-bar") as HTMLDivElement;
+		this.setCategories(this.$categoriesBar);
 
 		const itemsContainer = this.querySelector(".items-container") as HTMLDivElement;
 		this.setItems(itemsContainer);
@@ -332,7 +253,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		this.allItems.forEach((item, i) => {
 			const chip = document.createElement("edu-chip") as EduChip;
 			chip.variant = this.config.variant;
-			chip.prefix = `${i+1}:`;
+			// chip.prefix = `${i+1}:`;
 			chip.dataset.label = item;
 
 			setUpChipData(item, chip, this.assets?.assetsById);
@@ -363,34 +284,7 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 		});
 	}
 
-	private setSwatch(container: HTMLDivElement): void {
-		this.$categorySwatch = new EduBlock;
-		this.$categorySwatch.variant = this.config.variant;
-		this.$categorySwatch.innerHTML = `
-			<div class="swatch-content">
-				<span class="swatch-label">Choose a Category</span>
-				<span class="swatch-color"></span>
-			</div>
-		`;
-
-		this.$categorySwatch.addEventListener("click", () => {
-			this.$categoriesDlg.showModal();
-		});
-
-		container.appendChild(this.$categorySwatch);
-
-		this.$swatchLabel = this.$categorySwatch.querySelector('.swatch-label')!;
-		this.$swatchColor = this.$categorySwatch.querySelector('.swatch-color')!;
-		this.updateSwatch();
-	}
-
-	private updateSwatch(): void {
-		this.$swatchLabel.textContent = this.currentCategory;
-		this.$swatchColor.style.backgroundColor = this.currentColor;
-	}
-
-	private setCategories(dialog: HTMLDialogElement): void {
-		const dlgContent = dialog.querySelector(".categories-container")!;
+	private setCategories(container: HTMLDivElement): void {
 		this.categories.forEach((cat, i) => {
 			const categoryBlock = new EduBlock();
 			categoryBlock.variant = this.config.variant;
@@ -399,9 +293,9 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 
 			categoryBlock.dataset.category = cat;
 			categoryBlock.dataset.color = color;
+			categoryBlock.style.setProperty('--category-color', color);
 			categoryBlock.innerHTML = `
 				<div class="category-label">${cat}</div>
-				<div class="category-color" style="background-color: ${color}"></div>
 			`;
 
 			categoryBlock.addEventListener("click", (e) => {
@@ -410,11 +304,15 @@ export class OpenClassification extends BaseInteraction<ClassificationData> {
 				this.currentColor = block.dataset.color!;
 
 				this.style.setProperty('--current-color', this.currentColor);
-				this.updateSwatch();
-				this.$categoriesDlg.close();
+				container.querySelectorAll('edu-block').forEach((el) => el.classList.remove('active'));
+				categoryBlock.classList.add('active');
 			});
 
-			dlgContent.append(categoryBlock);
+			if (cat === this.currentCategory) {
+				categoryBlock.classList.add('active');
+			}
+
+			container.append(categoryBlock);
 		});
 	}
 

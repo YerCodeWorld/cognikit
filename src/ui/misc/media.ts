@@ -111,8 +111,9 @@ function renderInlineWithExpand(container: HTMLElement, asset: Asset): void {
 position: relative; 
 display: flex; 
 justify-content: center; 
+align-items: center;
 width: 100%; 
-max-height: 20vh; 
+max-height: clamp(140px, 26cqh, 240px); 
 overflow-y: auto; 
 overflow-x: hidden;`;
 
@@ -351,6 +352,7 @@ export class EduMedia extends HTMLElement {
 
 				.media-image {
 					width: 100%;
+					max-height: clamp(140px, 26cqh, 240px);
 					display: block;
 					object-fit: contain;
 					border: 2px solid rgb(var(--edu-ink));
@@ -387,6 +389,7 @@ export class EduMedia extends HTMLElement {
 
 				.media-video {
 					width: 100%;
+					max-height: clamp(160px, 28cqh, 280px);
 					height: auto;
 					display: block;
 					border: 2px solid rgb(var(--edu-ink));

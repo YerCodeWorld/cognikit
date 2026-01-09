@@ -72,37 +72,38 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				:host {
+				simultaneous-association {
 					--current-color: #3b82f6;
 					display: flex;
 					width: 100%;
 					height: 100%;
 					box-sizing: border-box;
+					container-type: size;
+					container-name: association;
 				}
 
 				.container {
 					display: grid;
-					grid-template-columns: 1fr 1fr;
-					gap: 2.5rem;
-					padding: 2rem;
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+					gap: clamp(0.75rem, min(2.5cqw, 2.5cqh), 2rem);
+					padding: clamp(0.75rem, min(2.5cqw, 2.5cqh), 2rem);
 					width: 100%;
 					height: 100%;
-					align-content: center;
+					align-content: stretch;
 					box-sizing: border-box;
 				}
 
 				.column {
-					display: flex;
-					flex-direction: column;
-					gap: 0.5rem;
-					justify-content: flex-start;
+					display: grid;
+					grid-template-rows: auto 1fr;
+					gap: clamp(0.25rem, min(1.2cqw, 1.2cqh), 0.75rem);
 					width: 100%;
-					max-width: 400px;
-					margin: 0 auto;
+					min-width: 0;
+					min-height: 0;
 				}
 
 				.column-label {
-					font-size: 0.9rem;
+					font-size: clamp(0.8rem, 1.8cqh, 1rem);
 					font-weight: 600;
 					color: rgb(var(--edu-second-ink));
 					margin-bottom: 0.25rem;
@@ -110,21 +111,46 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 				}
 
 				.items-list {
-					display: flex;
-					flex-direction: column;
-					gap: 0.75rem;
+					display: grid;
+					grid-template-columns: 1fr;
+					grid-auto-rows: minmax(44px, 1fr);
+					gap: clamp(0.35rem, min(1.2cqw, 1.2cqh), 0.75rem);
+					min-height: 0;
+					height: 100%;
+					align-content: stretch;
+					align-items: stretch;
 				}
 
 				edu-chip:hover {
 					transform: translateY(-2px);
 				}
 
-				edu-chip::part(content-zone) { width: 80%; }
+				edu-chip {
+					width: 100%;
+					height: 100%;
+				}
 
-				@media (max-width: 768px) {
+				edu-chip::part(content-zone) {
+					width: 100%;
+					height: 100%;
+				}
+
+				@container association (max-width: 640px) {
 					.container {
-						gap: 1.5rem;
-						padding: 1.5rem;
+						gap: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+						padding: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
+					}
+				}
+
+				@container association (max-height: 420px) {
+					.items-list[data-compact="true"] {
+						grid-template-columns: repeat(2, minmax(0, 1fr));
+					}
+				}
+
+				@container association (max-width: 520px) {
+					.items-list[data-compact="true"] {
+						grid-template-columns: repeat(2, minmax(0, 1fr));
 					}
 				}
 			</style>
@@ -132,11 +158,11 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			<div class="container" id="columns-container">
 				<div class="column">
 					<div class="column-label">Left Items</div>
-					<div class="items-list" id="left-col"></div>
+					<div class="items-list" id="left-col" data-compact="${this.leftItems.length >= 7}"></div>
 				</div>
 				<div class="column">
 					<div class="column-label">Right Items</div>
-					<div class="items-list" id="right-col"></div>
+					<div class="items-list" id="right-col" data-compact="${this.rightItems.length >= 7}"></div>
 				</div>
 			</div>
 		`;
@@ -153,7 +179,7 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			
 			setUpChipData(item, chip, this.assets?.assetsById);
 			chip.dataset.val = item;
-			chip.prefix = `${i+1})`;
+			// chip.prefix = `${i+1})`;
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;
@@ -200,7 +226,7 @@ export class SimultaneousAssociation extends BaseInteraction<AssociationData> {
 			setUpChipData(item, chip, this.assets?.assetsById);
 			chip.dataset.val = item;
 			chip.dataset.colorIndex = `${i+1}`; 
-			chip.prefix = `${i+1})`;  
+			// chip.prefix = `${i+1})`;  
 
 			chip.addEventListener("click", (e) => {
 				const chip = e.currentTarget as EduChip;
