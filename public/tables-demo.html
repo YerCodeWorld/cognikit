@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniKit - Tables Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+	  :root {
+            --edu-bg:            247 249 252;
+            --edu-card:          255 255 255;
+            --edu-ink:           31 41 55;
+            --edu-second-ink:    71 85 105;
+            --edu-third-ink:     100 116 139;
+            --edu-inverted-ink:  248 250 252;
+            --edu-success:       22 163 74;
+            --edu-error:         220 38 38;
+            --edu-warning:       255 222 33;
+            --edu-neutral:       14 165 233;
+            --edu-first-accent:  49 120 198;
+            --edu-second-accent: 245 158 11;
+            --edu-third-accent:  236 72 153;
+            --edu-border:        229 231 235;
+            --edu-muted:         243 244 246;
+            --edu-radius:        0.375rem;
+            --edu-shadow-color:  0 0 0;
+            --edu-pad:           1rem;
+            --edu-mar:           0;
+        }
+
+        body {
+            background: rgb(var(--edu-bg));
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: rgb(var(--edu-card));
+            border-bottom: 2px solid rgb(var(--edu-border));
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            color: rgb(var(--edu-ink));
+            font-weight: 700;
+        }
+
+        .header-info {
+            font-size: 0.9rem;
+            color: rgb(var(--edu-second-ink));
+        }
+
+        .main-layout {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: rgb(var(--edu-card));
+            border-right: 2px solid rgb(var(--edu-border));
+            overflow-y: auto;
+            padding: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 {
+            font-size: 1rem;
+            color: rgb(var(--edu-ink));
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .example-group {
+            margin-bottom: 2rem;
+        }
+
+        .example-group h3 {
+            font-size: 0.85rem;
+            color: rgb(var(--edu-second-ink));
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .example-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background: rgb(var(--edu-bg));
+            border: 2px solid rgb(var(--edu-border));
+            border-radius: 8px;
+            color: rgb(var(--edu-ink));
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .example-btn:hover {
+            border-color: rgb(var(--edu-first-accent));
+            background: rgb(var(--edu-card));
+        }
+
+        .example-btn.active {
+            background: rgb(var(--edu-first-accent));
+            border-color: rgb(var(--edu-first-accent));
+            color: rgb(var(--edu-inverted-ink));
+        }
+
+        .example-btn-title {
+            font-weight: 600;
+        }
+
+        .example-btn-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .interaction-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        edu-window {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .variant-controls {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgb(var(--edu-border));
+        }
+
+        .variant-controls label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgb(var(--edu-ink));
+            margin-bottom: 0.5rem;
+        }
+
+        .variant-controls select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid rgb(var(--edu-border));
+            border-radius: 6px;
+            background: rgb(var(--edu-bg));
+            color: rgb(var(--edu-ink));
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 40vh;
+                border-right: none;
+                border-bottom: 2px solid rgb(var(--edu-border));
+            }
+
+            .viewport {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 CogniKit Tables Showcase</h1>
+        <div class="header-info">All Table Types & Configurations</div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <h2>Examples</h2>
+
+            <div class="variant-controls">
+                <label for="variant-select">Variant Style</label>
+                <select id="variant-select">
+                    <option value="elegant">Elegant</option>
+                    <option value="playful">Playful</option>
+                    <option value="outline" selected>Outline</option>
+                    <option value="letter">Letter</option>
+                    <option value="sign">Sign</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="glass">Glass</option>
+                    <option value="card">Card</option>
+			<option value="empty">Empty</option>
+                </select>
+            </div>
+
+            <div class="example-group">
+                <h3>Classification Tables</h3>
+                <button class="example-btn" data-example="classification-basic">
+                    <span class="example-btn-title">Programming Languages</span>
+                    <span class="example-btn-desc">Multi-select • Checkbox mode</span>
+                </button>
+            </div>
+
+            <div class="example-group">
+                <h3>N-ary Choice Tables</h3>
+                <button class="example-btn" data-example="nary-basic">
+                    <span class="example-btn-title">True/False Statements</span>
+                    <span class="example-btn-desc">Single-select • Radio mode</span>
+                </button>
+                <button class="example-btn" data-example="nary-science">
+                    <span class="example-btn-title">Element States</span>
+                    <span class="example-btn-desc">Solid/Liquid/Gas classification</span>
+                </button>
+            </div>
+
+            <div class="example-group">
+                <h3>Adjacency Tables</h3>
+                <button class="example-btn" data-example="adjacency-numbers">
+                    <span class="example-btn-title">Department Influence</span>
+                    <span class="example-btn-desc">Number inputs • Symmetric matrix</span>
+                </button>
+                <button class="example-btn" data-example="adjacency-select">
+                    <span class="example-btn-title">How People Think About Each Other</span>
+                    <span class="example-btn-desc">Select • intelligent/naive/cool/boring</span>
+                </button>
+                <button class="example-btn" data-example="adjacency-text">
+                    <span class="example-btn-title">Cross-Department Projects</span>
+                    <span class="example-btn-desc">Text inputs • Free-form responses</span>
+                </button>
+            </div>
+
+            <div class="example-group">
+                <h3>Lookup Tables</h3>
+                <button class="example-btn" data-example="lookup-prices">
+                    <span class="example-btn-title">Product Prices by Country</span>
+                    <span class="example-btn-desc">Number inputs • Pricing data</span>
+                </button>
+                <button class="example-btn" data-example="lookup-ratings">
+                    <span class="example-btn-title">Service Ratings</span>
+                    <span class="example-btn-desc">Select dropdowns • Star ratings</span>
+                </button>
+                <button class="example-btn" data-example="lookup-schedule">
+                    <span class="example-btn-title">Class Schedule</span>
+                    <span class="example-btn-desc">Text inputs • Teacher assignments</span>
+                </button>
+                <button class="example-btn" data-example="lookup-partial">
+                    <span class="example-btn-title">Product Availability</span>
+                    <span class="example-btn-desc">Partial table • Disabled cells demo</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="viewport">
+            <div class="interaction-container">
+                <edu-window id="interaction-viewport"></edu-window>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            ClassificationMatrix,
+            NaryChoiceTable,
+            AdjacencyTable,
+            LookupTable,
+            InteractionsBaseShell,
+            adjacencyTableDataParser,
+            lookupTableDataParser,
+            basicTableDataParser
+        } from './app.js';
+
+        const viewport = document.getElementById('interaction-viewport');
+        const variantSelect = document.getElementById('variant-select');
+        let currentInteraction = null;
+        let currentVariant = 'outline';
+
+        // Example definitions
+        const examples = {
+            'classification-basic': {
+                type: 'ClassificationMatrix',
+                name: 'Programming Languages',
+                code: `
+INTERPRETED = Python | JavaScript | Ruby;
+COMPILED = C++ | Rust | Go;
+STRONGLY_TYPED = Python | C++ | Rust | Go;
+WEAKLY_TYPED = JavaScript | Ruby;
+                `.trim(),
+                config: { variant: 'outline' }
+            },
+
+            'nary-basic': {
+                type: 'NaryChoiceTable',
+                name: 'True/False Statements',
+                code: `
+TRUE = Water is blue | An active volcano is hot | Paris is in France;
+FALSE = MJ was a piano player | Africa is above Europe | A chef is someone who writes poems;
+                `.trim(),
+                config: { variant: 'outline' }
+            },
+
+            'nary-science': {
+                type: 'NaryChoiceTable',
+                name: 'Element States',
+                code: `
+SOLID = Ice | Iron | Diamond;
+LIQUID = Water | Mercury | Oil;
+GAS = Oxygen | Helium | Steam;
+                `.trim(),
+                config: { variant: 'outline' }
+            },
+
+            'adjacency-numbers': {
+                type: 'AdjacencyTable',
+                name: 'Department Influence (1-5 scale)',
+                code: `
+marketing = 4 | 2 | 3;
+it = 3 | 5 | 4;
+finance = 2 | 3 | 4;
+hr = 4 | 3 | 2;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'number' }
+            },
+
+            'adjacency-select': {
+                type: 'AdjacencyTable',
+                name: 'How People Think About Each Other',
+                code: `
+alice = intelligent | cool | naive;
+bob = cool | boring | intelligent;
+charlie = naive | intelligent | cool;
+diana = boring | naive | intelligent;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'select' }
+            },
+
+            'adjacency-text': {
+                type: 'AdjacencyTable',
+                name: 'Cross-Department Projects',
+                code: `
+sales = Customer Portal | Analytics Dashboard;
+engineering = Product Launch | Data Pipeline;
+marketing = Brand Redesign | SEO Campaign;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'text' }
+            },
+
+            'lookup-prices': {
+                type: 'LookupTable',
+                name: 'Product Prices by Country (USD)',
+                code: `
+= Japan | USA | France | Germany;
+Milk = 2 | 4 | 3 | 2.5;
+Sugar = 1 | 1.5 | 2 | 1.8;
+Eggs = 1 | 3 | 1.5 | 2;
+Bread = 1.5 | 2.5 | 2 | 1.8;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'number' }
+            },
+
+            'lookup-ratings': {
+                type: 'LookupTable',
+                name: 'Service Ratings (1-5 stars)',
+                code: `
+= Speed | Quality | Support | Value;
+Restaurant_A = 5 | 4 | 3 | 5;
+Restaurant_B = 3 | 5 | 4 | 3;
+Restaurant_C = 4 | 3 | 5 | 4;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'select' }
+            },
+
+            'lookup-schedule': {
+                type: 'LookupTable',
+                name: 'Class Schedule',
+                code: `
+= Monday | Tuesday | Wednesday | Thursday | Friday;
+Math = Mr_Smith | Ms_Jones | Mr_Smith | Ms_Jones | Mr_Smith;
+Science = Dr_Brown | Dr_Brown | Ms_White | Ms_White | Dr_Brown;
+English = Ms_Davis | Mr_Wilson | Ms_Davis | Mr_Wilson | Ms_Davis;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'text' }
+            },
+
+            'lookup-partial': {
+                type: 'LookupTable',
+                name: 'Product Availability by Region',
+                code: `
+= North_America | Europe | Asia | South_America;
+Laptop = 1299 | 1399 | - | 1499;
+Smartphone = 899 | 999 | 799 | -;
+Tablet = - | 599 | 499 | 699;
+Smartwatch = 399 | - | 349 | 399;
+                `.trim(),
+                config: { variant: 'outline', cellKind: 'number' }
+            }
+        };
+
+        function parseAndCreateInteraction(example) {
+            const { type, code, config } = example;
+            config.variant = currentVariant;
+
+            let data, interaction;
+
+            switch (type) {
+                case 'ClassificationMatrix': {
+                    const parsed = basicTableDataParser(code);
+                    if (parsed.errors) {
+                        console.error('Parse errors:', parsed.errors);
+                        throw new Error('Failed to parse classification data');
+                    }
+                    interaction = new ClassificationMatrix(parsed.data, config);
+                    break;
+                }
+
+                case 'NaryChoiceTable': {
+                    const parsed = basicTableDataParser(code);
+                    if (parsed.errors) {
+                        console.error('Parse errors:', parsed.errors);
+                        throw new Error('Failed to parse n-ary data');
+                    }
+                    interaction = new NaryChoiceTable(parsed.data, config);
+                    break;
+                }
+
+                case 'AdjacencyTable': {
+                    const parsed = adjacencyTableDataParser(code);
+                    if (parsed.errors) {
+                        console.error('Parse errors:', parsed.errors);
+                        throw new Error('Failed to parse adjacency data');
+                    }
+                    interaction = new AdjacencyTable(parsed.data, config);
+                    break;
+                }
+
+                case 'LookupTable': {
+                    const parsed = lookupTableDataParser(code);
+                    if (parsed.errors) {
+                        console.error('Parse errors:', parsed.errors);
+                        throw new Error('Failed to parse lookup data');
+                    }
+                    interaction = new LookupTable(parsed.data, config);
+                    break;
+                }
+
+                default:
+                    throw new Error('Unknown table type: ' + type);
+            }
+
+            return interaction;
+        }
+
+        function loadExample(exampleKey) {
+            try {
+                const example = examples[exampleKey];
+                if (!example) throw new Error('Example not found: ' + exampleKey);
+
+                const interaction = parseAndCreateInteraction(example);
+                viewport.setInteraction(interaction);
+                currentInteraction = interaction;
+
+                // Update active button
+                document.querySelectorAll('.example-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.example === exampleKey);
+                });
+
+                console.log(`✅ Loaded: ${example.name} (${example.type})`);
+            } catch (error) {
+                console.error('❌ Error loading example:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Event listeners
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                loadExample(btn.dataset.example);
+            });
+        });
+
+        variantSelect.addEventListener('change', (e) => {
+            currentVariant = e.target.value;
+            if (currentInteraction) {
+                currentInteraction.onVariantChange(currentVariant);
+                viewport.setAttribute('variant', currentVariant);
+            }
+        });
+
+        // Load first example on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample('classification-basic');
+        });
+    </script>
+</body>
+</html>

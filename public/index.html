@@ -426,12 +426,10 @@
                     <select id="interaction-type">
                         <option value="SequentialClassification">Sequential Classification</option>
                         <option value="SimultaneousAssociation">Simultaneous Association</option>
-                        <option value="ClassificationMatrix">Classification Matrix</option>
                         <option value="OpenClassification">Open Classification</option>
-                        <option value="NaryChoiceTable">N-ary Choice Table</option>
-                        <option value="TemporalSequencingScalable" selected>Temporal Sequencing</option>
                         <option value="RankOrderScalable">Rank Order</option>
-                        <option value="MCQ">MCQ/MRQ</option>
+                        <option value="ListRecall">List Recall</option>
+                        <option value="MCQ" selected>MCQ/MRQ</option>
                     </select>
                 </div>
 
@@ -471,13 +469,11 @@
 
     <script type="module">
         import {
-            ClassificationMatrix,
-            NaryChoiceTable,
             OpenClassification,
             SequentialClassification,
             SimultaneousAssociation,
-            TemporalSequencingScalable,
             RankOrderScalable,
+            ListRecall,
             MCQ,
             InteractionsBaseShell,
             parseYamlAssets,
@@ -592,18 +588,6 @@
                 },
                 assets: 'cow:\n type: image\n url: https://images.unsplash.com/photo-1595365691689-6b7b4e1970cf?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
             },
-            ClassificationMatrix: {
-                data: {
-                    rows: ['Apple', 'Carrot', 'Chicken'],
-                    cols: ['Fruit', 'Vegetable', 'Protein'],
-                    answerKey: new Map([
-                        ['Fruit', ['Apple']],
-                        ['Vegetable', ['Carrot']],
-                        ['Protein', ['Chicken']]
-                    ])
-                },
-                assets: ''
-            },
             OpenClassification: {
                 data: {
                     type: 'classification',
@@ -615,28 +599,17 @@
                 },
                 assets: ''
             },
-            NaryChoiceTable: {
-                data: {
-                    rows: ['2 + 2 = 4', '3 + 3 = 7', 'Paris is in France'],
-                    cols: ['True', 'False'],
-                    answerKey: new Map([
-                        ['True', ['2 + 2 = 4', 'Paris is in France']],
-                        ['False', ['3 + 3 = 7']]
-                    ])
-                },
-                assets: ''
-            },
-            TemporalSequencingScalable: {
-                data: {
-                    type: 'seriation',
-                    items: ['egg', 'caterpillar', 'chrysalis', '@:butterfly']
-                },
-                assets: 'butterfly:\n  type: image\n  url: https://images.unsplash.com/photo-1533048324814-79b0a31982f1?q=80&w=768'
-            },
             RankOrderScalable: {
                 data: {
                     type: 'seriation',
                     items: ['Bronze Age', 'Iron Age', 'Middle Ages', 'Renaissance', 'Industrial Revolution', 'Information Age']
+                },
+                assets: ''
+            },
+            ListRecall: {
+                data: {
+                    type: 'seriation',
+                    items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                 },
                 assets: ''
             },
@@ -685,6 +658,9 @@ laugh:\n type: audio\n url: https://www.soundjay.com/human/sounds/man-laughing-0
 `
             }
         };
+	
+	dataJson.value = JSON.stringify(dataTemplates[interactionType.value].data);
+	assetsYaml.value = dataTemplates[interactionType.value].assets;
 
         // Update form when interaction type changes
         interactionType.addEventListener('change', (e) => {
@@ -740,20 +716,14 @@ laugh:\n type: audio\n url: https://www.soundjay.com/human/sounds/man-laughing-0
                     case 'SimultaneousAssociation':
                         interaction = new SimultaneousAssociation(data, config, assets);
                         break;
-                    case 'ClassificationMatrix':
-                        interaction = new ClassificationMatrix(data, config, assets);
-                        break;
                     case 'OpenClassification':
                         interaction = new OpenClassification(data, config, assets);
                         break;
-                    case 'NaryChoiceTable':
-                        interaction = new NaryChoiceTable(data, config, assets);
-                        break;
-                    case 'TemporalSequencingScalable':
-                        interaction = new TemporalSequencingScalable(data, config, assets);
-                        break;
                     case 'RankOrderScalable':
                         interaction = new RankOrderScalable(data, config, assets);
+                        break;
+                    case 'ListRecall':
+                        interaction = new ListRecall(data, config, assets);
                         break;
                     case 'MCQ':
                         interaction = new MCQ(data, config, assets);

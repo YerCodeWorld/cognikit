@@ -1,11 +1,6 @@
-import { StimulusModality, Variant, ResponseModality, ResponseObjectModality } from "../shared/types";
+import { Variant } from "../shared/types";
 import { InteractionData } from "./Data";
-
-export type InteractionPresentationMode = 
-	'normal' | 
-	'mobile' | 
-	'classrooms' |
-	'study';
+import { AssetType } from "./Assets";
 
 export type InteractionMechanic =
 	'static' 		      |
@@ -17,23 +12,18 @@ export type InteractionMechanic =
 	'game';
 
 export type IInteractionSpec = unknown;
-export type PromptDataModality = ResponseObjectModality;
 
 // refactor to InteractionBaseSpec
 export type InteractionConfig = {
 	prompt: string;
-	promptModality?: PromptDataModality; 
+	promptModality?: AssetType; 
 	promptData?: string;
 	promptDataSpec?: string;
 
 	variant: Variant;  
 	shuffle: boolean;
 
-	stimulus?: StimulusModality;
 	construct?: string; // specify what we are measuring (could be used as a label in the display)
-
-	responseModality?: ResponseModality;
-	presentationMode?: InteractionPresentationMode;
 
 	playStaggeringAnimation?: boolean;
 	animationsEnabled?: boolean;

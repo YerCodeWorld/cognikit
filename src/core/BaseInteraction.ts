@@ -1,8 +1,9 @@
 import { ProgressTracker } from "./utilities/ProgressTracker";
 import { Variant, ValidationResult } from "../shared/types";
+import { Validator } from "../types/Global";
 import { InteractionConfig, InteractionMechanic } from "../types/Interactions";
 import { InteractionData } from "../types/Data";
-import { NormalizedAssets } from "../shared/assets";
+import { NormalizedAssets } from "../types/Assets";
 import { AnimationsManager, SoundManager } from "../shared/managers";
 
 export type InteractionEventMap = {
@@ -17,15 +18,25 @@ export type InteractionEventMap = {
 export abstract class BaseInteraction<T extends InteractionData> extends HTMLElement {
 	
 	public readonly id: string;
-	public implementsProgress = true;
-	public isValid = true;
-
+	
 	abstract readonly interactionMechanic: InteractionMechanic;
+	// abstract readonly isSequential: boolean;
+	// abstract readonly congnitiveOp: CognitiveOp;
+	// abstract readonly implementsProgress: boolean;
+	
+	// abstract validator: (data: InteractionData): boolean;
+	// abstract parser: (code: string): GrammarParsingResult;
+	// abstract grader: (data: InteractionData, userResponse: unknown): GradingResult;
+
+	public isValid = true;
+	public implementsProgress = true;
 
 	protected data: T;
 	public config: InteractionConfig;
 	protected assets: NormalizedAssets | null;
-
+	
+	// utilities
+	// public scoringTracker: ScoringTracker;
 	public progressTracker: ProgressTracker;
 	protected animationsManager: AnimationsManager;
 	protected soundManager: SoundManager;
@@ -33,7 +44,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	private _initialized = false;
 	public errors: string = '';
 
-	constructor(data: T, config: InteractionConfig, assets?: NormalizedAssets | null, validator?) {
+	constructor(data: T, config: InteractionConfig, assets?: NormalizedAssets | null, validator?: Validator) {
 		super();
 
 		// Handle undefined parameters gracefully - set defaults
@@ -62,6 +73,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 			}
 		}
 
+		// this.scoringTracker = new ScoringTracker();
 		this.progressTracker = new ProgressTracker();
 
 		this.soundManager = new SoundManager();
@@ -97,6 +109,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	abstract render(): void;
 	abstract getCurrentState(): any;
 	abstract isInteractionComplete(): boolean;
+	abstract onVariantChange(variant: Variant): void;
 	abstract onHint(): void;
 	// for immediate feedback
 	// abstact correctSingle(): void {}
@@ -195,7 +208,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	}
 
 	// ==================== PUBLIC API ====================
-	public onVariantChange(newVariant: Variant): void {}
+	public onChange(newVariant: Variant): void {}
 	public setSteps(steps: number): void {}
 	
 	public submit(): void {
@@ -214,13 +227,13 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 		this.render();
 	}
 
-	public setVariant(variant: Variant): void {
+	public set(variant: Variant): void {
 		this.config.variant = variant;
 		this.setAttribute('variant', variant);
-		this.onVariantChange(variant);
+		this.onChange(variant);
 	}
 
-	public getVariant(): Variant {
+	public get(): Variant {
 		return (this.getAttribute('variant') as Variant) || this.config.variant || 'outline';
 	}
 }

@@ -1,5 +1,5 @@
 import { soundManager } from "../../shared/managers/SoundManager";
-import { NormalizedAssets, Asset } from "../../shared/assets";
+import { NormalizedAssets, Asset } from "../../types/Assets";
 import { EduDialog } from "./dialog";
 
 /**

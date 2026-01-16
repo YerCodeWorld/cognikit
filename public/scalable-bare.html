@@ -227,14 +227,12 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>Temporal Sequencing (Bare)</h1>
+        <h1>Interactions (Bare)</h1>
         <div class="header-controls">
             <div class="control-group">
                 <label for="interaction-select">Interaction:</label>
                 <select id="interaction-select">
-                    <option value="temporal-scalable" selected>Temporal Sequencing (Scalable)</option>
-                    <option value="temporal">Temporal Sequencing</option>
-                    <option value="rank-order-scalable">Rank Order (Scalable)</option>
+                    <option value="rank-order-scalable" selected>Rank Order (Scalable)</option>
                     <option value="simultaneous-association">Simultaneous Association</option>
                     <option value="sequential-classification">Sequential Classification</option>
                     <option value="open-classification">Open Classification</option>
@@ -246,9 +244,9 @@
                 <select id="variant-select">
                     <option value="elegant">Elegant</option>
                     <option value="playful">Playful</option>
-                    <option value="outline" selected>Outline</option>
+                    <option value="outline">Outline</option>
                     <option value="letter">Letter</option>
-                    <option value="sign">Sign</option>
+                    <option value="sign" selected>Sign</option>
                     <option value="minimal">Minimal</option>
                     <option value="glass">Glass</option>
                     <option value="card">Card</option>
@@ -274,8 +272,6 @@
             SequentialClassification,
             OpenClassification,
             MCQ,
-            TemporalSequencing,
-            TemporalSequencingScalable,
             SimultaneousAssociation,
             parseYamlAssets,
             validateAndNormalizeAssets
@@ -358,9 +354,8 @@ butterfly:
 
         function mountInteraction(type) {
             interactionElement.innerHTML = '';
-            if (type === 'temporal') {
-                interaction = new TemporalSequencing(temporalData, config, normalizedAssets);
-            } else if (type === 'rank-order-scalable') {
+
+            if (type === 'rank-order-scalable') {
                 interaction = new RankOrderScalable(temporalData, config, normalizedAssets);
             } else if (type === 'simultaneous-association') {
                 interaction = new SimultaneousAssociation(associationData, config, normalizedAssets, {
@@ -375,7 +370,7 @@ butterfly:
             } else if (type === 'mcq') {
                 interaction = new MCQ(mcqData, config, normalizedAssets);
             } else {
-                interaction = new TemporalSequencingScalable(temporalData, config, normalizedAssets);
+                interaction = new RankOrderScalable(temporalData, config, normalizedAssets);
             }
             interactionElement.append(interaction);
             bindInteractionEvents();

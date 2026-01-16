@@ -1,32 +1,38 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
-import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
-import { EduTable, naryTableGrader, getNaryCellGrading } from "../../../engines/tables";
+import { TableConfiguration, ValueTableData, TableCompletion } from "../../../types/Tables";
+import { EduTable, adjacencyTableGrader, detectCellKind, getAllValues, getAllUniqueValues, getAdjacencyCellGrading } from "../../../engines/tables";
 
-export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
+export class AdjacencyTable extends BaseInteraction<ValueTableData> {
 
 	interactionMechanic: InteractionMechanic = "static";
 
 	private _tableConfig: TableConfiguration;
 	private _$table!: EduTable;
 
-	constructor(data: BaseTableData, config: InteractionConfig) {
+	constructor(data: ValueTableData, config: InteractionConfig) {
 		super(data, config);
 
-		// Configure table for n-ary mode (radio buttons)
+		const allValues = getAllValues(data.answerKey);
+		const cellKind = detectCellKind(allValues);
+
+		// Configure table for adjacency mode
 		this._tableConfig = {
 			rows: data.rows,
 			cols: data.cols,
 			answerKey: data.answerKey,
-			cellKind: 'radio',
-			preset: 'n-ary',
+			cellKind,
+			preset: 'adjacency',
+			disabled: (r, c) => r === c, // Disable diagonal
+			allowed: cellKind === 'select' ? () => getAllUniqueValues(data.answerKey) : undefined,
 			variant: config.variant ?? 'outline',
-			shuffle: true 
+			shuffle: config.shuffle ?? false
 		};
 
-		// Initialize progress tracking (one per row)
-		this.initializeProgress(data.rows.length);
+		// Initialize progress tracking (total cells excluding diagonal)
+		const totalCells = data.rows.length * (data.rows.length - 1);
+		this.initializeProgress(totalCells);
 	}
 
 	// ==================== LIFECYCLE ====================
@@ -96,21 +102,24 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	// ==================== INTERACTION LOGIC ====================
 
 	/**
-	 * Update progress bar based on how many rows have exactly one selection
-	 * N-ary requires single selection per row
+	 * Update progress bar based on how many non-diagonal cells are filled
 	 */
 	private updateProgressBasedOnCompletion(): void {
 		const state = this._$table.getState();
-		let completedRows = 0;
+		let completedCells = 0;
 
 		for (const row of this.data.rows) {
-			// N-ary requires exactly 1 selection per row
-			if (state[row]?.selectedCols.length === 1) {
-				completedRows++;
+			for (const col of this.data.cols) {
+				if (row === col) continue; // Skip diagonal
+
+				const value = state[row]?.values[col];
+				if (value !== null && value !== undefined && value !== '') {
+					completedCells++;
+				}
 			}
 		}
 
-		this.setProgress(completedRows);
+		this.setProgress(completedCells);
 	}
 
 	getCurrentState(): TableCompletion {
@@ -120,50 +129,61 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	isInteractionComplete(): boolean {
 		const state = this._$table.getState();
 
-		// All rows must have exactly one selection (n-ary constraint)
-		return this.data.rows.every(row =>
-			state[row]?.selectedCols.length === 1
-		);
+		// All non-diagonal cells must have values
+		for (const row of this.data.rows) {
+			for (const col of this.data.cols) {
+				if (row === col) continue; // Skip diagonal
+
+				const value = state[row]?.values[col];
+				if (value === null || value === undefined || value === '') {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	onHint(): void {
 		const state = this._$table.getState();
-		const incompleteRows = this.data.rows.filter(row =>
-			!state[row] || state[row].selectedCols.length !== 1
-		);
 
-		if (incompleteRows.length === 0) {
-			alert('All rows are complete! Click "Check" to submit.');
-			this.emitHintShown('All rows complete');
-			return;
+		// Find first empty non-diagonal cell
+		for (const row of this.data.rows) {
+			for (const col of this.data.cols) {
+				if (row === col) continue;
+
+				const value = state[row]?.values[col];
+				if (value === null || value === undefined || value === '') {
+					alert(`Hint: You haven't filled the cell for "${row}" → "${col}" yet.`);
+					this.emitHintShown(`Empty cell: ${row} → ${col}`);
+					return;
+				}
+			}
 		}
 
-		// Show hint for first incomplete row
-		const firstIncomplete = incompleteRows[0];
-		alert(`Hint: You haven't selected a category for "${firstIncomplete}" yet. Which one does it belong to?`);
-		this.emitHintShown(`Incomplete row: ${firstIncomplete}`);
+		alert('All cells are complete! Click "Check" to submit.');
+		this.emitHintShown('All cells complete');
 	}
 
 	// ==================== GRADING ====================
 
 	/**
-	 * Override submit to include grading using n-ary grader
-	 * N-ary grading is binary per row (100% or 0%)
+	 * Override submit to include grading using adjacency grader
 	 */
 	public submit(): void {
 		// Check completion first (will throw if not complete)
 		super.submit();
 
-		// Grade the response using n-ary grader
+		// Grade the response using adjacency grader
 		const userData = this.getCurrentState();
-		const result = naryTableGrader(
+		const result = adjacencyTableGrader(
 			this.data.answerKey,
 			userData,
 			this.data.rows
 		);
 
 		// Generate per-cell grading feedback
-		const cellGrading = getNaryCellGrading(
+		const cellGrading = getAdjacencyCellGrading(
 			this.data.answerKey,
 			userData,
 			this.data.rows
@@ -172,7 +192,7 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 		// Apply grading state to table
 		this._$table.setGradingState(cellGrading);
 
-		console.log(`N-ary Choice Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
+		console.log(`Adjacency Table Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		// Emit grading event
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
@@ -193,6 +213,6 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	}
 }
 
-if (!customElements.get('nary-choice-table')) {
-	customElements.define('nary-choice-table', NaryChoiceTable);
+if (!customElements.get('adjacency-table')) {
+	customElements.define('adjacency-table', AdjacencyTable);
 }

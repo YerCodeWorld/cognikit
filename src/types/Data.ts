@@ -1,11 +1,17 @@
-import { BaseTableData } from "./Tables";
+import { BaseTableData, ValueTableData } from "./Tables";
+import { TextEngineBaseData, TextEngineBlanksData, TextEngineClassificationData, TextEngineSequentialInteractionData } from "./Text";
 
 export type InteractionData = 
-	ClassificationData |
-	AssociationData    |
-	BaseTableData	   |
-	FreeRecallData 	   |
-	RecognitionData	   |
+	ClassificationData 			|
+	AssociationData    			|
+	BaseTableData	   			|
+	ValueTableData	   			|
+	TextEngineBaseData           		|
+	TextEngineBlanksData 	     		|
+	TextEngineClassificationData 		|
+	TextEngineSequentialInteractionData 	|
+	FreeRecallData 	   			|
+	RecognitionData	   			|
 	SeriationData;
 
 export type ClassificationData = {
@@ -20,23 +26,13 @@ export type AssociationData = {
 	distractors?: string[];
 }
 
-export type FreeRecallData = {
-	type: 'freerecall';
-	instructions: { prompt: string; words: string[] }[];
-}
-
 export type SeriationData = {
 	type: 'seriation';
 	items: string[];
 }
 
-// to be completed later when we get things straight 
-export interface DiscriminationData {
-	type: 'discrimination';
-	data: { content: string; targets: { [pos: string]: string }[] };
-}
-
-export interface CuedRecallData {}
+// Alias for list recall - same structure as seriation (list of items)
+export type FreeRecallData = SeriationData;
 
 export interface RecognitionData {
 	type: 'recognition';

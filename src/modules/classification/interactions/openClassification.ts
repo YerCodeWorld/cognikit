@@ -8,7 +8,7 @@ import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
-import { NormalizedAssets } from "../../../shared/assets";
+import { NormalizedAssets } from "../../../types/Assets";
 import { ClassificationData } from "../../../types/Data";
 
 import { EduChip, setUpChipData } from "../../../ui/misc/chip";

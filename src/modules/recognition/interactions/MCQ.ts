@@ -1,7 +1,7 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
-import { NormalizedAssets } from "../../../shared/assets";
+import { NormalizedAssets } from "../../../types/Assets";
 import { RecognitionData } from "../../../types/Data";
 
 import { EduChip, setUpChipData } from "../../../ui/misc/chip";
@@ -196,6 +196,7 @@ export class MCQ extends BaseInteraction<RecognitionData> {
 				}
 
 				#question-block edu-block::part(block) {
+					border: none;
 					padding: clamp(0.5rem, min(1.6cqw, 1.6cqh), 1rem);
 					height: 100%;
 					max-height: clamp(120px, 30cqh, 260px);

@@ -190,6 +190,7 @@ export class EduInput extends HTMLElement {
 		if (name === "as") {
 			this.render();
 		}
+
 		this.syncAttributes();
 		this.syncContent();
 	}

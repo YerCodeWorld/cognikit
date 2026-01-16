@@ -2,32 +2,6 @@ import { InteractionData } from "../types/Data";
 
 export type Variant = 'elegant' | 'playful' | 'outline' | 'letter' | 'sign' | 'minimal' | 'glass' | 'empty'; 
 
-export type StimulusModality = 
-	'image' 	| 
-	'text' 		| 
-	'audio' 	| 
-	'video' 	| 
-	'tts' 		| 
-	'interactive'   | 
-	'data'   	| 
-	'anchor' 	| 
-	'dynamic'	| 
-	'composite';
-
-export type ResponseObjectModality = 
-	Extract<StimulusModality, 'image' | 'text' | 'audio' | 'video' | 'tts'> | 
-	'html'; 
-
-export type ResponseModality = 
-	'select' | 
-	'write' | 
-	'draw' | 
-	'manipulate' | 
-	'locate' | 
-	'upload' | 
-	'other' | 
-	'none';
-
 export type CognitiveOp = 
 	'discrimination' |
 	'classification' |
@@ -66,3 +40,7 @@ export type ValidationResult = {
 	errors: Record<string, string> | null; 
 }
 
+export type GrammarParser = (code: string) => GrammarParseResult;
+export type GrammarParseResult = ParsingResult;
+
+export type SimpleErrorObject = Record<string, string>;

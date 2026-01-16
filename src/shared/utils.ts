@@ -45,12 +45,6 @@ export function escapeHtml(s: string) {
 	));
 }
 
-export function extractDistractors(s: string): { ok: boolean; data?: any; errors?: Record<string, string> } {
-	const distractors: string[] = [];
-	const cleanedcode: string = '';
-	return { ok: true, data: { content: distractors, remain: cleanedcode }}
-}
-
 export function parseYamlAssets(yamlText: string): unknown {
 	try {
 		return YAML.load(yamlText);
@@ -61,3 +55,43 @@ export function parseYamlAssets(yamlText: string): unknown {
 	}
 }
 
+export function isString(v: unknown): v is string {
+	return typeof v === "string";
+}
+
+export function isNumber(v: unknown): v is number {
+	return typeof v === "number";
+}
+
+export function looksLikeTime(s: string): boolean {
+	// Accept mm:ss or hh:mm:ss (not strict bounds validation)
+	return /^(\d{1,2}:)?\d{1,2}:\d{2}$/.test(s);
+}
+
+export function typeOf(v: unknown): string {
+	if (v === null) return "null";
+	if (Array.isArray(v)) return "array";
+	return typeof v;
+}
+
+export function isPlainObject(v: unknown): v is Record<string, unknown> {
+	return (
+		typeof v === "object" &&
+		v !== null &&
+		(Object.getPrototypeOf(v) === Object.prototype ||
+		Object.getPrototypeOf(v) === null)
+	);
+}
+
+export function splitByPipes(input: string): string[] {
+	return input.split("|").map(s => s.trim()).filter(Boolean);
+}
+
+export const dedupe = <T,>(arr: T[]) => [...new Set(arr)];
+
+export function isOneOf<const T extends readonly string[]>(
+	value: string,
+	allowed: T
+): value is T[number] {
+	return (allowed as readonly string[]).includes(value);
+}

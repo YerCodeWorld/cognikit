@@ -1,10 +1,10 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
-import { NormalizedAssets } from "../../../shared/assets";
+import { NormalizedAssets } from "../../../types/Assets";
 import { SeriationData } from "../../../types/Data";
 
-import { EduChipScalable, setUpChipDataScalable } from "../../../ui/misc/chip-scalable/chip";
+import { EduChip, setUpChipData } from "../../../ui/misc/chip";
 import { shuffle } from "../../../shared";
 import { seriationGrader } from "../utilities/grader";
 
@@ -78,7 +78,7 @@ export class RankOrderScalable extends BaseInteraction<SeriationData> {
 	}
 
 	onVariantChange(newVariant: Variant): void {
-		this.querySelectorAll('edu-chip-scalable').forEach((el: EduChipScalable) => {
+		this.querySelectorAll('edu-chip').forEach((el: EduChip) => {
 			if (el.variant !== undefined) {
 				el.variant = newVariant;
 			}
@@ -91,7 +91,7 @@ export class RankOrderScalable extends BaseInteraction<SeriationData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				rank-order-scalable {
+				rank-order {
 					display: flex;
 					width: 100%;
 					height: 100%;
@@ -155,7 +155,7 @@ export class RankOrderScalable extends BaseInteraction<SeriationData> {
 				}
 
 				/* Height-driven reflow: only split columns when height is tight */
-				@container rank-order (max-height: 520px) {
+				@container rank-order (max-height: 220px) {
 					.rows-container {
 						grid-template-columns: repeat(2, 1fr);
 						grid-template-rows: repeat(${Math.ceil(this.data.items.length / 2)}, minmax(${this.MIN_ITEM_HEIGHT}px, 1fr));
@@ -163,7 +163,7 @@ export class RankOrderScalable extends BaseInteraction<SeriationData> {
 					}
 				}
 
-				@container rank-order (max-height: 440px) {
+				@container rank-order (max-height: 140px) {
 					.rows-container {
 						grid-template-columns: repeat(3, 1fr);
 						grid-template-rows: repeat(${Math.ceil(this.data.items.length / 3)}, minmax(${this.MIN_ITEM_HEIGHT}px, 1fr));
@@ -222,7 +222,7 @@ export class RankOrderScalable extends BaseInteraction<SeriationData> {
 					display: flex;
 				}
 
-				edu-chip-scalable {
+				edu-chip {
 					width: 100%;
 					height: 100%;
 					flex: 1;
@@ -328,12 +328,12 @@ export class RankOrderScalable extends BaseInteraction<SeriationData> {
 			const chipWrapper = document.createElement('div');
 			chipWrapper.className = 'chip-wrapper';
 
-			const chip = document.createElement('edu-chip-scalable') as EduChipScalable;
+			const chip = document.createElement('edu-chip') as EduChip;
 			chip.variant = this.variant;
 			chip.dataset.item = item;
 			chip.prefix = String(index + 1);
 			chip.draggable = true;
-			setUpChipDataScalable(item, chip, this.assets?.assetsById);
+			setUpChipData(item, chip, this.assets?.assetsById);
 
 			// Show correctness state if graded
 			if (this.isGraded) {

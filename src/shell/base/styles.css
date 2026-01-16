@@ -6,6 +6,8 @@
 	container-type: size;
 }
 
+.edu-hidden { display: none !important; }
+
 .wrap {
 	display: flex;
 	flex-direction: column;
@@ -55,10 +57,7 @@ header {
 	font-weight: 600;
 	color: rgb(var(--edu-second-ink));
 	font-variant-numeric: tabular-nums;
-}
-
-.timer[data-hidden="true"] {
-	display: none;
+	cursor: pointer;
 }
 
 .timer[data-warning="true"] {
@@ -84,7 +83,7 @@ header {
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
-	animation: fadeIn 0.3s ease;
+	animation: fadeIn 1s ease;
 	flex: 1;
 	min-height: 0;
 }
@@ -119,16 +118,20 @@ header {
 
 .error-content,
 .attempts-message,
-.score-display {
+.score-display,
+.timer-display {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	min-height: 200px;
-	padding: 2rem;
 	text-align: center;
-	font-size: 1.1rem;
+	height: 100%;
 	color: rgb(var(--edu-ink));
+}
+
+.timer-display .timer {
+	font-size: 10rem !important;
+	color: rgb(var(--edu-ink)) !important;
 }
 
 .error-content {
@@ -146,10 +149,10 @@ footer {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	padding: clamp(0.3rem, 0.8cqh, 0.6rem);
+	/* padding: clamp(0.3rem, 0.8cqh, 0.6rem);*/ 
 	gap: clamp(0.25rem, 0.8cqh, 0.5rem);
 	flex-shrink: 0;
-	height: clamp(50px, 9cqh, 62px);
+	height: clamp(20px, 9cqh, 62px);
 	min-height: clamp(50px, 9cqh, 62px);
 }
 
@@ -218,10 +221,6 @@ footer {
 
 .progress-bar.score-high::-moz-progress-bar {
 	background: rgb(var(--edu-success)) !important;
-}
-
-.progress-bar[data-hidden="true"] {
-	display: none;
 }
 
 .progress-icon-wrapper {
@@ -313,10 +312,6 @@ footer {
 	cursor: not-allowed;
 }
 
-.check-btn[data-hidden="true"] {
-	display: none;
-}
-
 .btn {
 	padding: clamp(0.25rem, 0.8cqh, 0.4rem);
 	background: transparent;
@@ -339,10 +334,6 @@ footer {
 .btn:active {
 	transform: translateY(0) scale(0.95);
 	box-shadow: none;
-}
-
-.btn[data-hidden="true"] {
-	display: none;
 }
 
 .radio-nav {
@@ -368,9 +359,7 @@ footer {
 	}
 }
 
-.radio-nav input {
-	display: none;
-}
+.radio-nav input { display: none; }
 
 .radio-nav label {
 	cursor: pointer;
@@ -403,29 +392,17 @@ footer {
 	justify-content: space-between;
 }
 
-/* VARIANT STYLES */
-
 :host([variant="empty"]) {
-	& .wrap {
-		background: transparent;
-		border: none;
-	}
-
-	& header {
-		padding: 0.75rem;
-		margin: 0 1.25rem;
-		border-bottom: none;
-	}
+	& .wrap { background: transparent; border: none; }
+	& header { border-bottom: none; }
 
 	& .title {
 		padding-bottom: 5px;
+		max-width: fit-content;
 		border-bottom: 5px solid rgb(var(--edu-ink));
-		width: fit-content;
 	}
 
-	& .timer {
-		font-weight: 700;
-	}
+	& .timer {  }
 
 	& .check-btn {
 		background: transparent;
@@ -440,14 +417,8 @@ footer {
 		border-color: rgb(var(--edu-ink));
 	}
 
-	& .progress-bar::-webkit-progress-bar {
-		background: transparent;
-	}
-
-	& .progress-bar::-webkit-progress-value {
-		background: rgb(var(--edu-ink));
-		border-right: 2px solid rgb(var(--edu-ink));
-	}
+	& .progress-bar::-webkit-progress-bar {background: transparent}
+	& .progress-bar::-webkit-progress-value {background: rgb(var(--edu-ink))}
 
 	& .radio-nav label {
 		background: transparent;
@@ -459,6 +430,8 @@ footer {
 		background: rgb(var(--edu-ink));
 		color: rgb(var(--edu-inverted-ink));
 	}
+
+	& .radio-nav label:hover { background-color: rgb(var(--edu-first-accent)) }
 }
 
 :host([variant="minimal"]) {
@@ -719,7 +692,7 @@ footer {
 		font-weight: 800;
 		font-size: 0.9rem;
 		border-radius: 4px;
-		padding: 0.85rem 2.5rem;
+		margin: 0.85rem 2.5rem;
 	}
 
 	& footer {
@@ -763,25 +736,14 @@ footer {
 	& .wrap {
 		color: rgb(var(--edu-inverted-ink));
 		background: transparent;
-		border: 2px solid rgb(var(--edu-first-accent));
-		border-left: none;
-		border-right: none;
-		border-bottom: 4px solid rgb(var(--edu-first-accent));
-		background: rgb(var(--edu-first-accent) / 0.1);
+		border-width: 0 1px 2px 1px;
+		border-style: solid;
+		border-color: rgb(var(--edu-first-accent));
+		background: rgb(var(--edu-bg) / 0.1);
 	}
 
-	& header {
-		background: rgb(var(--edu-first-accent));
-		border-bottom: none;
-	}
-
-	& .title {
-		color: rgb(var(--edu-inverted-ink));
-	}
-
-	& .timer {
-		color: rgb(var(--edu-inverted-ink));
-	}
+	& header { background: rgb(var(--edu-first-accent)); color: rgb(var(--edu-inverted-ink)) }
+	& .timer { color: rgb(var(--edu-inverted-ink)) }
 
 	& footer {
 		border-top: none;
@@ -790,12 +752,8 @@ footer {
 		padding-right: 0.5rem;
 	}
 
-	& .progress-bar {
-		margin: 0.3rem;
-	}
-
 	& .check-btn {
-		font-size: 1.25rem;
+		font-size: 100%;
 		font-weight: 700;
 		border: none;
 		border-radius: 0;

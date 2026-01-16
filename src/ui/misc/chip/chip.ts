@@ -1,8 +1,9 @@
 import HTML from "./index.html";
 import CSS from "./styles.css";
 
-import { Variant, ResponseObjectModality } from "../../../shared";
-import { NormalizedAssets } from "../../../shared/assets";
+import { Variant } from "../../../shared";
+import { AssetType } from "../../../types/Assets";
+import { NormalizedAssets } from "../../../types/Assets";
 import { GradingState } from "../../../types/Grading";
 
 import { AnimationsManager } from "../../../shared/managers";
@@ -31,7 +32,6 @@ export function setUpChipData(key: string, chip: EduChip, assets?: NormalizedAss
 	const modality = asset.type;
 
 	chip.modality = modality;
-
 	switch (modality) {
 		case "image":
 			chip.data = asset.url;
@@ -175,7 +175,7 @@ export class EduChip extends HTMLElement {
 		};
 	}
 
-	set modality(v: ResponseObjectModality) {
+	set modality(v: AssetType) {
 		if (v === null || v === undefined) this.removeAttribute("modality");		
 		else {
 			console.log(1);

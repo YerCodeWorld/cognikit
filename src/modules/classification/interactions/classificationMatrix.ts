@@ -2,7 +2,7 @@ import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
 import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
-import { EduTable, classificationTableGrader } from "../../../engines/tables";
+import { EduTable, classificationTableGrader, getClassificationCellGrading } from "../../../engines/tables";
 
 /**
  * ClassificationMatrix
@@ -126,6 +126,17 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 			this.data.cols
 		);
 
+		// Generate per-cell grading feedback
+		const cellGrading = getClassificationCellGrading(
+			this.data.answerKey,
+			userData,
+			this.data.rows,
+			this.data.cols
+		);
+
+		// Apply grading state to table
+		this._$table.setGradingState(cellGrading);
+
 		console.log(`Classification Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
@@ -141,6 +152,7 @@ export class ClassificationMatrix extends BaseInteraction<BaseTableData> {
 		super.reset();
 		if (this._$table) {
 			this._$table.reset();
+			this._$table.clearGradingState();
 		}
 	}
 }

@@ -1,32 +1,45 @@
 import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../../types/Interactions";
-import { TableConfiguration, BaseTableData, TableCompletion } from "../../../types/Tables";
-import { EduTable, naryTableGrader, getNaryCellGrading } from "../../../engines/tables";
+import { TableConfiguration, ValueTableData, TableCompletion } from "../../../types/Tables";
+import { EduTable, lookupTableGrader, detectCellKind, getAllValues, getAllUniqueValues, getLookupCellGrading } from "../../../engines/tables";
 
-export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
+export class LookupTable extends BaseInteraction<ValueTableData> {
 
 	interactionMechanic: InteractionMechanic = "static";
 
 	private _tableConfig: TableConfiguration;
 	private _$table!: EduTable;
 
-	constructor(data: BaseTableData, config: InteractionConfig) {
+	constructor(data: ValueTableData, config: InteractionConfig) {
 		super(data, config);
 
-		// Configure table for n-ary mode (radio buttons)
+		const allValues = getAllValues(data.answerKey);
+		const cellKind = detectCellKind(allValues);
+
+		// Configure table for lookup mode
 		this._tableConfig = {
 			rows: data.rows,
 			cols: data.cols,
 			answerKey: data.answerKey,
-			cellKind: 'radio',
-			preset: 'n-ary',
+			cellKind,
+			preset: 'lookup',
+			disabled: (r, c) => data.answerKey[r]?.[c] === null, // Disable cells marked with '-'
+			allowed: cellKind === 'select' ? () => getAllUniqueValues(data.answerKey) : undefined,
 			variant: config.variant ?? 'outline',
-			shuffle: true 
+			shuffle: config.shuffle ?? false
 		};
 
-		// Initialize progress tracking (one per row)
-		this.initializeProgress(data.rows.length);
+		// Initialize progress tracking (count only non-disabled cells)
+		let totalCells = 0;
+		for (const row of data.rows) {
+			for (const col of data.cols) {
+				if (data.answerKey[row]?.[col] !== null) {
+					totalCells++;
+				}
+			}
+		}
+		this.initializeProgress(totalCells);
 	}
 
 	// ==================== LIFECYCLE ====================
@@ -96,21 +109,25 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	// ==================== INTERACTION LOGIC ====================
 
 	/**
-	 * Update progress bar based on how many rows have exactly one selection
-	 * N-ary requires single selection per row
+	 * Update progress bar based on how many cells are filled
 	 */
 	private updateProgressBasedOnCompletion(): void {
 		const state = this._$table.getState();
-		let completedRows = 0;
+		let completedCells = 0;
 
 		for (const row of this.data.rows) {
-			// N-ary requires exactly 1 selection per row
-			if (state[row]?.selectedCols.length === 1) {
-				completedRows++;
+			for (const col of this.data.cols) {
+				// Skip disabled cells
+				if (this.data.answerKey[row]?.[col] === null) continue;
+
+				const value = state[row]?.values[col];
+				if (value !== null && value !== undefined && value !== '') {
+					completedCells++;
+				}
 			}
 		}
 
-		this.setProgress(completedRows);
+		this.setProgress(completedCells);
 	}
 
 	getCurrentState(): TableCompletion {
@@ -120,59 +137,74 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	isInteractionComplete(): boolean {
 		const state = this._$table.getState();
 
-		// All rows must have exactly one selection (n-ary constraint)
-		return this.data.rows.every(row =>
-			state[row]?.selectedCols.length === 1
-		);
+		// All non-disabled cells must have values
+		for (const row of this.data.rows) {
+			for (const col of this.data.cols) {
+				// Skip disabled cells
+				if (this.data.answerKey[row]?.[col] === null) continue;
+
+				const value = state[row]?.values[col];
+				if (value === null || value === undefined || value === '') {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	onHint(): void {
 		const state = this._$table.getState();
-		const incompleteRows = this.data.rows.filter(row =>
-			!state[row] || state[row].selectedCols.length !== 1
-		);
 
-		if (incompleteRows.length === 0) {
-			alert('All rows are complete! Click "Check" to submit.');
-			this.emitHintShown('All rows complete');
-			return;
+		// Find first empty non-disabled cell
+		for (const row of this.data.rows) {
+			for (const col of this.data.cols) {
+				// Skip disabled cells
+				if (this.data.answerKey[row]?.[col] === null) continue;
+
+				const value = state[row]?.values[col];
+				if (value === null || value === undefined || value === '') {
+					alert(`Hint: You haven't filled the cell for "${row}" / "${col}" yet.`);
+					this.emitHintShown(`Empty cell: ${row} / ${col}`);
+					return;
+				}
+			}
 		}
 
-		// Show hint for first incomplete row
-		const firstIncomplete = incompleteRows[0];
-		alert(`Hint: You haven't selected a category for "${firstIncomplete}" yet. Which one does it belong to?`);
-		this.emitHintShown(`Incomplete row: ${firstIncomplete}`);
+		alert('All cells are complete! Click "Check" to submit.');
+		this.emitHintShown('All cells complete');
 	}
 
 	// ==================== GRADING ====================
 
 	/**
-	 * Override submit to include grading using n-ary grader
-	 * N-ary grading is binary per row (100% or 0%)
+	 * Override submit to include grading using lookup grader
 	 */
 	public submit(): void {
 		// Check completion first (will throw if not complete)
 		super.submit();
 
-		// Grade the response using n-ary grader
+		// Grade the response using lookup grader
 		const userData = this.getCurrentState();
-		const result = naryTableGrader(
+		const result = lookupTableGrader(
 			this.data.answerKey,
 			userData,
-			this.data.rows
+			this.data.rows,
+			this.data.cols
 		);
 
 		// Generate per-cell grading feedback
-		const cellGrading = getNaryCellGrading(
+		const cellGrading = getLookupCellGrading(
 			this.data.answerKey,
 			userData,
-			this.data.rows
+			this.data.rows,
+			this.data.cols
 		);
 
 		// Apply grading state to table
 		this._$table.setGradingState(cellGrading);
 
-		console.log(`N-ary Choice Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
+		console.log(`Lookup Table Score: ${result.score.toFixed(1)}% (${result.correct}/${result.total} correct)`);
 
 		// Emit grading event
 		this.dispatchEvent(new CustomEvent('interaction:graded', {
@@ -193,6 +225,6 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 	}
 }
 
-if (!customElements.get('nary-choice-table')) {
-	customElements.define('nary-choice-table', NaryChoiceTable);
+if (!customElements.get('lookup-table')) {
+	customElements.define('lookup-table', LookupTable);
 }

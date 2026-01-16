@@ -42,6 +42,7 @@ export class InteractionsBaseShell extends HTMLElement {
 	private $errorContent!: HTMLElement;
 	private $attemptsMessage!: HTMLElement;
 	private $scoreDisplay!: HTMLElement;
+	private $timerDisplay!: HTMLElement;
 
 	// ==================== STATE ====================
 	private interaction?: BaseInteraction<any>;
@@ -51,7 +52,7 @@ export class InteractionsBaseShell extends HTMLElement {
 	private attemptCount: number = 0;
 	private attemptLimit: number | null = null;
 
-	private currentScreen: 'interaction' | 'error' | 'solution' | 'attempts' | 'score' = 'interaction';
+	private currentScreen: 'interaction' | 'error' | 'solution' | 'attempts' | 'score' | 'time' = 'interaction';
 
 	// ==================== CONSTRUCTOR ====================
 
@@ -77,24 +78,30 @@ export class InteractionsBaseShell extends HTMLElement {
 		this.$titleEl = wrap.querySelector('.title')!;
 		this.$promptBtn = wrap.querySelector('.prompt-btn');
 		this.$timerEl = wrap.querySelector('.timer')!;
+
 		this.$checkBtn = wrap.querySelector('.check-btn')!;
 		this.$scoresBtn = wrap.querySelector('.scores-btn');
 		this.$seeAnswersBtn = wrap.querySelector('.see-answers-btn')!;
 		this.$retryBtn = wrap.querySelector('.retry-btn')!;
+
 		this.$radioNav = wrap.querySelector('.radio-nav')!;
+
 		this.$progressContainer = wrap.querySelector('.progress-container');
 		this.$progressBar = wrap.querySelector('.progress-bar')!;
 		this.$progressIcon = wrap.querySelector('.progress-icon-wrapper')!;
 		this.$progressCounter = wrap.querySelector('.progress-counter')!;
+
 		this.$contentEl = wrap.querySelector('[part="content"]')!;
-		this.$interactionScreen = wrap.querySelector('[data-screen="interaction"]')!;
+
 		
 		this.animationsManager.isEnabled = true; 
 
 		// Cache
+		this.$interactionScreen = wrap.querySelector('[data-screen="interaction"]')!;
 		this.$errorContent = wrap.querySelector('.error-content')!;
 		this.$attemptsMessage = wrap.querySelector('.attempts-message')!;
 		this.$scoreDisplay = wrap.querySelector('.score-display')!;
+		this.$timerDisplay = wrap.querySelector('.timer-display');
 
 		this.setupShellListeners();
 }
@@ -119,7 +126,7 @@ export class InteractionsBaseShell extends HTMLElement {
 		if (oldValue === newValue) return;
 		this.updateVisibility();
 	}
-
+	
 	// ==================== INTERACTION MANAGEMENT ====================
 	public setInteraction<T extends InteractionData>(interaction: BaseInteraction<T>): void {
 		
@@ -152,7 +159,6 @@ export class InteractionsBaseShell extends HTMLElement {
 		this.$titleEl.textContent = cfg.prompt || '';
 		if (cfg.promptData && cfg.promptModality) {
 			this.$titleEl.style.cursor = 'pointer';
-			this.$titleEl.style.textDecoration = 'underline';
 			this.$titleEl.title = 'Click to view prompt details';
 
 			this.$promptBtn.addEventListener('click', () => this.openPromptDialog());
@@ -166,26 +172,26 @@ export class InteractionsBaseShell extends HTMLElement {
 		// render error screen if time too low?
 		if (cfg.timer !== null && cfg.timer > 30) {
 			this.remainingSeconds = cfg.timer;
-			this.$timerEl.dataset.hidden = 'false';
+			this.$timerEl.classList.remove('edu-hidden');
 			this.updateTimerDisplay();
 			this.startTimer();
-		} else this.$timerEl.dataset.hidden = 'true';
+		} else this.$timerEl.classList.add('edu-hidden');
 
 		this.attemptLimit = cfg.attemptLimit;
 		this.attemptCount = 0;
-
+		
+		// TODO: update to use the 'isSequential' flag instead
 		if (this.interaction.interactionMechanic === 'sequential') {
 			this.$radioNav.dataset.active = 'true';
-			this.$checkBtn.dataset.hidden = 'true';
 			this.renderRadioNav();
 		} else this.$radioNav.dataset.active = 'false';
 
 		if (!this.interaction.implementsProgress) {
-			this.$progressContainer.style.display = "none";
-			this.$checkBtn.dataset.hidden = "false";
+			this.$progressContainer.classList.add('edu-hidden');
+			this.$checkBtn.classList.remove('edu-hidden');
 		} else {
-			this.$checkBtn.dataset.hidden = "true";
-			this.$progressContainer.style.display = "inline-flex";
+			this.$checkBtn.classList.add('edu-hidden');
+			this.$progressContainer.classList.remove('edu-hidden');
 			this.$progressCounter.textContent = `0/${this.interaction.progressTracker.total}`;
 		}
 
@@ -227,6 +233,16 @@ export class InteractionsBaseShell extends HTMLElement {
 			else this.switchScreen('score');
 		});
 
+		this.$timerEl.addEventListener('click', () => {
+			this.soundManager.playSound('pop');
+			this.$timerDisplay.append(this.$timerEl);
+			if (this.currentScreen === 'time') { 
+				this.switchScreen('interaction');
+				this.$headerEl.append(this.$timerEl);
+			}
+			else this.switchScreen('time');
+		});
+
 		this.$retryBtn.addEventListener('click', () => this.handleRetry());
 
 		this.$radioNav.addEventListener('change', (e) => {
@@ -258,10 +274,10 @@ export class InteractionsBaseShell extends HTMLElement {
 
 			if (current === total && total > 0) {
 				this.interactionComplete = true;
-				this.$checkBtn.dataset.hidden = 'false';
+				this.$checkBtn.classList.remove('edu-hidden');
 			} else {
 				this.interactionComplete = false;
-				this.$checkBtn.dataset.hidden = 'true';
+				if (this.interaction.implementsProgress) this.$checkBtn.classList.add('edu-hidden');
 			}
 		}) as EventListener);
 
@@ -320,13 +336,13 @@ export class InteractionsBaseShell extends HTMLElement {
 
 	private handleGraded(result: any): void {
 
-		this.$checkBtn.dataset.hidden = 'true';
-
-		this.$seeAnswersBtn.dataset.hidden = 'false';
-		this.$scoresBtn.dataset.hidden = 'false';
-
-		if (!this.attemptLimit || this.attemptCount < this.attemptLimit) {
-			this.$retryBtn.dataset.hidden = 'false';
+		this.$checkBtn.classList.add('edu-hidden');
+		this.$seeAnswersBtn.classList.remove('edu-hidden');
+		this.$scoresBtn.classList.remove('edu-hidden');
+		this.$retryBtn.classList.remove('edu-hidden');
+		
+		if (this.attemptLimit && this.attemptCount > this.attemptLimit) {
+			this.$retryBtn.classList.add('edu-hidden');
 		}
 
 		const score = result.score;
@@ -358,22 +374,28 @@ export class InteractionsBaseShell extends HTMLElement {
 	private reset() {
 		this.resetTimer();
 
-		this.$seeAnswersBtn.dataset.hidden = 'true';
-		this.$retryBtn.dataset.hidden = 'true';
-		this.$scoresBtn.dataset.hidden = 'true';
+		if (!this.interaction.implementsProgress) {
+			this.$checkBtn.classList.remove('edu-hidden');
+		}
+
+		this.$seeAnswersBtn.classList.add('edu-hidden');
+		this.$scoresBtn.classList.add('edu-hidden');
+		this.$retryBtn.classList.add('edu-hidden');
 
 		this.$progressIcon.classList.remove('score-fail', 'score-low', 'score-mid', 'score-high');
 		this.$progressBar.classList.remove('score-fail', 'score-low', 'score-mid', 'score-high');
 
-		this.animationsManager.stop(this.$progressIcon);
+		this.animationsManager.animate(this.$progressIcon, 'heartbeat');
 
 		this.$progressBar.value = 0;
 		this.updateProgress(0, this.interaction.progressTracker.total);
+
+		if (this.interaction.interactionMechanic === 'sequential') this.renderRadioNav();
 	}
 
 	private handleRetry(): void {
-
-		this.$retryBtn.dataset.hidden = 'true';
+		// only this one. others can stay there
+		this.$retryBtn.classList.add('edu-hidden');
 
 		this.soundManager.playSound('pop');
 		this.attemptCount++;
@@ -426,7 +448,7 @@ export class InteractionsBaseShell extends HTMLElement {
 
 	// ==================== SCREEN MANAGEMENT ====================
 
-	private switchScreen(screenName: 'interaction' | 'error' | 'solution' | 'attempts' | 'score'): void {
+	private switchScreen(screenName: 'time' | 'interaction' | 'error' | 'solution' | 'attempts' | 'score'): void {
 		this.shadowRoot!.querySelectorAll('.screen').forEach(screen => {
 			const name = screen.getAttribute('data-screen');
 			(screen as HTMLElement).style.display = name === screenName ? 'block' : 'none';
@@ -457,10 +479,15 @@ export class InteractionsBaseShell extends HTMLElement {
 		}
 	}
 
+	private getFormattedTime(time: number): string {
+		const minutes = Math.floor(time / 60);
+		const seconds = time % 60;
+		const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+		return formattedTime;
+	}
+
 	private updateTimerDisplay(): void {
-		const minutes = Math.floor(this.remainingSeconds / 60);
-		const seconds = this.remainingSeconds % 60;
-		this.$timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+		this.$timerEl.textContent = this.getFormattedTime(this.remainingSeconds);
 
 		if (this.remainingSeconds === 30) {
 			this.soundManager.playSound('low-time');

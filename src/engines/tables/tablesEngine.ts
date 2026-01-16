@@ -4,10 +4,13 @@ import {
 	TableState, 
 	CellValue, 
 	CellKind, 
+	CellGradingState,
 	TableCompletion, 
 	RowValues, 
 	EduTableChangeDetail 
 } from "../../types/Tables"; 
+
+import { EduInput } from "../../ui/input/input";
 
 import { shuffle, hash, escapeHtml } from "../../shared/utils";
 
@@ -30,7 +33,9 @@ export class EduTable extends HTMLElement implements EduTableElement {
 	private _state: TableState = {};
 	private _mounted = false;
 
-	static get observedAttributes() { return ["variant"]; }
+	static get observedAttributes() { 
+		return ["variant"]; 
+	}
 
 	private $wrapEl!: HTMLElement;
 
@@ -106,6 +111,9 @@ export class EduTable extends HTMLElement implements EduTableElement {
 
 		if (name === 'variant') {
 			this.setAttribute('variant', newValue);
+			this.$wrapEl.querySelectorAll('edu-input').forEach((e: EduInput) => {
+				e.setAttribute('variant', newValue);
+			});
 		}
 	}
 
@@ -172,10 +180,14 @@ export class EduTable extends HTMLElement implements EduTableElement {
 		const id = `cell-${hash(r)}-${hash(c)}`;
 		const value = this._state[r]?.[c] ?? null;
 
-		const baseTd = (controlHtml: string) => `<td>${controlHtml}</td>`;
+		const gradingState = config.gradingState?.[r]?.[c];
+		const gradingClass = gradingState ? `cell-${gradingState}` : '';
 
+		const baseTd = (controlHtml: string) => `<td class="${gradingClass}">${controlHtml}</td>`;
+		
+		// let's play the crazy and forget the variant attribute is being set for the check and radio elements
 		const common = `id="${id}" data-r="${escapeAttr(r)}" data-c="${escapeAttr(c)}"
-			aria-label="${escapeAttr(`${r} / ${c}`)}"`;
+			aria-label="${escapeAttr(`${r} / ${c}`)}" variant="${this.getAttribute("variant")}" `;
 
 		switch (config.cellKind) {
 			case 'checkbox': {
@@ -188,11 +200,11 @@ export class EduTable extends HTMLElement implements EduTableElement {
 			}
 			case 'text': {
 				const v = value == null ? '' : String(value);
-				return baseTd(`<input ${common} type="text" value="${escapeAttr(v)}"/>`);
+				return baseTd(`<edu-input ${common} type="text" value="${escapeAttr(v)}"/>`);
 			}
 			case 'number': {
 				const v = value == null ? '' : String(value);
-				return baseTd(`<input ${common} type="number" value="${escapeAttr(v)}"/>`);
+				return baseTd(`<edu-input ${common} type="number" value="${escapeAttr(v)}"/>`);
 			}
 			case 'select': {
 				const opts = config.allowed?.(r, c) ?? [];
@@ -207,7 +219,7 @@ export class EduTable extends HTMLElement implements EduTableElement {
 					})
 				].join('');
 
-				return baseTd(`<select ${common}>${optionsHtml}</select>`);
+				return baseTd(`<edu-input as="select" ${common}>${optionsHtml}</select>`);
 			}
 		}
 	}
@@ -221,6 +233,18 @@ export class EduTable extends HTMLElement implements EduTableElement {
 			bubbles: true,
 			composed: true
 		}));
+	}
+
+	setGradingState(gradingState: CellGradingState) {
+		if (!this._config) return;
+		this._config.gradingState = gradingState;
+		this.render();
+	}
+
+	clearGradingState() {
+		if (!this._config) return;
+		this._config.gradingState = undefined;
+		this.render();
 	}
 
 	private onChange = (e: Event) => {

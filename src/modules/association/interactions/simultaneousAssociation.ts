@@ -2,7 +2,7 @@ import { BaseInteraction } from "../../../core/BaseInteraction";
 import { Variant } from "../../../shared/types";
 import { InteractionConfig, InteractionMechanic, IInteractionSpec } from "../../../types/Interactions";
 
-import { NormalizedAssets } from "../../../shared/assets";
+import { NormalizedAssets } from "../../../types/Assets";
 import { AssociationData } from "../../../types/Data";
 
 import { associationDataGrader } from "../utilities/grader";

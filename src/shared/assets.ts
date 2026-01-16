@@ -1,47 +1,16 @@
-export type AssetType = "image" | "video" | "audio" | "html" | "tts";
-export type AssetRegistryInput = Record<string, unknown>;
+import { 
+	AssetType,
+	AssetRegistryInput,
+	Asset,
+	ImageAsset,
+	AudioAsset,
+	VideoAsset,
+	HtmlAsset,
+	TtsAsset,
+	NormalizedAssets
+} from "../types/Assets";
 
-export interface BaseAsset {
-	id: string;
-	type: AssetType;
-	dialog?: boolean; // If true, render in dialog only; if false/undefined, render inline with expand button
-}
-
-export interface ImageAsset extends BaseAsset {
-	type: "image";
-	url: string;
-	size?: "small" | "medium" | "large" | string;
-}
-
-export interface AudioAsset extends BaseAsset {
-	type: "audio";
-	url: string;
-	volume?: number;
-}
-
-export interface VideoAsset extends BaseAsset {
-	type: "video";
-	url: string;
-	span?: { from: string; to: string }; 
-}
-
-export interface HtmlAsset extends BaseAsset {
-	type: "html";
-	content: string;
-}
-
-export interface TtsAsset extends BaseAsset {
-	type: "tts";
-	content: string;
-	volume?: number;
-}
-
-export type Asset = ImageAsset | AudioAsset | VideoAsset | HtmlAsset | TtsAsset;
-
-export interface NormalizedAssets {
-	assetsById: Record<string, Asset>;
-	assetsList: Asset[];
-}
+import { isString, isNumber, looksLikeTime, typeOf, isPlainObject } from "./utils";
 
 export class AssetValidationError extends Error {
 	issues: string[];
@@ -225,35 +194,8 @@ export  function validateAndNormalizeAssets(input: unknown): NormalizedAssets {
 
 	return { assetsById, assetsList };
 }
-
-function isPlainObject(v: unknown): v is Record<string, unknown> {
-	return (
-		typeof v === "object" &&
-		v !== null &&
-		(Object.getPrototypeOf(v) === Object.prototype ||
-		Object.getPrototypeOf(v) === null)
-	);
-}
-
-function isString(v: unknown): v is string {
-	return typeof v === "string";
-}
-
-function isNumber(v: unknown): v is number {
-	return typeof v === "number";
-}
-
+ 
 function isAssetType(v: string): v is AssetType {
 	return v === "image" || v === "video" || v === "audio" || v === "html";
 }
 
-function looksLikeTime(s: string): boolean {
-	// Accept mm:ss or hh:mm:ss (not strict bounds validation)
-	return /^(\d{1,2}:)?\d{1,2}:\d{2}$/.test(s);
-}
-
-function typeOf(v: unknown): string {
-	if (v === null) return "null";
-	if (Array.isArray(v)) return "array";
-	return typeof v;
-}
