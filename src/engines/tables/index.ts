@@ -1,2 +1,2 @@
 export * from "./implementation";
-export { EduTable } from "./tablesEngine";
+export { EduTable } from "./script";

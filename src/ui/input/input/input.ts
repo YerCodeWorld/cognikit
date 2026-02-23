@@ -332,6 +332,7 @@ export class EduInput extends HTMLElement {
 	}
 	set value(v: string) {
 		this.setAttribute("value", String(v));
+		if (this.controlEl && "value" in this.controlEl) this.controlEl.value = v;
 	}
 }
 

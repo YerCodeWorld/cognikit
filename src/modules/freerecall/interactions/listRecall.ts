@@ -39,7 +39,7 @@ export class ListRecall extends BaseInteraction<FreeRecallData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				:host {
+				list-recall {
 					display: flex;
 					flex-direction: column;
 					width: 100%;
@@ -160,7 +160,7 @@ export class ListRecall extends BaseInteraction<FreeRecallData> {
 
 		this._recalledItems.add(normalizedValue);
 		this.addChip(value);
-
+		
 		this._$textInput.value = '';
 
 		this.setProgress(this._recalledItems.size);

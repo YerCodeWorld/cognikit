@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniKit - Text Interactions Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :root {
+            --edu-bg:            247 249 252;
+            --edu-card:          255 255 255;
+            --edu-ink:           31 41 55;
+            --edu-second-ink:    71 85 105;
+            --edu-third-ink:     100 116 139;
+            --edu-inverted-ink:  248 250 252;
+            --edu-success:       22 163 74;
+            --edu-error:         220 38 38;
+            --edu-warning:       255 222 33;
+            --edu-neutral:       14 165 233;
+            --edu-first-accent:  49 120 198;
+            --edu-second-accent: 245 158 11;
+            --edu-third-accent:  236 72 153;
+            --edu-border:        229 231 235;
+            --edu-muted:         243 244 246;
+            --edu-radius:        0.375rem;
+            --edu-shadow-color:  0 0 0;
+            --edu-pad:           1rem;
+            --edu-mar:           0;
+        }
+
+        body {
+            background: rgb(var(--edu-bg));
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+
+        .sidebar {
+            width: 280px;
+            background: rgb(var(--edu-card));
+            border-right: 2px solid rgb(var(--edu-border));
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgb(var(--edu-ink));
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid rgb(var(--edu-border));
+        }
+
+        .group-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: rgb(var(--edu-first-accent));
+            margin-bottom: 0.4rem;
+        }
+
+        .example-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .example-btn {
+            padding: 0.6rem 0.75rem;
+            border: 2px solid rgb(var(--edu-border));
+            border-radius: var(--edu-radius);
+            background: rgb(var(--edu-card));
+            color: rgb(var(--edu-ink));
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: left;
+            line-height: 1.3;
+        }
+
+        .example-btn:hover {
+            border-color: rgb(var(--edu-first-accent));
+            background: rgba(var(--edu-first-accent), 0.05);
+        }
+
+        .example-btn.active {
+            border-color: rgb(var(--edu-first-accent));
+            background: rgba(var(--edu-first-accent), 0.1);
+            color: rgb(var(--edu-first-accent));
+        }
+
+        .example-btn-desc {
+            font-size: 0.72rem;
+            font-weight: 400;
+            opacity: 0.7;
+            margin-top: 0.15rem;
+        }
+
+        /* ==================== VARIANT SELECTOR ==================== */
+
+        .variant-controls {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 2px solid rgb(var(--edu-border));
+        }
+
+        .variant-controls label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgb(var(--edu-second-ink));
+            margin-bottom: 0.4rem;
+        }
+
+        .variant-controls select {
+            width: 100%;
+            padding: 0.45rem 0.6rem;
+            border: 2px solid rgb(var(--edu-border));
+            border-radius: var(--edu-radius);
+            background: rgb(var(--edu-bg));
+            color: rgb(var(--edu-ink));
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* ==================== VIEWPORT ==================== */
+
+        .viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .interaction-container {
+            width: 100%;
+            height: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        edu-window {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-title">Text Interactions</div>
+
+        <div>
+            <div class="group-label">Mark The Words</div>
+            <div class="example-group">
+                <button class="example-btn active" data-example="mtw-programming">
+                    Female Names
+                    <div class="example-btn-desc">Highlight the female names of people that you find</div>
+                </button>
+                <button class="example-btn" data-example="mtw-biology">
+                    Brands
+                    <div class="example-btn-desc">Identify all the popular brands mentioned here</div>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="group-label">Text Transformation</div>
+            <div class="example-group">
+                <button class="example-btn" data-example="tt-verbs">
+                    Irregular Verbs
+                    <div class="example-btn-desc">Present tense &rarr; past tense</div>
+                </button>
+                <button class="example-btn" data-example="tt-plural">
+                    Singular &rarr; Plural
+                    <div class="example-btn-desc">Convert nouns to plural form</div>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="group-label">DND Blanks</div>
+            <div class="example-group">
+                <button class="example-btn" data-example="dnd-household">
+                    Household Chores
+                    <div class="example-btn-desc">Drag words into missing spots</div>
+                </button>
+                <button class="example-btn" data-example="dnd-space">
+                    Space Terms
+                    <div class="example-btn-desc">Place concepts in context</div>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="group-label">Fill Blanks</div>
+            <div class="example-group">
+                <button class="example-btn" data-example="fb-mixed">
+                    Mixed Inputs
+                    <div class="example-btn-desc">Text, number, and select in one prompt</div>
+                </button>
+                <button class="example-btn" data-example="fb-time-date">
+                    Time and Date
+                    <div class="example-btn-desc">Specific value constraints</div>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="group-label">Categorize Words</div>
+            <div class="example-group">
+                <button class="example-btn" data-example="cat-grammar">
+                    Grammar Labels
+                    <div class="example-btn-desc">Assign words to their category</div>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="group-label">Sequential</div>
+            <div class="example-group">
+                <button class="example-btn" data-example="seq-highlight-basics">
+                    Highlight Steps
+                    <div class="example-btn-desc">Multi-step text highlight</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="variant-controls">
+            <label for="variant-select">UI Variant</label>
+            <select id="variant-select">
+                <option value="outline" selected>Outline</option>
+                <option value="elegant">Elegant</option>
+                <option value="playful">Playful</option>
+                <option value="minimal">Minimal</option>
+                <option value="letter">Letter</option>
+                <option value="sign">Sign</option>
+                <option value="glass">Glass</option>
+                <option value="empty">Empty</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="viewport">
+        <div class="interaction-container">
+            <edu-window id="interaction-viewport"></edu-window>
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            BaseInteraction,
+            EduText,
+            MarkTheWords,
+            TextTransformation,
+
+            textEngineBaseGrammarParser,
+            textEngineBlanksGrammarParser,
+            textEngineClassificationGrammarParser,
+
+            parseTextEngineSequential,
+
+            textEngineDNDGrader,
+            getDNDGradingState,
+
+            textEngineBlanksGrader,
+            getBlanksGradingState,
+
+            textEngineClassificationGrader,
+            getClassificationGradingState
+        } from './app.js';
+
+        const viewport = document.getElementById('interaction-viewport');
+        const variantSelect = document.getElementById('variant-select');
+        let currentInteraction = null;
+        let currentVariant = 'outline';
+
+        // ==================== EXAMPLE DEFINITIONS ====================
+
+        const examples = {
+            'mtw-programming': {
+                type: 'MarkTheWords',
+                title: 'Mark the female names.',
+                code: '[Maria] was going to tell Juan about the concert she went to last light with her friends [Caroline] and [Michelle]. Before she did that, Juan was explaining how he made three friends named [Ana], [Elizabeth] and Pedro.'
+            },
+            'mtw-biology': {
+                type: 'MarkTheWords',
+                title: 'Identify the popular brands',
+                code: 'I dont really understand why people get so hyped with [Coca Cola] and not with [Pepsi] when it is literally quite close in terms of taste. It is like the [McDonals] guys trying to pretend [burger king] is not biting their tails, or that either [Nike] or [Jordan] are better than the other.'
+            },
+            'tt-verbs': {
+                type: 'TextTransformation',
+                title: 'Convert present tense to past tense',
+                code: 'Yesterday I [wake] up early and [go] to the gym. I [swim] for an hour, then I [run] three miles. After that, I [eat] a healthy breakfast and [begin] my workday.',
+                expectedTransformations: {
+                    0: ['woke'],
+                    1: ['went'],
+                    2: ['swam'],
+                    3: ['ran'],
+                    4: ['ate'],
+                    5: ['began']
+                }
+            },
+            'tt-plural': {
+                type: 'TextTransformation',
+                title: 'Convert each noun to its plural form',
+                code: 'The [child] played in the [garden]. Each [leaf] fell from the [tree]. A [mouse] scurried across the [bench]. The [wolf] howled at the [sky].',
+                expectedTransformations: {
+                    0: ['children'],
+                    1: ['gardens'],
+                    2: ['leaves'],
+                    3: ['trees'],
+                    4: ['mice'],
+                    5: ['benches'],
+                    6: ['wolves'],
+                    7: ['skies']
+                }
+            },
+            'dnd-household': {
+                type: 'DNDTextDemo',
+                parserMode: 'base',
+                title: 'Complete the household routine',
+                code: '= ["surf", "moon", "paint"]; Every Saturday we [sweep] the floor, [wash] the dishes, and [fold] the clothes before lunch.'
+            },
+            'dnd-space': {
+                type: 'DNDTextDemo',
+                parserMode: 'base',
+                title: 'Complete the astronomy passage',
+                code: '= ["car", "island"]; The [sun] is at the center of our solar system, while the [moon] orbits Earth and reflects [light] at night.'
+            },
+            'fb-mixed': {
+                type: 'FillBlanksDemo',
+                parserMode: 'blanks',
+                title: 'Complete each input correctly',
+                code: 'My name @tx(is|\'s) Ana and I am @nm(14..16) years old. My favorite class is @sl([math]|music|sports).'
+            },
+            'fb-time-date': {
+                type: 'FillBlanksDemo',
+                parserMode: 'blanks',
+                title: 'Provide the expected date and time',
+                code: 'Our exam is on @dt(2026/03/05) and starts at @tm(08:30).'
+            },
+            'cat-grammar': {
+                type: 'ClassificationTextDemo',
+                parserMode: 'classification',
+                title: 'Assign each highlighted item to a grammar category',
+                code: 'I @ct(noun, teacher) will @ct(verb, travel) to the @ct(noun, museum) and @ct(verb, study) there.'
+            },
+            'seq-highlight-basics': {
+                type: 'SequentialHighlightDemo',
+                parserMode: 'sequential-base',
+                title: 'Highlight the target words on each step',
+                code: 'We [study] every morning before school;;They [practice] coding and [review] notes at night;;Our team [builds] projects and [shares] feedback weekly'
+            }
+        };
+
+        class DNDTextDemo extends BaseInteraction {
+            interactionMechanic = 'static';
+            _textConfig;
+            _$text;
+
+            constructor(data, config) {
+                super(data, config);
+                this._textConfig = {
+                    data,
+                    mode: 'dnd',
+                    variant: config.variant ?? 'outline'
+                };
+                this.initializeProgress(this.getTargetCount());
+            }
+
+            getTargetCount() {
+                return this.data.targets.reduce((sum, t) => sum + (t.endPos - t.startPos + 1), 0);
+            }
+
+            render() {
+                this._textConfig.variant = this.config.variant;
+
+                this._$text = document.createElement('edu-text');
+                this._$text.config = this._textConfig;
+                this._$text.addEventListener('change', () => {
+                    const userData = this._$text.getValue();
+                    const filled = Object.keys(userData.dndPlacements ?? {}).length;
+                    this.setProgress(filled);
+                    this.emitStateChange();
+                });
+
+                this.innerHTML = `
+                    <style>
+                        .text-wrapper {
+                            height: 100%;
+                            overflow: auto;
+                            padding: 1rem;
+                        }
+                    </style>
+                    <div class="text-wrapper"></div>
+                `;
+                this.querySelector('.text-wrapper').appendChild(this._$text);
+            }
+
+            getCurrentState() {
+                return this._$text ? this._$text.getValue() : { dndPlacements: {} };
+            }
+
+            isInteractionComplete() {
+                const progress = this.getProgress();
+                return progress.current >= progress.total;
+            }
+
+            onVariantChange(newVariant) {
+                this.config.variant = newVariant;
+                this._textConfig.variant = newVariant;
+                if (this._$text) this._$text.setAttribute('variant', newVariant);
+            }
+
+            onHint() {
+                const userData = this.getCurrentState();
+                const placements = userData.dndPlacements ?? {};
+
+                for (const target of this.data.targets) {
+                    for (let i = target.startPos; i <= target.endPos; i++) {
+                        if (!placements[i]) {
+                            this.emitHintShown(`Try placing "${this.data.parts[i]}" in one of the empty spots.`);
+                            return;
+                        }
+                    }
+                }
+
+                this.emitHintShown('All blanks are filled. Submit to check.');
+            }
+
+            grade() {
+                const userData = this.getCurrentState();
+                const result = textEngineDNDGrader(this.data, userData);
+                const gradingState = getDNDGradingState(this.data, userData);
+                this._$text.setGradingState(gradingState);
+                return result;
+            }
+
+            submit() {
+                super.submit();
+                const result = this.grade();
+                this.dispatchEvent(new CustomEvent('interaction:graded', {
+                    detail: { result },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            reset() {
+                super.reset();
+                if (this._$text) {
+                    this._$text.reset();
+                    this._$text.clearGradingState();
+                }
+            }
+        }
+
+        class FillBlanksDemo extends BaseInteraction {
+            interactionMechanic = 'static';
+            _textConfig;
+            _$text;
+
+            constructor(data, config) {
+                super(data, config);
+                this._textConfig = {
+                    data,
+                    mode: 'blanks',
+                    variant: config.variant ?? 'outline'
+                };
+                this.initializeProgress(data.targets.length);
+            }
+
+            render() {
+                this._textConfig.variant = this.config.variant;
+
+                this._$text = document.createElement('edu-text');
+                this._$text.config = this._textConfig;
+                this._$text.addEventListener('change', () => {
+                    const userData = this._$text.getValue();
+                    const values = userData.inputValues ?? {};
+                    const answered = this.data.targets.filter((t) => {
+                        const value = values[t.id];
+                        return value !== undefined && value !== null && String(value).trim() !== '';
+                    }).length;
+                    this.setProgress(answered);
+                    this.emitStateChange();
+                });
+
+                this.innerHTML = `
+                    <style>
+                        .text-wrapper {
+                            height: 100%;
+                            overflow: auto;
+                            padding: 1rem;
+                        }
+                    </style>
+                    <div class="text-wrapper"></div>
+                `;
+                this.querySelector('.text-wrapper').appendChild(this._$text);
+            }
+
+            getCurrentState() {
+                return this._$text ? this._$text.getValue() : { inputValues: {} };
+            }
+
+            isInteractionComplete() {
+                const progress = this.getProgress();
+                return progress.current >= progress.total;
+            }
+
+            onVariantChange(newVariant) {
+                this._textConfig.variant = newVariant;
+                if (this._$text) this._$text.setAttribute('variant', newVariant);
+            }
+
+            onHint() {
+                const userData = this.getCurrentState();
+                const values = userData.inputValues ?? {};
+                const missed = this.data.targets.find((t) => {
+                    const value = values[t.id];
+                    return value === undefined || value === null || String(value).trim() === '';
+                });
+
+                if (!missed) {
+                    this.emitHintShown('All inputs are filled. Submit to check answers.');
+                    return;
+                }
+
+                this.emitHintShown(`Complete the ${missed.expectedValue.type} input first.`);
+            }
+
+            grade() {
+                const userData = this.getCurrentState();
+                const result = textEngineBlanksGrader(this.data, userData);
+                const gradingState = getBlanksGradingState(this.data, userData);
+                this._$text.setGradingState(gradingState);
+                return result;
+            }
+
+            submit() {
+                super.submit();
+                const result = this.grade();
+                this.dispatchEvent(new CustomEvent('interaction:graded', {
+                    detail: { result },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            reset() {
+                super.reset();
+                if (this._$text) {
+                    this._$text.reset();
+                    this._$text.clearGradingState();
+                }
+            }
+        }
+
+        class ClassificationTextDemo extends BaseInteraction {
+            interactionMechanic = 'static';
+            _textConfig;
+            _$text;
+
+            constructor(data, config) {
+                super(data, config);
+                this._textConfig = {
+                    data,
+                    mode: 'classification',
+                    variant: config.variant ?? 'outline'
+                };
+                this.initializeProgress(this.getTargetCount());
+            }
+
+            getTargetCount() {
+                return this.data.targets.reduce((sum, category) => {
+                    const wordsInCategory = category.targets.reduce(
+                        (acc, t) => acc + (t.endPos - t.startPos + 1),
+                        0
+                    );
+                    return sum + wordsInCategory;
+                }, 0);
+            }
+
+            render() {
+                this._textConfig.variant = this.config.variant;
+
+                this._$text = document.createElement('edu-text');
+                this._$text.config = this._textConfig;
+                this._$text.addEventListener('change', () => {
+                    const userData = this._$text.getValue();
+                    const assignedCount = Object.keys(userData.wordCategories ?? {}).length;
+                    this.setProgress(assignedCount);
+                    this.emitStateChange();
+                });
+
+                this.innerHTML = `
+                    <style>
+                        .text-wrapper {
+                            height: 100%;
+                            overflow: auto;
+                            padding: 1rem;
+                        }
+                    </style>
+                    <div class="text-wrapper"></div>
+                `;
+                this.querySelector('.text-wrapper').appendChild(this._$text);
+            }
+
+            getCurrentState() {
+                return this._$text ? this._$text.getValue() : { wordCategories: {} };
+            }
+
+            isInteractionComplete() {
+                const progress = this.getProgress();
+                return progress.current >= progress.total;
+            }
+
+            onVariantChange(newVariant) {
+                this._textConfig.variant = newVariant;
+                if (this._$text) this._$text.setAttribute('variant', newVariant);
+            }
+
+            onHint() {
+                this.emitHintShown('Select a category button, then click the corresponding words.');
+            }
+
+            grade() {
+                const userData = this.getCurrentState();
+                const result = textEngineClassificationGrader(this.data, userData);
+                const gradingState = getClassificationGradingState(this.data, userData);
+                this._$text.setGradingState(gradingState);
+                return result;
+            }
+
+            submit() {
+                super.submit();
+                const result = this.grade();
+                this.dispatchEvent(new CustomEvent('interaction:graded', {
+                    detail: { result },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+
+            reset() {
+                super.reset();
+                if (this._$text) {
+                    this._$text.reset();
+                    this._$text.clearGradingState();
+                }
+            }
+        }
+
+        class SequentialHighlightDemo extends BaseInteraction {
+            interactionMechanic = 'sequential';
+            slidesCount = 1;
+            _slides = [];
+            _currentStep = 0;
+            _textConfig;
+            _$text;
+
+            constructor(data, config) {
+                super(data, config);
+                this._slides = Array.isArray(data) ? data : [];
+                this.slidesCount = this._slides.length || 1;
+                this._textConfig = {
+                    data: this._slides[0],
+                    mode: 'highlight',
+                    variant: config.variant ?? 'outline'
+                };
+                this.initializeProgress(this.getCurrentSlideTargetCount());
+            }
+
+            getCurrentSlideTargetCount() {
+                const slide = this._slides[this._currentStep];
+                if (!slide) return 0;
+                return slide.targets.reduce((sum, target) => sum + (target.endPos - target.startPos + 1), 0);
+            }
+
+            setSteps(step) {
+                const nextStep = Math.max(0, Math.min(this._slides.length - 1, step - 1));
+                if (nextStep === this._currentStep) return;
+
+                this._currentStep = nextStep;
+                this._textConfig.data = this._slides[this._currentStep];
+                this.initializeProgress(this.getCurrentSlideTargetCount());
+                this.render();
+            }
+
+            render() {
+                this._textConfig.variant = this.config.variant;
+                this._textConfig.data = this._slides[this._currentStep];
+
+                this._$text = document.createElement('edu-text');
+                this._$text.config = this._textConfig;
+                this._$text.addEventListener('change', () => {
+                    const userData = this._$text.getValue();
+                    const selected = new Set(userData.selectedIndices ?? []);
+                    this.setProgress(selected.size);
+                    this.emitStateChange();
+                });
+
+                this.innerHTML = `
+                    <style>
+                        .text-wrapper {
+                            height: 100%;
+                            overflow: auto;
+                            padding: 1rem;
+                        }
+                        .step-label {
+                            padding: 0.5rem 1rem;
+                            border-bottom: 1px solid rgb(var(--edu-border));
+                            color: rgb(var(--edu-second-ink));
+                            font-size: 0.85rem;
+                        }
+                    </style>
+                    <div class="step-label">Step ${this._currentStep + 1} of ${this.slidesCount}</div>
+                    <div class="text-wrapper"></div>
+                `;
+                this.querySelector('.text-wrapper').appendChild(this._$text);
+            }
+
+            getCurrentState() {
+                return this._$text ? this._$text.getValue() : { selectedIndices: [] };
+            }
+
+            isInteractionComplete() {
+                const progress = this.getProgress();
+                return progress.current >= progress.total;
+            }
+
+            onVariantChange(newVariant) {
+                this._textConfig.variant = newVariant;
+                if (this._$text) this._$text.setAttribute('variant', newVariant);
+            }
+
+            onHint() {
+                this.emitHintShown('Click the words that should be highlighted on this step.');
+            }
+        }
+
+        if (!customElements.get('dnd-text-demo')) {
+            customElements.define('dnd-text-demo', DNDTextDemo);
+        }
+        if (!customElements.get('fill-blanks-demo')) {
+            customElements.define('fill-blanks-demo', FillBlanksDemo);
+        }
+        if (!customElements.get('classification-text-demo')) {
+            customElements.define('classification-text-demo', ClassificationTextDemo);
+        }
+        if (!customElements.get('sequential-highlight-demo')) {
+            customElements.define('sequential-highlight-demo', SequentialHighlightDemo);
+        }
+
+        // ==================== LOAD & WIRE ====================
+
+        function loadExample(key) {
+            const example = examples[key];
+            if (!example) return;
+
+            const parseResult = example.parserMode === 'blanks'
+                ? textEngineBlanksGrammarParser(example.code)
+                : example.parserMode === 'classification'
+                ? textEngineClassificationGrammarParser(example.code)
+                : example.parserMode === 'sequential-base'
+                ? parseTextEngineSequential(example.code, 'base')
+                : textEngineBaseGrammarParser(example.code);
+            if (!parseResult.ok) {
+                console.error('Parse errors:', parseResult.errors);
+                return;
+            }
+
+            const config = {
+                prompt: example.title,
+                variant: currentVariant,
+                shuffle: false,
+                attemptLimit: null,
+                timer: null,
+                animationsEnabled: true,
+                soundEnabled: true
+            };
+
+            let interaction;
+            if (example.type === 'MarkTheWords') {
+                interaction = new MarkTheWords(parseResult.data, config);
+            } else if (example.type === 'TextTransformation') {
+                interaction = new TextTransformation(parseResult.data, config, example.expectedTransformations);
+            } else if (example.type === 'DNDTextDemo') {
+                interaction = new DNDTextDemo(parseResult.data, config);
+            } else if (example.type === 'FillBlanksDemo') {
+                interaction = new FillBlanksDemo(parseResult.data, config);
+            } else if (example.type === 'ClassificationTextDemo') {
+                interaction = new ClassificationTextDemo(parseResult.data, config);
+            } else {
+                interaction = new SequentialHighlightDemo(parseResult.data, config);
+            }
+
+            viewport.setInteraction(interaction);
+            currentInteraction = interaction;
+
+            // Update active button
+            document.querySelectorAll('.example-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.example === key);
+            });
+        }
+
+        // ==================== EVENT LISTENERS ====================
+
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', () => loadExample(btn.dataset.example));
+        });
+
+        variantSelect.addEventListener('change', (e) => {
+            currentVariant = e.target.value;
+            if (currentInteraction) {
+                currentInteraction.onVariantChange(currentVariant);
+                viewport.setAttribute('variant', currentVariant);
+            }
+        });
+
+        // ==================== INIT ====================
+
+        window.addEventListener('DOMContentLoaded', () => loadExample('mtw-programming'));
+    </script>
+</body>
+</html>

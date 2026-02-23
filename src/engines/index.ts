@@ -1,2 +1,2 @@
-export * from "./html";
 export * from "./tables";
+export * from "./text";

@@ -293,7 +293,7 @@ export const textEngineBlanksGrammarParser: GrammarParser<TextEngineBlanksData> 
 	}
 }
 
-// Classification parser for @cat(category, word) syntax
+// Classification parser for @ct(category, word) syntax
 // Splits by words like base parser, tracks which words belong to which categories
 export const textEngineClassificationGrammarParser: GrammarParser<TextEngineClassificationData> =
 	(code: string): GrammarParseResult<TextEngineClassificationData> => {
@@ -342,21 +342,21 @@ export const textEngineClassificationGrammarParser: GrammarParser<TextEngineClas
 		const currentPos = i;
 		i++; // move past the @
 
-		// Parse 'cat'
+		// Parse 'ct'
 		let ref = "";
 		while (i < code.length && /[a-z]/i.test(code[i])) {
 			ref += code[i++];
 		}
 
-		// Validate it's 'cat'
-		if (ref !== 'cat') {
-			errors[`at:${currentPos}`] = `Invalid reference "@${ref}". Expected "@cat" for classification.`;
+		// Validate it's 'ct'
+		if (ref !== 'ct') {
+			errors[`at:${currentPos}`] = `Invalid reference "@${ref}". Expected "@ct" for classification.`;
 			continue;
 		}
 
 		// Expect opening parenthesis
 		if (i >= code.length || code[i] !== "(") {
-			errors[`at:${currentPos}`] = `Expected '(' after @cat at position ${i}.`;
+			errors[`at:${currentPos}`] = `Expected '(' after @ct at position ${i}.`;
 			continue;
 		}
 		i++; // move past the (
@@ -374,21 +374,21 @@ export const textEngineClassificationGrammarParser: GrammarParser<TextEngineClas
 		}
 
 		if (!closed) {
-			errors[`at:${currentPos}`] = `Unclosed parenthesis for @cat. Expected ')'.`;
+			errors[`at:${currentPos}`] = `Unclosed parenthesis for @ct. Expected ')'.`;
 			continue;
 		}
 
 		// Split by comma to get category and word(s)
 		const commaParts = parenContent.split(',').map(p => p.trim());
 		if (commaParts.length !== 2) {
-			errors[`at:${currentPos}`] = `Invalid @cat syntax. Expected: @cat(category, word). Got: @cat(${parenContent})`;
+			errors[`at:${currentPos}`] = `Invalid @ct syntax. Expected: @ct(category, word). Got: @ct(${parenContent})`;
 			continue;
 		}
 
 		const [category, wordOrPhrase] = commaParts;
 
 		if (!category || !wordOrPhrase) {
-			errors[`at:${currentPos}`] = `Category and word cannot be empty in @cat(${parenContent}).`;
+			errors[`at:${currentPos}`] = `Category and word cannot be empty in @ct(${parenContent}).`;
 			continue;
 		}
 
@@ -493,13 +493,5 @@ export function parseTextEngineSequential<T extends TextEngineDataUnion>(
 		errors: null
 	}
 }
-
-
-
-
-
-
-
-
 
 

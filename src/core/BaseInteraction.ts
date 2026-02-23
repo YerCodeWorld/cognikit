@@ -230,7 +230,7 @@ export abstract class BaseInteraction<T extends InteractionData> extends HTMLEle
 	public set(variant: Variant): void {
 		this.config.variant = variant;
 		this.setAttribute('variant', variant);
-		this.onChange(variant);
+		this.onVariantChange(variant);
 	}
 
 	public get(): Variant {

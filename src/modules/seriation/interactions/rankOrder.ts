@@ -72,7 +72,7 @@ export class RankOrder extends BaseInteraction<SeriationData> {
 	render(): void {
 		this.innerHTML = `
 			<style>
-				:host {
+				rank-order {
 					display: flex;
 					width: 100%;
 					height: 100%;

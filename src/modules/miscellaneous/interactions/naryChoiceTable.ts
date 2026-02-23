@@ -60,7 +60,7 @@ export class NaryChoiceTable extends BaseInteraction<BaseTableData> {
 		// Render with wrapper for proper height/overflow handling
 		this.innerHTML = `
 			<style>
-				:host {
+				nary-choice-table {
 					display: flex;
 					width: 100%;
 					height: 100%;

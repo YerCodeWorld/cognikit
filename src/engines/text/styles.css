@@ -1,4 +1,485 @@
-:host {}
+/* ==================== BASE STYLES ==================== */
 
+* { box-sizing: border-box; }
 
-:host([variant="outline"]) {}
+:host {
+	display: block;
+	font-family: system-ui, -apple-system, sans-serif;
+	font-size: clamp(0.92rem, 0.3vw + 0.88rem, 1.05rem);
+	line-height: 1.7;
+	--text-accent: rgb(var(--edu-first-accent));
+}
+
+.wrap {
+	padding: clamp(0.6rem, 1.6vw, var(--edu-pad));
+}
+
+.text-content {
+	display: block;
+	user-select: none;
+}
+
+/* ==================== WORD STYLES ==================== */
+
+.word {
+	display: inline;
+	margin: 0 0.15rem;
+	padding: 0.15rem 0.25rem;
+	border-radius: var(--edu-radius);
+	transition: all 0.2s ease;
+	overflow-wrap: anywhere;
+	color: rgb(var(--edu-ink));
+	font-weight: 500;
+}
+
+/* Selectable words (highlight mode) */
+.word-selectable {
+	cursor: pointer;
+	background: rgba(var(--edu-muted), 0.5);
+	border: 2px solid rgb(var(--edu-border));
+	color: rgb(var(--edu-ink));
+}
+
+.word-selectable:hover {
+	background: rgba(var(--edu-first-accent), 0.15);
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	transform: translateY(-1px);
+}
+
+.word-selected {
+	background: rgba(var(--edu-first-accent), 0.25);
+	border-color: var(--text-accent);
+	border-width: 2px;
+	font-weight: 500;
+	color: var(--text-accent);
+	box-shadow: 0 2px 4px rgba(var(--edu-shadow-color), 0.1);
+}
+
+/* Editable words (transformation mode) */
+.word-editable {
+	cursor: text;
+	background: rgb(var(--edu-card));
+	border: 1px solid rgb(var(--edu-border));
+	padding: 0.25rem 0.5rem;
+	min-width: 3ch;
+	outline: none;
+	color: rgb(var(--edu-ink));
+}
+
+.word-editable:hover {
+	border-color: rgb(var(--edu-second-ink));
+}
+
+.word-editable:focus {
+	border-color: var(--text-accent);
+	background: rgb(var(--edu-card));
+}
+
+/* Classifiable words */
+.word-classifiable {
+	cursor: pointer;
+	position: relative;
+	background: rgb(var(--edu-muted));
+	border: 1px solid rgb(var(--edu-border));
+	color: rgb(var(--edu-ink));
+}
+
+.word-classifiable:hover {
+	background: rgb(var(--edu-border));
+	border-color: rgb(var(--edu-second-ink));
+}
+
+.word-assigned {
+	background: rgba(var(--category-color), 0.2);
+	border-color: rgb(var(--category-color));
+	font-weight: 600;
+	color: rgb(var(--category-color));
+}
+
+/* ==================== GRADING STATES ==================== */
+
+.word-correct {
+	background: rgba(var(--edu-success), 0.2) !important;
+	border-color: rgb(var(--edu-success)) !important;
+	color: rgb(var(--edu-success));
+}
+
+.word-wrong {
+	background: rgba(var(--edu-error), 0.2) !important;
+	border-color: rgb(var(--edu-error)) !important;
+	color: rgb(var(--edu-error));
+}
+
+.word-missed {
+	background: rgba(var(--edu-warning), 0.2) !important;
+	border-color: rgb(var(--edu-warning)) !important;
+	color: rgb(var(--edu-second-ink));
+}
+
+.input-correct {
+	border-color: rgb(var(--edu-success)) !important;
+	background: rgba(var(--edu-success), 0.1) !important;
+}
+
+.input-wrong {
+	border-color: rgb(var(--edu-error)) !important;
+	background: rgba(var(--edu-error), 0.1) !important;
+}
+
+.input-missed {
+	border-color: rgb(var(--edu-warning)) !important;
+	background: rgba(var(--edu-warning), 0.1) !important;
+}
+
+/* ==================== CLASSIFICATION MODE ==================== */
+
+.categories {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.category-btn {
+	padding: 0.5rem 1rem;
+	border: 2px solid rgb(var(--edu-border));
+	background: rgb(var(--edu-card));
+	border-radius: var(--edu-radius);
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	color: rgb(var(--edu-ink));
+}
+
+.category-btn:hover {
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	background: rgba(var(--edu-first-accent), 0.05);
+}
+
+.category-btn.category-active {
+	border-color: var(--text-accent);
+	background: rgba(var(--edu-first-accent), 0.15);
+	color: var(--text-accent);
+}
+
+.words {
+	display: block;
+	line-height: 2.2;
+}
+
+/* ==================== DND MODE ==================== */
+
+.dnd-container {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.dnd-text {
+	line-height: 2.2;
+}
+
+.dropzone {
+	display: inline-block;
+	min-width: clamp(4ch, 5vw, 7ch);
+	min-height: 2rem;
+	padding: 0.25rem 0.75rem;
+	margin: 0 0.25rem;
+	border: 2px dashed rgb(var(--edu-border));
+	border-radius: var(--edu-radius);
+	background: rgb(var(--edu-muted));
+	text-align: center;
+	vertical-align: middle;
+	transition: all 0.2s ease;
+	color: rgb(var(--edu-ink));
+}
+
+.dropzone:hover {
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	background: rgba(var(--edu-first-accent), 0.05);
+}
+
+.dropzone-filled {
+	border-style: solid;
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	background: rgba(var(--edu-first-accent), 0.1);
+	font-weight: 500;
+}
+
+.dropzone-correct {
+	border-color: rgb(var(--edu-success)) !important;
+	background: rgba(var(--edu-success), 0.1) !important;
+}
+
+.dropzone-wrong {
+	border-color: rgb(var(--edu-error)) !important;
+	background: rgba(var(--edu-error), 0.1) !important;
+}
+
+.dropzone-missed {
+	border-color: rgb(var(--edu-warning)) !important;
+	background: rgba(var(--edu-warning), 0.1) !important;
+}
+
+.dnd-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 1rem;
+	border: 2px solid rgb(var(--edu-border));
+	border-radius: var(--edu-radius);
+	background: rgb(var(--edu-muted));
+	min-height: 4rem;
+	max-height: 11rem;
+	overflow: auto;
+}
+
+.chip {
+	padding: 0.5rem 1rem;
+	border: 1px solid rgb(var(--edu-border));
+	background: rgb(var(--edu-card));
+	border-radius: var(--edu-radius);
+	cursor: grab;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	user-select: none;
+	color: rgb(var(--edu-ink));
+}
+
+.chip:hover {
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	background: rgba(var(--edu-first-accent), 0.05);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 6px rgb(var(--edu-shadow-color) / 0.1);
+}
+
+.chip:active {
+	cursor: grabbing;
+}
+
+/* ==================== VARIANT: ELEGANT ==================== */
+
+:host([variant="elegant"]) .word-selectable {
+	background: rgb(var(--edu-card));
+	border: 1px solid rgb(var(--edu-border));
+	box-shadow: 0 1px 2px rgba(var(--edu-shadow-color), 0.05);
+}
+
+:host([variant="elegant"]) .word-selectable:hover {
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	box-shadow: 0 4px 8px rgba(var(--edu-shadow-color), 0.12);
+	transform: translateY(-2px);
+}
+
+:host([variant="elegant"]) .word-selected {
+	background: linear-gradient(135deg, rgba(var(--edu-first-accent), 0.15), rgba(var(--edu-first-accent), 0.25));
+	border-color: var(--text-accent);
+	border-width: 1px;
+	box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.2);
+	font-weight: 500;
+	color: var(--text-accent);
+}
+
+/* ==================== VARIANT: PLAYFUL ==================== */
+
+:host([variant="playful"]) .word {
+	border-radius: 16px;
+	font-weight: 500;
+}
+
+:host([variant="playful"]) .word-selectable {
+	background: linear-gradient(145deg, rgb(var(--edu-card)), rgb(var(--edu-muted)));
+	border: 3px solid rgb(var(--edu-border));
+	box-shadow: 2px 2px 4px rgba(var(--edu-shadow-color), 0.08);
+}
+
+:host([variant="playful"]) .word-selectable:hover {
+	transform: scale(1.1) rotate(-2deg);
+	border-color: rgba(var(--edu-first-accent), 0.7);
+	box-shadow: 3px 3px 8px rgba(var(--edu-shadow-color), 0.15);
+}
+
+:host([variant="playful"]) .word-selected {
+	background: linear-gradient(135deg, var(--text-accent), rgba(var(--edu-first-accent), 0.8));
+	border-color: var(--text-accent);
+	border-width: 3px;
+	color: rgb(var(--edu-inverted-ink));
+	transform: scale(1.15) rotate(2deg);
+	box-shadow: 4px 4px 12px rgba(var(--edu-shadow-color), 0.25);
+	font-weight: 700;
+}
+
+:host([variant="playful"]) .category-btn {
+	border-radius: 24px;
+}
+
+/* ==================== VARIANT: OUTLINE ==================== */
+
+:host([variant="outline"]) .word-selectable {
+	border: 2px solid rgb(var(--edu-border));
+	background: transparent;
+}
+
+:host([variant="outline"]) .word-selectable:hover {
+	border-color: rgba(var(--edu-first-accent), 0.7);
+	background: rgba(var(--edu-first-accent), 0.05);
+	border-width: 2px;
+}
+
+:host([variant="outline"]) .word-selected {
+	border-color: var(--text-accent);
+	background: rgba(var(--edu-first-accent), 0.12);
+	border-width: 2px;
+	font-weight: 500;
+	color: var(--text-accent);
+}
+
+/* ==================== VARIANT: MINIMAL ==================== */
+
+:host([variant="minimal"]) .word {
+	border: none;
+	border-radius: 0;
+	padding: 0.2rem 0.3rem;
+	margin: 0 0.1rem;
+}
+
+:host([variant="minimal"]) .word-selectable {
+	background: transparent;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+}
+
+:host([variant="minimal"]) .word-selectable:hover {
+	background: rgba(var(--edu-first-accent), 0.1);
+	border-bottom-color: rgba(var(--edu-first-accent), 0.4);
+}
+
+:host([variant="minimal"]) .word-selected {
+	background: linear-gradient(to right, rgba(var(--edu-first-accent), 0.4) 0%, rgba(var(--edu-first-accent), 0.4) 100%);
+	background-size: 100% 60%;
+	background-position: 0 100%;
+	background-repeat: no-repeat;
+	border: none;
+	border-bottom: 3px solid var(--text-accent);
+	font-weight: 500;
+	color: var(--text-accent);
+}
+
+/* ==================== VARIANT: LETTER ==================== */
+
+:host([variant="letter"]) .word {
+	border-radius: 2px;
+}
+
+:host([variant="letter"]) .word-selectable {
+	background: rgb(var(--edu-card));
+	border: 1px solid rgb(var(--edu-border));
+	font-family: 'Courier New', monospace;
+}
+
+:host([variant="letter"]) .word-selected {
+	background: rgba(var(--edu-first-accent), 0.15);
+	border-color: var(--text-accent);
+}
+
+/* ==================== VARIANT: SIGN ==================== */
+
+:host([variant="sign"]) .word {
+	border-radius: 4px;
+	font-weight: 700;
+	text-transform: uppercase;
+	font-size: 0.95em;
+	letter-spacing: 0.5px;
+}
+
+:host([variant="sign"]) .word-selectable {
+	background: linear-gradient(180deg, rgb(var(--edu-card)), rgb(var(--edu-muted)));
+	border: 4px solid rgb(var(--edu-border));
+	border-bottom-width: 6px;
+	box-shadow: 0 4px 0 rgba(var(--edu-shadow-color), 0.15);
+}
+
+:host([variant="sign"]) .word-selectable:hover {
+	border-color: rgba(var(--edu-first-accent), 0.6);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 0 rgba(var(--edu-shadow-color), 0.2);
+}
+
+:host([variant="sign"]) .word-selected {
+	background: linear-gradient(180deg, var(--text-accent), rgba(var(--edu-first-accent), 0.8));
+	border-color: var(--text-accent);
+	border-width: 4px;
+	border-bottom-width: 6px;
+	color: rgb(var(--edu-inverted-ink));
+	transform: translateY(-4px);
+	box-shadow: 0 8px 0 rgba(var(--edu-shadow-color), 0.25);
+}
+
+/* ==================== VARIANT: GLASS ==================== */
+
+:host([variant="glass"]) .word-selectable {
+	background: rgba(var(--edu-card), 0.6);
+	border: 1px solid rgba(var(--edu-border), 0.3);
+	backdrop-filter: blur(12px) saturate(150%);
+	box-shadow: 0 2px 8px rgba(var(--edu-shadow-color), 0.1);
+}
+
+:host([variant="glass"]) .word-selectable:hover {
+	background: rgba(var(--edu-first-accent), 0.2);
+	border-color: rgba(var(--edu-first-accent), 0.5);
+	backdrop-filter: blur(16px) saturate(180%);
+	box-shadow: 0 4px 12px rgba(var(--edu-shadow-color), 0.15);
+}
+
+:host([variant="glass"]) .word-selected {
+	background: rgba(var(--edu-first-accent), 0.35);
+	border-color: var(--text-accent);
+	border-width: 2px;
+	backdrop-filter: blur(16px) saturate(200%);
+	box-shadow: 0 6px 16px rgba(var(--edu-shadow-color), 0.2);
+	font-weight: 600;
+	color: var(--text-accent);
+}
+
+/* ==================== VARIANT: EMPTY ==================== */
+
+:host([variant="empty"]) .word {
+	border: none;
+	background: transparent;
+	margin: 0;
+	padding: 0.2rem;
+}
+
+:host([variant="empty"]) .word-selectable:hover {
+	opacity: 0.7;
+}
+
+:host([variant="empty"]) .word-selected {
+	text-decoration: underline;
+	text-decoration-color: var(--text-accent);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+	.word {
+		margin: 0 0.08rem;
+		padding: 0.12rem 0.2rem;
+	}
+
+	.categories {
+		gap: 0.35rem;
+		margin-bottom: 0.9rem;
+	}
+
+	.category-btn {
+		padding: 0.38rem 0.7rem;
+		font-size: 0.8rem;
+	}
+
+	.dnd-container {
+		gap: 1.1rem;
+	}
+}
