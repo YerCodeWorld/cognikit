@@ -13,6 +13,8 @@ import {
 	TextEngineGradingState
 } from "../../types/Text";
 
+import { EduInput } from "../../ui";
+
 import { Variant } from "../../shared/types";
 import { shuffle, escapeHtml, hash } from "../../shared/utils";
 
@@ -168,6 +170,13 @@ export class EduText extends HTMLElement implements EduTextElement {
 
 		if (name === 'variant') {
 			this.setAttribute('variant', newValue);
+
+			this.querySelectorAll('edu-input').forEach((el: EduInput) => {
+				if (el.variant !== undefined) {
+					el.variant = newValue as Variant;
+				}
+			});
+
 			// Update variant in all child elements if needed
 			this.render();
 		}

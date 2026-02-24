@@ -276,6 +276,8 @@
             EduText,
             MarkTheWords,
             TextTransformation,
+            FillBlanks,
+            SequentialFillBlanks,
 
             textEngineBaseGrammarParser,
             textEngineBlanksGrammarParser,
@@ -352,13 +354,13 @@
                 code: '= ["car", "island"]; The [sun] is at the center of our solar system, while the [moon] orbits Earth and reflects [light] at night.'
             },
             'fb-mixed': {
-                type: 'FillBlanksDemo',
+                type: 'FillBlanks',
                 parserMode: 'blanks',
                 title: 'Complete each input correctly',
                 code: 'My name @tx(is|\'s) Ana and I am @nm(14..16) years old. My favorite class is @sl([math]|music|sports).'
             },
             'fb-time-date': {
-                type: 'FillBlanksDemo',
+                type: 'FillBlanks',
                 parserMode: 'blanks',
                 title: 'Provide the expected date and time',
                 code: 'Our exam is on @dt(2026/03/05) and starts at @tm(08:30).'
@@ -370,10 +372,10 @@
                 code: 'I @ct(noun, teacher) will @ct(verb, travel) to the @ct(noun, museum) and @ct(verb, study) there.'
             },
             'seq-highlight-basics': {
-                type: 'SequentialHighlightDemo',
-                parserMode: 'sequential-base',
-                title: 'Highlight the target words on each step',
-                code: 'We [study] every morning before school;;They [practice] coding and [review] notes at night;;Our team [builds] projects and [shares] feedback weekly'
+                type: 'SequentialFillBlanks',
+                parserMode: 'sequential-blanks',
+                title: 'Complete each step with the right blanks',
+                code: 'She @tx(is|\'s) my sister and we @tx(are) from Santiago;;Our class starts at @tm(08:30) and ends at @tm(12:45);;I solved @nm(7|8|9) exercises and selected @sl([math]|science|history)'
             }
         };
 
@@ -456,107 +458,6 @@
                 const userData = this.getCurrentState();
                 const result = textEngineDNDGrader(this.data, userData);
                 const gradingState = getDNDGradingState(this.data, userData);
-                this._$text.setGradingState(gradingState);
-                return result;
-            }
-
-            submit() {
-                super.submit();
-                const result = this.grade();
-                this.dispatchEvent(new CustomEvent('interaction:graded', {
-                    detail: { result },
-                    bubbles: true,
-                    composed: true
-                }));
-            }
-
-            reset() {
-                super.reset();
-                if (this._$text) {
-                    this._$text.reset();
-                    this._$text.clearGradingState();
-                }
-            }
-        }
-
-        class FillBlanksDemo extends BaseInteraction {
-            interactionMechanic = 'static';
-            _textConfig;
-            _$text;
-
-            constructor(data, config) {
-                super(data, config);
-                this._textConfig = {
-                    data,
-                    mode: 'blanks',
-                    variant: config.variant ?? 'outline'
-                };
-                this.initializeProgress(data.targets.length);
-            }
-
-            render() {
-                this._textConfig.variant = this.config.variant;
-
-                this._$text = document.createElement('edu-text');
-                this._$text.config = this._textConfig;
-                this._$text.addEventListener('change', () => {
-                    const userData = this._$text.getValue();
-                    const values = userData.inputValues ?? {};
-                    const answered = this.data.targets.filter((t) => {
-                        const value = values[t.id];
-                        return value !== undefined && value !== null && String(value).trim() !== '';
-                    }).length;
-                    this.setProgress(answered);
-                    this.emitStateChange();
-                });
-
-                this.innerHTML = `
-                    <style>
-                        .text-wrapper {
-                            height: 100%;
-                            overflow: auto;
-                            padding: 1rem;
-                        }
-                    </style>
-                    <div class="text-wrapper"></div>
-                `;
-                this.querySelector('.text-wrapper').appendChild(this._$text);
-            }
-
-            getCurrentState() {
-                return this._$text ? this._$text.getValue() : { inputValues: {} };
-            }
-
-            isInteractionComplete() {
-                const progress = this.getProgress();
-                return progress.current >= progress.total;
-            }
-
-            onVariantChange(newVariant) {
-                this._textConfig.variant = newVariant;
-                if (this._$text) this._$text.setAttribute('variant', newVariant);
-            }
-
-            onHint() {
-                const userData = this.getCurrentState();
-                const values = userData.inputValues ?? {};
-                const missed = this.data.targets.find((t) => {
-                    const value = values[t.id];
-                    return value === undefined || value === null || String(value).trim() === '';
-                });
-
-                if (!missed) {
-                    this.emitHintShown('All inputs are filled. Submit to check answers.');
-                    return;
-                }
-
-                this.emitHintShown(`Complete the ${missed.expectedValue.type} input first.`);
-            }
-
-            grade() {
-                const userData = this.getCurrentState();
-                const result = textEngineBlanksGrader(this.data, userData);
-                const gradingState = getBlanksGradingState(this.data, userData);
                 this._$text.setGradingState(gradingState);
                 return result;
             }
@@ -675,105 +576,11 @@
             }
         }
 
-        class SequentialHighlightDemo extends BaseInteraction {
-            interactionMechanic = 'sequential';
-            slidesCount = 1;
-            _slides = [];
-            _currentStep = 0;
-            _textConfig;
-            _$text;
-
-            constructor(data, config) {
-                super(data, config);
-                this._slides = Array.isArray(data) ? data : [];
-                this.slidesCount = this._slides.length || 1;
-                this._textConfig = {
-                    data: this._slides[0],
-                    mode: 'highlight',
-                    variant: config.variant ?? 'outline'
-                };
-                this.initializeProgress(this.getCurrentSlideTargetCount());
-            }
-
-            getCurrentSlideTargetCount() {
-                const slide = this._slides[this._currentStep];
-                if (!slide) return 0;
-                return slide.targets.reduce((sum, target) => sum + (target.endPos - target.startPos + 1), 0);
-            }
-
-            setSteps(step) {
-                const nextStep = Math.max(0, Math.min(this._slides.length - 1, step - 1));
-                if (nextStep === this._currentStep) return;
-
-                this._currentStep = nextStep;
-                this._textConfig.data = this._slides[this._currentStep];
-                this.initializeProgress(this.getCurrentSlideTargetCount());
-                this.render();
-            }
-
-            render() {
-                this._textConfig.variant = this.config.variant;
-                this._textConfig.data = this._slides[this._currentStep];
-
-                this._$text = document.createElement('edu-text');
-                this._$text.config = this._textConfig;
-                this._$text.addEventListener('change', () => {
-                    const userData = this._$text.getValue();
-                    const selected = new Set(userData.selectedIndices ?? []);
-                    this.setProgress(selected.size);
-                    this.emitStateChange();
-                });
-
-                this.innerHTML = `
-                    <style>
-                        .text-wrapper {
-                            height: 100%;
-                            overflow: auto;
-                            padding: 1rem;
-                        }
-                        .step-label {
-                            padding: 0.5rem 1rem;
-                            border-bottom: 1px solid rgb(var(--edu-border));
-                            color: rgb(var(--edu-second-ink));
-                            font-size: 0.85rem;
-                        }
-                    </style>
-                    <div class="step-label">Step ${this._currentStep + 1} of ${this.slidesCount}</div>
-                    <div class="text-wrapper"></div>
-                `;
-                this.querySelector('.text-wrapper').appendChild(this._$text);
-            }
-
-            getCurrentState() {
-                return this._$text ? this._$text.getValue() : { selectedIndices: [] };
-            }
-
-            isInteractionComplete() {
-                const progress = this.getProgress();
-                return progress.current >= progress.total;
-            }
-
-            onVariantChange(newVariant) {
-                this._textConfig.variant = newVariant;
-                if (this._$text) this._$text.setAttribute('variant', newVariant);
-            }
-
-            onHint() {
-                this.emitHintShown('Click the words that should be highlighted on this step.');
-            }
-        }
-
         if (!customElements.get('dnd-text-demo')) {
             customElements.define('dnd-text-demo', DNDTextDemo);
         }
-        if (!customElements.get('fill-blanks-demo')) {
-            customElements.define('fill-blanks-demo', FillBlanksDemo);
-        }
         if (!customElements.get('classification-text-demo')) {
             customElements.define('classification-text-demo', ClassificationTextDemo);
-        }
-        if (!customElements.get('sequential-highlight-demo')) {
-            customElements.define('sequential-highlight-demo', SequentialHighlightDemo);
         }
 
         // ==================== LOAD & WIRE ====================
@@ -788,6 +595,8 @@
                 ? textEngineClassificationGrammarParser(example.code)
                 : example.parserMode === 'sequential-base'
                 ? parseTextEngineSequential(example.code, 'base')
+                : example.parserMode === 'sequential-blanks'
+                ? parseTextEngineSequential(example.code, 'blanks')
                 : textEngineBaseGrammarParser(example.code);
             if (!parseResult.ok) {
                 console.error('Parse errors:', parseResult.errors);
@@ -811,12 +620,12 @@
                 interaction = new TextTransformation(parseResult.data, config, example.expectedTransformations);
             } else if (example.type === 'DNDTextDemo') {
                 interaction = new DNDTextDemo(parseResult.data, config);
-            } else if (example.type === 'FillBlanksDemo') {
-                interaction = new FillBlanksDemo(parseResult.data, config);
+            } else if (example.type === 'FillBlanks') {
+                interaction = new FillBlanks(parseResult.data, config);
             } else if (example.type === 'ClassificationTextDemo') {
                 interaction = new ClassificationTextDemo(parseResult.data, config);
             } else {
-                interaction = new SequentialHighlightDemo(parseResult.data, config);
+                interaction = new SequentialFillBlanks(parseResult.data, config);
             }
 
             viewport.setInteraction(interaction);

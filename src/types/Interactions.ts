@@ -36,6 +36,7 @@ export type InteractionConfig = {
 	timer: number | null;
 }
 
+// TODO: what is the identity for the interactions going to be from now on?
 export type IInteraction = {
 	id: string;
 	name: string;

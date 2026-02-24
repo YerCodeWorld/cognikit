@@ -1,4 +1,5 @@
 import CSS from "./styles.css";
+
 import { 
 	TableConfiguration, 
 	TableState, 

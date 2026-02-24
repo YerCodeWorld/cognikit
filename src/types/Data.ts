@@ -39,6 +39,6 @@ export interface RecognitionData {
 	data: { question: string; correctOptions: string[]; options: string[] }[];
 }
 
-export interface ComparisonData {}
+// export interface ComparisonData {}
 // export interface EvaluationData {}
 // export interface TransformationData {}

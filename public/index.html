@@ -427,7 +427,7 @@
                         <option value="SequentialClassification">Sequential Classification</option>
                         <option value="SimultaneousAssociation">Simultaneous Association</option>
                         <option value="OpenClassification">Open Classification</option>
-                        <option value="RankOrderScalable">Rank Order</option>
+                        <option value="RankOrder">Rank Order</option>
                         <option value="ListRecall">List Recall</option>
                         <option value="MCQ" selected>MCQ/MRQ</option>
                     </select>
@@ -472,7 +472,7 @@
             OpenClassification,
             SequentialClassification,
             SimultaneousAssociation,
-            RankOrderScalable,
+            RankOrder,
             ListRecall,
             MCQ,
             InteractionsBaseShell,
@@ -599,7 +599,7 @@
                 },
                 assets: ''
             },
-            RankOrderScalable: {
+            RankOrder: {
                 data: {
                     type: 'seriation',
                     items: ['Bronze Age', 'Iron Age', 'Middle Ages', 'Renaissance', 'Industrial Revolution', 'Information Age']
@@ -719,8 +719,8 @@ laugh:\n type: audio\n url: https://www.soundjay.com/human/sounds/man-laughing-0
                     case 'OpenClassification':
                         interaction = new OpenClassification(data, config, assets);
                         break;
-                    case 'RankOrderScalable':
-                        interaction = new RankOrderScalable(data, config, assets);
+                    case 'RankOrder':
+                        interaction = new RankOrder(data, config, assets);
                         break;
                     case 'ListRecall':
                         interaction = new ListRecall(data, config, assets);

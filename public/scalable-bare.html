@@ -268,7 +268,7 @@
 
     <script type="module">
         import {
-            RankOrderScalable,
+            RankOrder,
             SequentialClassification,
             OpenClassification,
             MCQ,
@@ -356,7 +356,7 @@ butterfly:
             interactionElement.innerHTML = '';
 
             if (type === 'rank-order-scalable') {
-                interaction = new RankOrderScalable(temporalData, config, normalizedAssets);
+                interaction = new RankOrder(temporalData, config, normalizedAssets);
             } else if (type === 'simultaneous-association') {
                 interaction = new SimultaneousAssociation(associationData, config, normalizedAssets, {
                     rightColumnLabel: 'Right Items',
@@ -370,7 +370,7 @@ butterfly:
             } else if (type === 'mcq') {
                 interaction = new MCQ(mcqData, config, normalizedAssets);
             } else {
-                interaction = new RankOrderScalable(temporalData, config, normalizedAssets);
+                interaction = new RankOrder(temporalData, config, normalizedAssets);
             }
             interactionElement.append(interaction);
             bindInteractionEvents();
