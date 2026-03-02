@@ -27,12 +27,18 @@
 			"types": "./dist/index.d.ts"
 		}
 	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
 	"scripts": {
 		"clean": "rimraf dist public-dist",
 		"types": "tsc -p tsconfig.json",
 		"build:lib": "esbuild src/index.ts --bundle --format=esm --platform=browser --outdir=dist --sourcemap --minify --external:react --external:react-dom --loader:.html=text --loader:.css=text",
 		"build:demo": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --loader:.html=text --loader:.css=text",
 		"build": "pnpm clean && pnpm build:lib && pnpm types && pnpm build:demo",
+		"prepublishOnly": "pnpm build",
 		"dev:build": "esbuild src/index.ts --bundle --format=esm --platform=browser --outfile=public/app.js --sourcemap --watch=forever --loader:.html=text --loader:.css=text",
 		"dev:serve": "browser-sync start --server public --port 3008 --files 'public/**/*' --no-open --no-notify",
 		"dev": "npm-run-all --parallel dev:build dev:serve",
