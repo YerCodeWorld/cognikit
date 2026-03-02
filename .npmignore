@@ -1,4 +1,5 @@
 *
 !dist/
+!public/
 !README.md
 !LICENSE
