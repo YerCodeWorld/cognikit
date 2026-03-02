@@ -26,7 +26,7 @@ export const parseTX: GrammarParser<TextData> = (s: string): GrammarParseResult<
 
 	const id = `text-${hash(s)}`;
 	// is there a way to enforce a variant here? Maybe do a replace to the innerHTML in whatever implementation uses this
-	let html = `<edu-input type="text" id="${id}"variant="elegant" autocomplete="off"></edu-input>`;
+	let html = `<edu-input type="text" id="${id}" variant="outline" autocomplete="off"></edu-input>`;
 	
 	return {
 		ok: true,
@@ -67,10 +67,10 @@ export const parseSL: GrammarParser<SelectData> = (s: string): GrammarParseResul
 
 	const allOptions = [...options];
 
-	const id = `select-${hash(s)}-${Math.random().toString(36).slice(2)}}`;
+	const id = `select-${hash(s)}-${Math.random().toString(36).slice(2)}`;
 
 	const optsElementsHTML = allOptions.map(o => `<option>${o}</option>`).join("");
-	const html = `<edu-input as="select" id="${id}" variant="elegant">${optsElementsHTML}</edu-input>`;
+	const html = `<edu-input as="select" id="${id}" variant="outline">${optsElementsHTML}</edu-input>`;
 
 	return {
 		ok: true,
@@ -126,7 +126,7 @@ export const parseNM: GrammarParser<NumberData> = (s: string): GrammarParseResul
 	}
 
 	const id = `number-${hash(s)}-${Math.random().toString(36).slice(2)}`;
-	const html = `<edu-input type="number" variant="elegant" id="${id}"></edu-input>`;
+	const html = `<edu-input type="number" variant="outline" id="${id}"></edu-input>`;
 
 	return {
 		ok: true,
@@ -168,7 +168,7 @@ export const parseDT: GrammarParser<DateData> = (s: string): GrammarParseResult<
 
 	const value = dedupe(validDates);
 	const id = `date-${hash(s)}`;
-	const html = `<edu-input type="date" id="${id}" variant="elegant"></edu-input>`;
+	const html = `<edu-input type="date" id="${id}" variant="outline"></edu-input>`;
 
 	return {
 		ok: true,
@@ -209,7 +209,7 @@ export const parseTM: GrammarParser<TimeData> = (s: string): GrammarParseResult<
 
 	const value = dedupe(validTimes);
 	const id = `time-${hash(s)}`;
-	const html = `<edu-input type="time" id="${id}" variant="elegant"></edu-input>`;
+	const html = `<edu-input type="time" id="${id}" variant="outline"></edu-input>`;
 
 	return {
 		ok: true,

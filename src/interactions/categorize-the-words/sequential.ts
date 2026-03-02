@@ -1,34 +1,29 @@
 import { BaseInteraction } from "../../core/BaseInteraction";
 import { Variant } from "../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../types/Interactions";
-
-import {
-	TextEngineBlanksData,
-	TextEngineSequentialInteractionData
-} from "../../types/Text";
+import { GradingResult } from "../../types/Grading";
+import { TextEngineClassificationData, TextEngineConfiguration, TextEngineSequentialInteractionData } from "../../types/Text";
 
 import {
 	EduText,
-	textEngineBlanksGrader,
-	getBlanksGradingState,
-	type TextEngineBlanksUserData,
-	type TextEngineBlanksGradingState
+	textEngineClassificationGrader,
+	getClassificationGradingState,
+	type TextEngineClassificationUserData,
+	type TextEngineClassificationGradingState
 } from "../../engines/text";
 
-import { GradingResult } from "../../types/Grading";
-
-export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialInteractionData> {
+export class SequentialCategorizeTheWords extends BaseInteraction<TextEngineSequentialInteractionData> {
 
 	interactionMechanic: InteractionMechanic = "sequential";
 
-	private _slides: TextEngineBlanksData[] = [];
+	private _slides: TextEngineClassificationData[] = [];
 	private _currentStep = 0;
 
-	private _textConfig!: { data: TextEngineBlanksData; mode: "blanks"; variant: Variant; };
+	private _textConfig!: TextEngineConfiguration;
 	private _$text!: EduText;
 
-	private _responses: Record<number, TextEngineBlanksUserData> = {};
-	private _gradingByStep: Record<number, TextEngineBlanksGradingState> = {};
+	private _responses: Record<number, TextEngineClassificationUserData> = {};
+	private _gradingByStep: Record<number, TextEngineClassificationGradingState> = {};
 	private _isGraded = false;
 
 	public get slidesCount(): number {
@@ -39,18 +34,18 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 		super(data, config);
 
 		this._slides = (Array.isArray(data) ? data : []).filter(
-			(slide): slide is TextEngineBlanksData => slide.type === "blanks"
+			(slide): slide is TextEngineClassificationData => slide.type === "classification"
 		);
 
 		if (this._slides.length === 0) {
 			this.isValid = false;
-			this.errors = "SequentialFillBlanks requires at least one blanks slide.";
+			this.errors = "SequentialCategorizeTheWords requires at least one classification slide.";
 			return;
 		}
 
 		this._textConfig = {
 			data: this._slides[0],
-			mode: "blanks",
+			mode: "classification",
 			variant: config.variant ?? "outline"
 		};
 
@@ -83,7 +78,7 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 
 		this._textConfig = {
 			data: this._slides[this._currentStep],
-			mode: "blanks",
+			mode: "classification",
 			variant: this.config.variant
 		};
 
@@ -91,8 +86,8 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 		this._$text.config = this._textConfig;
 
 		const stepState = this._responses[this._currentStep];
-		if (stepState?.inputValues) {
-			this._$text.setState({ inputValues: stepState.inputValues });
+		if (stepState?.wordCategories) {
+			this._$text.setState({ wordCategories: stepState.wordCategories });
 		}
 
 		const stepGrading = this._gradingByStep[this._currentStep];
@@ -103,7 +98,6 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 		this._$text.addEventListener("change", () => {
 			this.saveCurrentStepResponse();
 			this.updateProgressAcrossSteps();
-			// If user edits after grading, clear stale grading for this step.
 			if (this._isGraded) {
 				delete this._gradingByStep[this._currentStep];
 				this._$text.clearGradingState();
@@ -113,7 +107,7 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 
 		this.innerHTML = `
 			<style>
-				sequential-fill-blanks {
+				sequential-categorize-the-words {
 					display: flex;
 					width: 100%;
 					height: 100%;
@@ -127,13 +121,6 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 					height: 100%;
 					overflow: hidden;
 					box-sizing: border-box;
-				}
-
-				.step-label {
-					padding: 0.5rem 1rem;
-					border-bottom: 1px solid rgb(var(--edu-border));
-					color: rgb(var(--edu-second-ink));
-					font-size: 0.85rem;
 				}
 
 				.text-wrapper {
@@ -153,17 +140,29 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 		wrapper.appendChild(this._$text);
 	}
 
-	private getTotalTargetCount(): number {
-		return this._slides.reduce((sum, slide) => sum + slide.targets.length, 0);
+	private getTargetIndices(slide: TextEngineClassificationData): Set<number> {
+		const indices = new Set<number>();
+		for (const category of slide.targets) {
+			for (const target of category.targets) {
+				for (let i = target.startPos; i <= target.endPos; i++) {
+					indices.add(i);
+				}
+			}
+		}
+		return indices;
 	}
 
-	private saveCurrentStepResponse() {
+	private getTotalTargetCount(): number {
+		return this._slides.reduce((sum, slide) => sum + this.getTargetIndices(slide).size, 0);
+	}
+
+	private saveCurrentStepResponse(): void {
 		if (!this._$text) return;
 		this._responses[this._currentStep] = this._$text.getValue();
 	}
 
-	private getResponseForStep(step: number): TextEngineBlanksUserData {
-		return this._responses[step] ?? { inputValues: {} };
+	private getResponseForStep(step: number): TextEngineClassificationUserData {
+		return this._responses[step] ?? { wordCategories: {} };
 	}
 
 	private updateProgressAcrossSteps(): void {
@@ -172,12 +171,11 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 		for (let i = 0; i < this._slides.length; i++) {
 			const slide = this._slides[i];
 			const response = this.getResponseForStep(i);
-			const values = response.inputValues ?? {};
+			const targetIndices = this.getTargetIndices(slide);
 
-			answered += slide.targets.filter((target) => {
-				const value = values[target.id];
-				return value !== undefined && value !== null && String(value).trim() !== "";
-			}).length;
+			for (const idx of targetIndices) {
+				if (response.wordCategories[idx]) answered++;
+			}
 		}
 
 		this.setProgress(answered);
@@ -200,19 +198,16 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 
 		const slide = this._slides[this._currentStep];
 		const response = this.getResponseForStep(this._currentStep);
-		const values = response.inputValues ?? {};
+		const targetIndices = this.getTargetIndices(slide);
 
-		const firstMissed = slide.targets.find((target) => {
-			const value = values[target.id];
-			return value === undefined || value === null || String(value).trim() === "";
-		});
-
-		if (!firstMissed) {
-			this.emitHintShown("This step is complete. Move to another step or submit.");
-			return;
+		for (const idx of targetIndices) {
+			if (!response.wordCategories[idx]) {
+				this.emitHintShown(`Try categorizing "${slide.parts[idx]}"`);
+				return;
+			}
 		}
 
-		this.emitHintShown(`Complete the ${firstMissed.expectedValue.type} input on this step.`);
+		this.emitHintShown("This step is complete. Move to another step or submit.");
 	}
 
 	grade(): GradingResult {
@@ -220,19 +215,21 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 
 		let correct = 0;
 		let total = 0;
-		const gradingByStep: Record<number, TextEngineBlanksGradingState> = {};
+		const gradingByStep: Record<number, TextEngineClassificationGradingState> = {};
 
 		for (let i = 0; i < this._slides.length; i++) {
 			const slide = this._slides[i];
 			const response = this.getResponseForStep(i);
-			const result = textEngineBlanksGrader(slide, response);
+			const result = textEngineClassificationGrader(slide, response);
+
 			correct += result.correct;
 			total += result.total;
-			gradingByStep[i] = getBlanksGradingState(slide, response);
+			gradingByStep[i] = getClassificationGradingState(slide, response);
 		}
 
 		this._gradingByStep = gradingByStep;
 		this._isGraded = true;
+
 		const currentGrading = this._gradingByStep[this._currentStep];
 		if (currentGrading) {
 			this._$text.setGradingState(currentGrading);
@@ -267,6 +264,6 @@ export class SequentialFillBlanks extends BaseInteraction<TextEngineSequentialIn
 	}
 }
 
-if (!customElements.get("sequential-fill-blanks")) {
-	customElements.define("sequential-fill-blanks", SequentialFillBlanks);
+if (!customElements.get("sequential-categorize-the-words")) {
+	customElements.define("sequential-categorize-the-words", SequentialCategorizeTheWords);
 }

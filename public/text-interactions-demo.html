@@ -243,8 +243,20 @@
             <div class="group-label">Sequential</div>
             <div class="example-group">
                 <button class="example-btn" data-example="seq-highlight-basics">
-                    Highlight Steps
-                    <div class="example-btn-desc">Multi-step text highlight</div>
+                    Guided Multi-step Blanks
+                    <div class="example-btn-desc">Answers persist across slides</div>
+                </button>
+                <button class="example-btn" data-example="seq-mark-keywords">
+                    Guided Highlight Steps
+                    <div class="example-btn-desc">Per-slide mark-the-words grading</div>
+                </button>
+                <button class="example-btn" data-example="seq-transform-verbs">
+                    Guided Verb Transformations
+                    <div class="example-btn-desc">Per-slide transformation grading</div>
+                </button>
+                <button class="example-btn" data-example="seq-categorize-grammar">
+                    Guided Word Categorization
+                    <div class="example-btn-desc">Per-slide category assignments</div>
                 </button>
             </div>
         </div>
@@ -275,7 +287,11 @@
             BaseInteraction,
             EduText,
             MarkTheWords,
+            SequentialMarkTheWords,
+            CategorizeTheWords,
+            SequentialCategorizeTheWords,
             TextTransformation,
+            SequentialTextTransformation,
             FillBlanks,
             SequentialFillBlanks,
 
@@ -289,10 +305,7 @@
             getDNDGradingState,
 
             textEngineBlanksGrader,
-            getBlanksGradingState,
-
-            textEngineClassificationGrader,
-            getClassificationGradingState
+            getBlanksGradingState
         } from './app.js';
 
         const viewport = document.getElementById('interaction-viewport');
@@ -356,17 +369,17 @@
             'fb-mixed': {
                 type: 'FillBlanks',
                 parserMode: 'blanks',
-                title: 'Complete each input correctly',
-                code: 'My name @tx(is|\'s) Ana and I am @nm(14..16) years old. My favorite class is @sl([math]|music|sports).'
+                title: 'Student profile form',
+                code: 'My name @tx(is|\'s) Ana. I am @nm(14..16) years old and I solved @nm(7|8|9) exercises today. My favorite class is @sl([math]|science|history|music).'
             },
             'fb-time-date': {
                 type: 'FillBlanks',
                 parserMode: 'blanks',
-                title: 'Provide the expected date and time',
-                code: 'Our exam is on @dt(2026/03/05) and starts at @tm(08:30).'
+                title: 'Schedule confirmation',
+                code: 'The quiz is on @dt(2026/03/05) and starts at @tm(08:30). Check-in closes at @tm(08:20).'
             },
             'cat-grammar': {
-                type: 'ClassificationTextDemo',
+                type: 'CategorizeTheWords',
                 parserMode: 'classification',
                 title: 'Assign each highlighted item to a grammar category',
                 code: 'I @ct(noun, teacher) will @ct(verb, travel) to the @ct(noun, museum) and @ct(verb, study) there.'
@@ -374,8 +387,30 @@
             'seq-highlight-basics': {
                 type: 'SequentialFillBlanks',
                 parserMode: 'sequential-blanks',
-                title: 'Complete each step with the right blanks',
-                code: 'She @tx(is|\'s) my sister and we @tx(are) from Santiago;;Our class starts at @tm(08:30) and ends at @tm(12:45);;I solved @nm(7|8|9) exercises and selected @sl([math]|science|history)'
+                title: 'Complete each slide with the verb to be',
+                code: 'She @tx(is|\'s) my sister and we @tx(are) from Santiago.;;Classes @tx(are|\'re) amazing!.;;Our families @tx(are|\'re) not very friendly! This @tx(is|\'r) not a good idea...'
+            },
+            'seq-mark-keywords': {
+                type: 'SequentialMarkTheWords',
+                parserMode: 'sequential-base',
+                title: 'Mark the target words on each step',
+                code: 'Mark the female names: [Maria] met Juan and [Caroline] near the park.;;Mark the brands: I bought [Nike] shoes and drank [Pepsi].'
+            },
+            'seq-transform-verbs': {
+                type: 'SequentialTextTransformation',
+                parserMode: 'sequential-base',
+                title: 'Transform each highlighted verb according to the step',
+                code: 'Yesterday I [wake] early and [go] to school.;;Last weekend they [run] in the park and [eat] dinner outside.',
+                expectedTransformationsByStep: {
+                    0: { 0: ['woke'], 1: ['went'] },
+                    1: { 0: ['ran'], 1: ['ate'] }
+                }
+            },
+            'seq-categorize-grammar': {
+                type: 'SequentialCategorizeTheWords',
+                parserMode: 'sequential-classification',
+                title: 'Assign highlighted words to the correct category on each step',
+                code: 'I @ct(noun, teacher) will @ct(verb, travel) tomorrow.;;They @ct(noun, students) @ct(verb, study) every night.'
             }
         };
 
@@ -481,106 +516,8 @@
             }
         }
 
-        class ClassificationTextDemo extends BaseInteraction {
-            interactionMechanic = 'static';
-            _textConfig;
-            _$text;
-
-            constructor(data, config) {
-                super(data, config);
-                this._textConfig = {
-                    data,
-                    mode: 'classification',
-                    variant: config.variant ?? 'outline'
-                };
-                this.initializeProgress(this.getTargetCount());
-            }
-
-            getTargetCount() {
-                return this.data.targets.reduce((sum, category) => {
-                    const wordsInCategory = category.targets.reduce(
-                        (acc, t) => acc + (t.endPos - t.startPos + 1),
-                        0
-                    );
-                    return sum + wordsInCategory;
-                }, 0);
-            }
-
-            render() {
-                this._textConfig.variant = this.config.variant;
-
-                this._$text = document.createElement('edu-text');
-                this._$text.config = this._textConfig;
-                this._$text.addEventListener('change', () => {
-                    const userData = this._$text.getValue();
-                    const assignedCount = Object.keys(userData.wordCategories ?? {}).length;
-                    this.setProgress(assignedCount);
-                    this.emitStateChange();
-                });
-
-                this.innerHTML = `
-                    <style>
-                        .text-wrapper {
-                            height: 100%;
-                            overflow: auto;
-                            padding: 1rem;
-                        }
-                    </style>
-                    <div class="text-wrapper"></div>
-                `;
-                this.querySelector('.text-wrapper').appendChild(this._$text);
-            }
-
-            getCurrentState() {
-                return this._$text ? this._$text.getValue() : { wordCategories: {} };
-            }
-
-            isInteractionComplete() {
-                const progress = this.getProgress();
-                return progress.current >= progress.total;
-            }
-
-            onVariantChange(newVariant) {
-                this._textConfig.variant = newVariant;
-                if (this._$text) this._$text.setAttribute('variant', newVariant);
-            }
-
-            onHint() {
-                this.emitHintShown('Select a category button, then click the corresponding words.');
-            }
-
-            grade() {
-                const userData = this.getCurrentState();
-                const result = textEngineClassificationGrader(this.data, userData);
-                const gradingState = getClassificationGradingState(this.data, userData);
-                this._$text.setGradingState(gradingState);
-                return result;
-            }
-
-            submit() {
-                super.submit();
-                const result = this.grade();
-                this.dispatchEvent(new CustomEvent('interaction:graded', {
-                    detail: { result },
-                    bubbles: true,
-                    composed: true
-                }));
-            }
-
-            reset() {
-                super.reset();
-                if (this._$text) {
-                    this._$text.reset();
-                    this._$text.clearGradingState();
-                }
-            }
-        }
-
         if (!customElements.get('dnd-text-demo')) {
             customElements.define('dnd-text-demo', DNDTextDemo);
-        }
-        if (!customElements.get('classification-text-demo')) {
-            customElements.define('classification-text-demo', ClassificationTextDemo);
         }
 
         // ==================== LOAD & WIRE ====================
@@ -595,6 +532,8 @@
                 ? textEngineClassificationGrammarParser(example.code)
                 : example.parserMode === 'sequential-base'
                 ? parseTextEngineSequential(example.code, 'base')
+                : example.parserMode === 'sequential-classification'
+                ? parseTextEngineSequential(example.code, 'classification')
                 : example.parserMode === 'sequential-blanks'
                 ? parseTextEngineSequential(example.code, 'blanks')
                 : textEngineBaseGrammarParser(example.code);
@@ -616,14 +555,20 @@
             let interaction;
             if (example.type === 'MarkTheWords') {
                 interaction = new MarkTheWords(parseResult.data, config);
+            } else if (example.type === 'SequentialMarkTheWords') {
+                interaction = new SequentialMarkTheWords(parseResult.data, config);
             } else if (example.type === 'TextTransformation') {
                 interaction = new TextTransformation(parseResult.data, config, example.expectedTransformations);
+            } else if (example.type === 'SequentialTextTransformation') {
+                interaction = new SequentialTextTransformation(parseResult.data, config, example.expectedTransformationsByStep);
+            } else if (example.type === 'SequentialCategorizeTheWords') {
+                interaction = new SequentialCategorizeTheWords(parseResult.data, config);
             } else if (example.type === 'DNDTextDemo') {
                 interaction = new DNDTextDemo(parseResult.data, config);
             } else if (example.type === 'FillBlanks') {
                 interaction = new FillBlanks(parseResult.data, config);
-            } else if (example.type === 'ClassificationTextDemo') {
-                interaction = new ClassificationTextDemo(parseResult.data, config);
+            } else if (example.type === 'CategorizeTheWords') {
+                interaction = new CategorizeTheWords(parseResult.data, config);
             } else {
                 interaction = new SequentialFillBlanks(parseResult.data, config);
             }

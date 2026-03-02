@@ -1,5 +1,9 @@
+import "./register-builtins";
+
 export * from "./open-classification";
 export * from "./sequential-classification";
+export * from "./registry";
+export * from "./register-builtins";
 
 export * from "./mcq-mrq";
 
@@ -15,6 +19,7 @@ export * from "./adjacency-table";
 
 // text
 export * from "./mark-the-words";
+export * from "./categorize-the-words";
 export * from "./text-transformation";
 export * from "./fill-blanks";
 export * from "./rank-order";

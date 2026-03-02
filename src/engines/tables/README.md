@@ -183,3 +183,11 @@ here to simply indicate the headers to fill the cells against. The table self-dr
 
 Same rules from 'adjacency' matrix apply for text/number/select input types.
 ```
+
+------------------------
+
+CONSIDER:
+
+- DND TABLE COMPLETION
+- 'SERIATION'/'UNIQUE RANK' table where each row has a value no other row can have 
+

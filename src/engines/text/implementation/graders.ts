@@ -67,9 +67,9 @@ export function textEngineHighlightGrader(
 		}
 	}
 
-	let correctCount = 0;
-	let wrongCount = 0;
-	let missedCount = 0;
+	let correctCount = 0; // true positives
+	let wrongCount = 0;   // false positives
+	let missedCount = 0;  // false negatives
 
 	// Check each position in parts
 	for (let i = 0; i < data.parts.length; i++) {
@@ -86,7 +86,20 @@ export function textEngineHighlightGrader(
 	}
 
 	const total = targetIndices.size;
-	const score = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+	// Precision/Recall balance:
+	// - Prevents "select all words = 100%"
+	// - Still allows free selection without hard caps
+	const precision = (correctCount + wrongCount) > 0
+		? correctCount / (correctCount + wrongCount)
+		: 0;
+	const recall = (correctCount + missedCount) > 0
+		? correctCount / (correctCount + missedCount)
+		: 0;
+	const f1 = (precision + recall) > 0
+		? (2 * precision * recall) / (precision + recall)
+		: 0;
+	const score = Math.round(f1 * 100);
 
 	return { score, correct: correctCount, total };
 }
@@ -253,28 +266,26 @@ export function getHighlightGradingState(
 	userData: TextEngineBaseUserData
 ): TextEngineBaseGradingState {
 	const selectedIndices = new Set(userData.selectedIndices ?? []);
+	const targetIndices = new Set<number>();
 	const gradingState: TextEngineBaseGradingState = {};
 
-	for (let i = 0; i < data.targets.length; i++) {
-		const target = data.targets[i];
-		let allSelected = true;
-		let anySelected = false;
-
-		for (let j = target.startPos; j <= target.endPos; j++) {
-			if (selectedIndices.has(j)) {
-				anySelected = true;
-			} else {
-				allSelected = false;
-			}
+	for (const target of data.targets) {
+		for (let i = target.startPos; i <= target.endPos; i++) {
+			targetIndices.add(i);
 		}
+	}
 
-		if (allSelected) {
-			gradingState[i] = 'correct';
-		} else if (anySelected) {
-			gradingState[i] = 'wrong';
-		} else {
-			gradingState[i] = 'missed';
-		}
+	// Mark word-level grading states:
+	// - selected target word => correct
+	// - missed target word => missed
+	// - selected non-target word => wrong
+	for (let i = 0; i < data.parts.length; i++) {
+		const isTarget = targetIndices.has(i);
+		const isSelected = selectedIndices.has(i);
+
+		if (isTarget && isSelected) gradingState[i] = 'correct';
+		else if (isTarget && !isSelected) gradingState[i] = 'missed';
+		else if (!isTarget && isSelected) gradingState[i] = 'wrong';
 	}
 
 	return gradingState;
@@ -372,9 +383,18 @@ function compareInputValue(expected: InputElementData, userValue: any): boolean 
 		}
 
 		case 'date':
+		{
+			// Accept both parser format (YYYY/MM/DD) and native date input format (YYYY-MM-DD)
+			const expectedDate = normalizeDate(String(expected.value));
+			const actualDate = normalizeDate(String(userValue));
+			return expectedDate.length > 0 && expectedDate === actualDate;
+		}
+
 		case 'time': {
-			// Simple string comparison for date/time
-			return String(expected.value).trim() === String(userValue).trim();
+			// Normalize both to HH:MM when possible
+			const expectedTime = normalizeTime(String(expected.value));
+			const actualTime = normalizeTime(String(userValue));
+			return expectedTime.length > 0 && expectedTime === actualTime;
 		}
 
 		default:
@@ -384,6 +404,17 @@ function compareInputValue(expected: InputElementData, userValue: any): boolean 
 
 function normalize(value: string): string {
 	return String(value).trim().toLowerCase();
+}
+
+function normalizeDate(value: string): string {
+	return String(value).trim().replace(/\//g, "-");
+}
+
+function normalizeTime(value: string): string {
+	const raw = String(value).trim();
+	const match = raw.match(/^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/);
+	if (!match) return raw;
+	return `${match[1]}:${match[2]}`;
 }
 
 // ==================== CLASSIFICATION GRADER ====================

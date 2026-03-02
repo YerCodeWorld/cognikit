@@ -1,36 +1,32 @@
 import { BaseInteraction } from "../../core/BaseInteraction";
 import { Variant } from "../../shared/types";
 import { InteractionConfig, InteractionMechanic } from "../../types/Interactions";
-
-import {
-	TextEngineBlanksData,
-	TextEngineBlanksDataTarget
-} from "../../types/Text";
+import { TextEngineClassificationData, TextEngineConfiguration } from "../../types/Text";
 
 import {
 	EduText,
-	textEngineBlanksGrader,
-	getBlanksGradingState,
-	type TextEngineBlanksUserData
+	textEngineClassificationGrader,
+	getClassificationGradingState,
+	type TextEngineClassificationUserData
 } from "../../engines/text";
 
-export class FillBlanks extends BaseInteraction<TextEngineBlanksData> {
+export class CategorizeTheWords extends BaseInteraction<TextEngineClassificationData> {
 
 	interactionMechanic: InteractionMechanic = "static";
 
-	private _textConfig: { data: TextEngineBlanksData; mode: "blanks"; variant: Variant; };
+	private _textConfig: TextEngineConfiguration;
 	private _$text!: EduText;
 
-	constructor(data: TextEngineBlanksData, config: InteractionConfig) {
+	constructor(data: TextEngineClassificationData, config: InteractionConfig) {
 		super(data, config);
 
 		this._textConfig = {
 			data,
-			mode: "blanks",
+			mode: "classification",
 			variant: config.variant ?? "outline"
 		};
 
-		this.initializeProgress(data.targets.length);
+		this.implementsProgress = false;
 	}
 
 	protected initialize(): void {}
@@ -42,7 +38,6 @@ export class FillBlanks extends BaseInteraction<TextEngineBlanksData> {
 		if (this._$text) {
 			this._$text.setAttribute("variant", newVariant);
 		}
-
 	}
 
 	render(): void {
@@ -50,14 +45,14 @@ export class FillBlanks extends BaseInteraction<TextEngineBlanksData> {
 
 		this._$text = document.createElement("edu-text") as EduText;
 		this._$text.config = this._textConfig;
+
 		this._$text.addEventListener("change", () => {
-			this.updateProgressBasedOnInputs();
 			this.emitStateChange();
 		});
 
 		this.innerHTML = `
 			<style>
-				fill-blanks {
+				categorize-the-words {
 					display: flex;
 					width: 100%;
 					height: 100%;
@@ -90,62 +85,53 @@ export class FillBlanks extends BaseInteraction<TextEngineBlanksData> {
 		wrapper.appendChild(this._$text);
 	}
 
-	getCurrentState(): TextEngineBlanksUserData {
-		if (!this._$text) return { inputValues: {} };
+	private getTargetIndices(): Set<number> {
+		const indices = new Set<number>();
+		for (const category of this.data.targets) {
+			for (const target of category.targets) {
+				for (let i = target.startPos; i <= target.endPos; i++) {
+					indices.add(i);
+				}
+			}
+		}
+		return indices;
+	}
+
+	getCurrentState(): TextEngineClassificationUserData {
+		if (!this._$text) return { wordCategories: {} };
 		return this._$text.getValue();
 	}
 
-	private updateProgressBasedOnInputs(): void {
-		const userData = this.getCurrentState();
-		const values = userData.inputValues ?? {};
-		const answered = this.data.targets.filter((target) => {
-			const value = values[target.id];
-			return value !== undefined && value !== null && String(value).trim() !== "";
-		}).length;
-		this.setProgress(answered);
-	}
-
 	isInteractionComplete(): boolean {
-		return this.getProgress().current === this.getProgress().total;
+		const userData = this.getCurrentState();
+		const targetIndices = this.getTargetIndices();
+		for (const idx of targetIndices) {
+			if (!userData.wordCategories[idx]) return false;
+		}
+		return true;
 	}
 
 	onHint(): void {
 		const userData = this.getCurrentState();
-		const values = userData.inputValues ?? {};
-		const firstMissed = this.data.targets.find((target) => {
-			const value = values[target.id];
-			return value === undefined || value === null || String(value).trim() === "";
-		});
 
-		if (!firstMissed) {
-			this.emitHintShown("All blanks are filled. Submit to check answers.");
-			return;
+		for (const category of this.data.targets) {
+			for (const target of category.targets) {
+				for (let i = target.startPos; i <= target.endPos; i++) {
+					if (!userData.wordCategories[i]) {
+						this.emitHintShown(`Try categorizing "${this.data.parts[i]}"`);
+						return;
+					}
+				}
+			}
 		}
 
-		this.emitHintShown(this.getHintText(firstMissed));
-	}
-
-	private getHintText(target: TextEngineBlanksDataTarget): string {
-		switch (target.expectedValue.type) {
-			case "text":
-				return "Fill the missing text blank.";
-			case "number":
-				return "Fill the numeric blank.";
-			case "select":
-				return "Choose the right option in the select blank.";
-			case "date":
-				return "Fill the date blank in the expected format.";
-			case "time":
-				return "Fill the time blank in the expected format.";
-			default:
-				return "Complete the next blank.";
-		}
+		this.emitHintShown("All target words are categorized.");
 	}
 
 	grade() {
 		const userData = this.getCurrentState();
-		const result = textEngineBlanksGrader(this.data, userData);
-		const gradingState = getBlanksGradingState(this.data, userData);
+		const result = textEngineClassificationGrader(this.data, userData);
+		const gradingState = getClassificationGradingState(this.data, userData);
 
 		if (this._$text) {
 			this._$text.setGradingState(gradingState);
@@ -173,6 +159,6 @@ export class FillBlanks extends BaseInteraction<TextEngineBlanksData> {
 	}
 }
 
-if (!customElements.get("fill-blanks")) {
-	customElements.define("fill-blanks", FillBlanks);
+if (!customElements.get("categorize-the-words")) {
+	customElements.define("categorize-the-words", CategorizeTheWords);
 }

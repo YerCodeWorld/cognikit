@@ -4,18 +4,21 @@
 
 :host {
 	display: block;
+	height: 100%;
 	font-family: system-ui, -apple-system, sans-serif;
 	font-size: clamp(0.92rem, 0.3vw + 0.88rem, 1.05rem);
-	line-height: 1.7;
+	line-height: 2.7;
 	--text-accent: rgb(var(--edu-first-accent));
 }
 
 .wrap {
 	padding: clamp(0.6rem, 1.6vw, var(--edu-pad));
+	height: 100%;
 }
 
 .text-content {
 	display: block;
+	height: 100%;
 	user-select: none;
 }
 
@@ -136,36 +139,60 @@
 .categories {
 	display: flex;
 	gap: 0.5rem;
-	margin-bottom: 1.5rem;
 	flex-wrap: wrap;
+	justify-content: center;
+	align-items: stretch;
+	padding-top: 1rem;
+	margin-top: auto;
 }
 
 .category-btn {
-	padding: 0.5rem 1rem;
-	border: 2px solid rgb(var(--edu-border));
-	background: rgb(var(--edu-card));
-	border-radius: var(--edu-radius);
+	min-width: 110px;
+	flex: 0 1 auto;
 	cursor: pointer;
-	font-size: 0.875rem;
-	font-weight: 500;
-	transition: all 0.2s ease;
+}
+
+.category-btn::part(block) {
+	padding: 0.45rem 0.8rem;
+	min-height: 40px;
+	border-width: 2px;
+	border-color: rgb(var(--edu-border));
+	background: rgb(var(--edu-card));
 	color: rgb(var(--edu-ink));
+	transition: all 0.2s ease;
 }
 
 .category-btn:hover {
-	border-color: rgba(var(--edu-first-accent), 0.5);
-	background: rgba(var(--edu-first-accent), 0.05);
+	transform: translateY(-1px);
 }
 
-.category-btn.category-active {
-	border-color: var(--text-accent);
-	background: rgba(var(--edu-first-accent), 0.15);
-	color: var(--text-accent);
+.category-btn.category-active::part(block) {
+	border-color: var(--category-color);
+	background: color-mix(in srgb, var(--category-color) 18%, rgb(var(--edu-card)));
+	color: var(--category-color);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--category-color) 28%, transparent);
+}
+
+.category-btn[data-active="true"]::part(block) {
+	border-color: var(--category-color);
+	background: color-mix(in srgb, var(--category-color) 18%, rgb(var(--edu-card)));
+	color: var(--category-color);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--category-color) 28%, transparent);
 }
 
 .words {
 	display: block;
 	line-height: 2.2;
+	flex: 1;
+	overflow-y: auto;
+	min-height: 0;
+}
+
+.classification-layout {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	height: 100%;
 }
 
 /* ==================== DND MODE ==================== */

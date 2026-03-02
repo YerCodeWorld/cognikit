@@ -1,1 +1,1 @@
-export { InteractionsBaseShell } from "./base";
+export { InteractionsBaseShell } from "./simple-shell";

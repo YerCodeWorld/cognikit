@@ -27,3 +27,4 @@ Module: Discrimitation
 Very similar with @openClassification.ts | I was thinking I could create a wrap for it or simply
 tweakign openClassification a bit so that it accepts both modes.
 @src/engines/text/scrip.ts]
+
